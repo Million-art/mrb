@@ -23,8 +23,8 @@ const CountrySelector = ({ onSelect, onClose }: CountrySelectorProps) => {
     { name: "Euro", code: "EUR", flag: "https://flagcdn.com/eu.svg" },
     { name: "Panamanian Balboa", code: "PAB", flag: "https://flagcdn.com/pa.svg" },
     { name: "British Pound", code: "GBP", flag: "https://flagcdn.com/gb.svg" },
-    { "name": "United States Dollar (USD)", "code": "USD", "flag": "https://flagcdn.com/w320/us.png" },
-    { name: "USD Coin (USDC)", code: "USDC", flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.svg" }
+    { name: "Tether (USDT)", code: "USDT", flag: "https://cryptologos.cc/logos/tether-usdt-logo.png" },
+    { name: "USD Coin (USDC)", code: "USDC", flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" },
   ];
   
   
