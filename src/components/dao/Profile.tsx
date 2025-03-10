@@ -23,10 +23,12 @@ const Profile: React.FC = () => {
           usersList.push({
             id: doc.id,
             balance: data.balance || 0,
+            realBalance: data.realBalance || 0,  
             firstName: data.firstName,
             lastName: data.lastName,
             userImage: data.userImage,
           });
+          
         });
 
         // Sort users based on balance in descending order
