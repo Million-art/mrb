@@ -1,14 +1,13 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
-import { getStorage } from "firebase/storage"; // Ensure storage is imported if needed
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_SECRET_KEY, // Ensure you use VITE_ for env variables in Vite
+  apiKey: import.meta.env.VITE_FIREBASE_SECRET_KEY,
   authDomain: "mrjohn-8ee8b.firebaseapp.com",
   projectId: "mrjohn-8ee8b",
-  storageBucket: "mrjohn-8ee8b.appspot.com", // Fixed typo in storageBucket
+  storageBucket: "mrjohn-8ee8b.appspot.com",
   messagingSenderId: "662877699866",
   appId: "1:662877699866:web:451ade51fbfafafed236a3",
   measurementId: "G-BBLWJYWS31",
