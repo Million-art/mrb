@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 
 export interface Country {
   name: string;
+  country:string;
   code: string;
   flag: string;
 }
@@ -13,19 +14,20 @@ type CountrySelectorProps = {
 
 const CountrySelector = ({ onSelect, onClose }: CountrySelectorProps) => {
   const countries: Country[] = [
-    { name: "Venezuelan Bolivar", code: "VES", flag: "https://flagcdn.com/ve.svg" },
-    { name: "Colombian Peso", code: "COP", flag: "https://flagcdn.com/co.svg" },
-    { name: "Argentina Peso", code: "ARS", flag: "https://flagcdn.com/ar.svg" },
-    { name: "Mexican Peso", code: "MXN", flag: "https://flagcdn.com/mx.svg" },
-    { name: "Brazilian Real", code: "BRL", flag: "https://flagcdn.com/br.svg" },
-    { name: "Chilean Peso", code: "CLP", flag: "https://flagcdn.com/cl.svg" },
-    { name: "Guatemalan Quetzal", code: "GTQ", flag: "https://flagcdn.com/gt.svg" },
-    { name: "Euro", code: "EUR", flag: "https://flagcdn.com/eu.svg" },
-    { name: "Panamanian Balboa", code: "PAB", flag: "https://flagcdn.com/pa.svg" },
-    { name: "British Pound", code: "GBP", flag: "https://flagcdn.com/gb.svg" },
-    { name: "Tether (USDT)", code: "USDT", flag: "https://cryptologos.cc/logos/tether-usdt-logo.png" },
-    { name: "USD Coin (USDC)", code: "USDC", flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" },
+    { name: "Venezuelan Bolivar", code: "VES", country: "Venezuela", flag: "https://flagcdn.com/ve.svg" },
+    { name: "Colombian Peso", code: "COP", country: "Colombia", flag: "https://flagcdn.com/co.svg" },
+    { name: "Argentine Peso", code: "ARS", country: "Argentina", flag: "https://flagcdn.com/ar.svg" },
+    { name: "Mexican Peso", code: "MXN", country: "Mexico", flag: "https://flagcdn.com/mx.svg" },
+    { name: "Brazilian Real", code: "BRL", country: "Brazil", flag: "https://flagcdn.com/br.svg" },
+    { name: "Chilean Peso", code: "CLP", country: "Chile", flag: "https://flagcdn.com/cl.svg" },
+    { name: "Guatemalan Quetzal", code: "GTQ", country: "Guatemala", flag: "https://flagcdn.com/gt.svg" },
+    { name: "Euro", code: "EUR", country: "European Union", flag: "https://flagcdn.com/eu.svg" },
+    { name: "Panamanian Balboa", code: "PAB", country: "Panama", flag: "https://flagcdn.com/pa.svg" },
+    { name: "British Pound", code: "GBP", country: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
+    { name: "Tether (USDT)", code: "USDT", country: "Cryptocurrency", flag: "https://cryptologos.cc/logos/tether-usdt-logo.png" },
+    { name: "USD Coin (USDC)", code: "USDC", country: "Cryptocurrency", flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" },
   ];
+  
   
   
   

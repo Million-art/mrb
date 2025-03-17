@@ -1,110 +1,70 @@
 import * as functions from "firebase-functions";
-import admin from '../firebase'; 
-import * as nodemailer from "nodemailer";
-import * as bcrypt from "bcrypt";
-import cors from "cors";
-import { Request, Response } from "express";
-import * as dotenv from "dotenv";
+import * as admin from "firebase-admin";
 
-// Load environment variables from .env file
-dotenv.config();
+admin.initializeApp();
+const db = admin.firestore();
 
-// Load environment variables
-const smtpHost = process.env.SMTP_HOST;
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASS;
-const emailUser = process.env.EMAIL_USER;
-
-// Validate SMTP config
-if (!smtpHost || !smtpUser || !smtpPass || !emailUser) {
-  throw new Error("SMTP configuration is missing in Firebase config.");
-}
-
-// Set up Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: smtpHost,
-  port: 587,
-  secure: false,
-  auth: {
-    user: smtpUser,
-    pass: smtpPass,
-  },
-});
-
-// Enable CORS
-const corsHandler = cors({ origin: true });
-
-// Define the type for the `data` parameter
-interface ActivationData {
+interface CreateAdminUserRequest {
+  email: string;
+  password: string;
   firstName: string;
   lastName: string;
-  email: string;
+  tgUsername: string;
   phone: string;
-  password: string;
 }
 
-// Cloud Function to send activation link
-exports.sendActivationLink = functions.https.onRequest((req: Request, res: Response) => {
-  // Handle CORS preflight request
-  if (req.method === "OPTIONS") {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    res.status(204).send("");
-    return;
-  }
+interface CreateAdminUserResponse {
+  message: string;
+  uid: string;
+}
 
-  // Handle actual request
-  corsHandler(req, res, async () => {
+export const createAdminUser = functions.https.onCall(
+  async (request: functions.https.CallableRequest<CreateAdminUserRequest>): Promise<CreateAdminUserResponse> => {
+    const data = request.data; // Extract input data
+    const context = request.auth; // Extract authentication context
+
+    // Ensure only Super Admins can create admins
+    if (!context?.token?.superadmin) {
+      throw new functions.https.HttpsError("permission-denied", "Only superadmins can create admin users");
+    }
+
+    let user: admin.auth.UserRecord | null = null; // Explicitly type user
+
     try {
-      const data = req.body as ActivationData;
-
-      // Destructure data fields
-      const { firstName, lastName, email, phone, password } = data;
-
-      // Validate required fields
-      if (!firstName || !lastName || !email || !phone || !password) {
-        res.status(400).json({ error: "All fields are required." });
-        return;
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Save user data to Firestore temporarily
-      const pendingUserRef = admin.firestore().collection("pendingRegistrations").doc();
-      await pendingUserRef.set({
-        firstName,
-        lastName,
-        email,
-        phone,
-        password: hashedPassword,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      // Step 1: Create Firebase Auth User
+      user = await admin.auth().createUser({
+        email: data.email,
+        password: data.password,
       });
 
-      // Generate activation link
-      const activationLink = `https://localhost:5173/activate?token=${pendingUserRef.id}`;
+      // Step 2: Firestore Transaction
+      await db.runTransaction(async (transaction) => {
+        const userRef = db.collection("staffs").doc(user!.uid);
+        transaction.set(userRef, {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          tgUsername: data.tgUsername,
+          email: data.email,
+          phone: data.phone,
+          uid: user!.uid,
+          role: "admin",
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
 
-      // Send activation email
-      const mailOptions = {
-        from: `"Mrbeas" <${emailUser}>`,
-        to: email,
-        subject: "Activate Your Account",
-        html: `
-          <p>Hello ${firstName} ${lastName},</p>
-          <p>Click the link below to activate your account:</p>
-          <p><a href="${activationLink}" target="_blank">Activate Account</a></p>
-        `,
-      };
+      // Step 3: Set Custom Claims (Directly using Admin SDK)
+      await admin.auth().setCustomUserClaims(user.uid, { role: "admin" });
 
-      await transporter.sendMail(mailOptions);
+      return { message: "Admin user created successfully", uid: user.uid };
+    } catch (error: any) {
+      console.error("Error:", error);
 
-      // Set CORS headers for the actual response
-      res.set("Access-Control-Allow-Origin", "*");
-      res.status(200).json({ success: true, message: "Activation email sent successfully." });
-    } catch (error) {
-      console.error("Error sending activation email:", error);
-      res.status(500).json({ error: "Failed to send activation email." });
+      // Rollback: Delete User if Firestore or Custom Claims Fail
+      if (user) {
+        await admin.auth().deleteUser(user.uid);
+      }
+
+      throw new functions.https.HttpsError("internal", error.message);
     }
-  });
-});
+  }
+);
