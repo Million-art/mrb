@@ -14,7 +14,7 @@ const ModalContainer = () => {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null); // Use Country type
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
 
   // Handle deposit click: Open country selection first
   const handleDepositClick = () => {
@@ -24,8 +24,8 @@ const ModalContainer = () => {
   // When a country is selected, open the ReceiveModal
   const handleCountrySelect = (country: Country) => {
     setSelectedCountry(country);
-    setIsCountrySelectorOpen(false); // Close country selector
-    setIsReceiveModalOpen(true); // Open the deposit modal
+    setIsCountrySelectorOpen(false);  
+    setIsReceiveModalOpen(true);  
   };
 
   return (

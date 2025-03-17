@@ -34,7 +34,7 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
         const q = query(
           collection(db, "staffs"),
           where("role", "==", "ambassador"),
-          where("country", "==", country.country) 
+          where("country", "==", country.name) 
         );
         const querySnapshot = await getDocs(q);
         console.log("Query Snapshot:", querySnapshot.docs); 

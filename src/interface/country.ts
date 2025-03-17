@@ -1,6 +1,6 @@
 export interface Country {
   name: string;
-  country:string;
+  currency:string;
   code: string;
   flag: string;
 }
