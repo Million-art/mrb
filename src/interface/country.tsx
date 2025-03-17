@@ -1,6 +1,6 @@
-export type Country = {
-    code: string; // Example: "US"
-    name: string; // Example: "United States"
-    flag: string; // Example: "🇺🇸" (optional)
-  };
-  
+export interface Country {
+  name: string;
+  country:string;
+  code: string;
+  flag: string;
+}

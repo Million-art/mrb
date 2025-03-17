@@ -1,11 +1,7 @@
+import { Country } from "@/interface/country";
 import { X } from "lucide-react";
 
-export interface Country {
-  name: string;
-  country:string;
-  code: string;
-  flag: string;
-}
+
 
 type CountrySelectorProps = {
   onSelect: (country: Country) => void;
