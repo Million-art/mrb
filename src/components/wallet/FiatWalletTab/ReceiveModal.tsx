@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, X, UploadCloud, Send } from "lucide-react";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { app } from "@/libs/firebase";
-import { Country } from "./CountrySelector";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 import { Ambassador } from "@/interface/Ambassador";
+import { Country } from "@/interface/country";
 
 interface ReceiveModalProps {
   onClose: () => void;
@@ -34,7 +34,7 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
         const q = query(
           collection(db, "staffs"),
           where("role", "==", "ambassador"),
-          where("country", "==", country.country) 
+          where("country", "==", country.name) 
         );
         const querySnapshot = await getDocs(q);
         console.log("Query Snapshot:", querySnapshot.docs); 
