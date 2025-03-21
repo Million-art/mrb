@@ -11,6 +11,7 @@ interface Transaction {
   ambassadorId: string;
   documents: string[];
   createdAt: string;
+  status:string;
   ambassadorName?: string;
 }
 
@@ -39,6 +40,7 @@ const FiatTransactions = () => {
           senderTgId: data.senderTgId,
           ambassadorId: data.ambassadorId,
           documents: data.documents,
+          status: data.status,
           createdAt: data.createdAt,
         };
 
@@ -103,6 +105,7 @@ const FiatTransactions = () => {
           <tr className="border-b border-gray-700">
             <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">Ambassador</th>
             <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">Amount</th>
+            <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">status</th>
             <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">Date</th>
           </tr>
         </thead>
@@ -111,6 +114,7 @@ const FiatTransactions = () => {
             <tr key={transaction.id} className="border-b border-gray-700 last:border-b-0">
               <td className="px-2 py-2 text-xs text-gray-300">{transaction.ambassadorName}</td>
               <td className="px-2 py-2 text-xs text-gray-300">{transaction.amount}</td>
+              <td className="px-2 py-2 text-xs text-gray-300">{transaction.status}</td>
               <td className="px-2 py-2 text-xs text-gray-300">
                 {new Date(transaction.createdAt).toLocaleDateString()}
               </td>
