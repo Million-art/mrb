@@ -89,40 +89,38 @@ const FiatTransactions = () => {
   }
 
   return (
-    <div className="flex flex-col items-center pb-10 mb-10 h-[1/2] overflow-y-scroll scrollbar-hidden">
-
-
-      {transactions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64">
-          <p className="text-gray-300">No transactions found.</p>
-          <p className="text-gray-400 text-sm">Start a new transaction to see it here.</p>
-        </div>
-      ) : (
-        <div className="w-full overflow-x-auto">
-          <h1 className="text-center">Your Deposit Detail's</h1>
-          <table className="min-w-full rounded-lg shadow-md">
-            <thead>
-              <tr className="border-b border-gray-700">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Ambassador</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Amount</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction) => (
-                <tr key={transaction.id} className="border-b border-gray-700 last:border-b-0">
-                  <td className="px-4 py-3 text-sm text-gray-300">{transaction.ambassadorName}</td>
-                  <td className="px-4 py-3 text-sm text-gray-300">{transaction.amount}</td>
-                  <td className="px-4 py-3 text-sm text-gray-300">
-                    {new Date(transaction.createdAt).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+<div className="flex flex-col items-center pb-5 mb-5 h-[1/2] overflow-y-scroll scrollbar-hidden">
+  {transactions.length === 0 ? (
+    <div className="flex flex-col items-center justify-center h-48">
+      <p className="text-gray-300">No transactions found.</p>
+      <p className="text-gray-400 text-xs">Start a new transaction to see it here.</p>
     </div>
+  ) : (
+    <div className="w-full overflow-x-auto">
+      <h1 className="text-center text-lg font-semibold mb-2">Your Deposit Details</h1>
+      <table className="min-w-full rounded-lg shadow-md">
+        <thead>
+          <tr className="border-b border-gray-700">
+            <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">Ambassador</th>
+            <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">Amount</th>
+            <th className="px-2 py-2 text-left text-xs font-semibold text-gray-300">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((transaction) => (
+            <tr key={transaction.id} className="border-b border-gray-700 last:border-b-0">
+              <td className="px-2 py-2 text-xs text-gray-300">{transaction.ambassadorName}</td>
+              <td className="px-2 py-2 text-xs text-gray-300">{transaction.amount}</td>
+              <td className="px-2 py-2 text-xs text-gray-300">
+                {new Date(transaction.createdAt).toLocaleDateString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
   );
 };
 
