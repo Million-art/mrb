@@ -20,8 +20,8 @@ const CountrySelector = ({ onSelect, onClose }: CountrySelectorProps) => {
     { currency: "Euro", code: "EUR", name: "European Union", flag: "https://flagcdn.com/eu.svg" },
     { currency: "Panamanian Balboa", code: "PAB", name: "Panama", flag: "https://flagcdn.com/pa.svg" },
     { currency: "British Pound", code: "GBP", name: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
-    { currency: "Tether (USDT)", code: "USDT", name: "Cryptocurrency", flag: "https://cryptologos.cc/logos/tether-usdt-logo.png" },
-    { currency: "USD Coin (USDC)", code: "USDC", name: "Cryptocurrency", flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" },
+    { currency: "Tether (USDT)", code: "USDT", name: "Tether stablecoin", flag: "https://cryptologos.cc/logos/tether-usdt-logo.png" },
+    { currency: "USD Coin (USDC)", code: "USDC", name: "Circle Stablecoin", flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" },
   ];
   
   
