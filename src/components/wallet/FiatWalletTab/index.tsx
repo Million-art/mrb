@@ -4,14 +4,36 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import FiatTransactions from "./FiatTransactions";
 import SendReciveFiat from "./SendReciveFiat";
+import { telegramId } from "@/libs/telegram";
+import { db } from "@/libs/firebase"; 
+import { doc, getDoc } from "firebase/firestore";
 
 const FiatWalletTab = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [realBalance, setRealBalance] = useState(0);
+  const id = String(telegramId);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchRealBalance = async () => {
+      try {
+        const userRef = doc(db, "users", id);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setRealBalance(userData.realBalance || 0); 
+        } else {
+          console.error("No such user document!");
+        }
+      } catch (error) {
+        console.error("Error fetching real balance:", error);
+      } finally {
+        setIsLoading(false); 
+      }
+    };
+
+    fetchRealBalance();
+  }, [id]); 
 
   if (isLoading) {
     return (
@@ -24,12 +46,12 @@ const FiatWalletTab = () => {
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
       {/* Balance Card */}
-      <Card className=" rounded-lg shadow-md min-w-full scrollbar-hidden">
+      <Card className="rounded-lg shadow-md min-w-full scrollbar-hidden">
         <div className="mb-2">
           <p className="text-gray-300">Your Balance</p>
-          <h1 className="text-4xl font-bold">0.00 $</h1>
+          <h1 className="text-2xl font-bold">{realBalance.toFixed(2)} USDC</h1> 
           <div className="bg-gray-900 inline-block rounded-md">
-            <p className="font-bold">2000 COP</p>
+            <p className="font-bold"></p>
           </div>
         </div>
         <SendReciveFiat />
