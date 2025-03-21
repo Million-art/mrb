@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 
 const TransferModal = ({ onClose }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+    <div className="fixed  inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
       <div className="bg-[#1E1E1E] text-white w-full max-w-md rounded-xl overflow-hidden flex flex-col p-6 relative">
         {/* Modal Title */}
         <h2 className="text-xl font-semibold mb-4 text-white text-center">Transfer Funds</h2>

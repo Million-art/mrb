@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, X } from "lucide-react";
 import ReceiveModal from "./ReceiveModal";
 import SendModal from "./SendModal";
 import TransferModal from "./TransferModal";
 import CountrySelector from "./CountrySelector";
+import { sethasMRBToken, setLoading } from "@/store/slice/PremiumSlice";
 
 // Assuming this is the correct type definition for a country
 import { Country } from "@/interface/country"; 
+import { useDispatch } from "react-redux";
 
 const ModalContainer = () => {
   const [isCountrySelectorOpen, setIsCountrySelectorOpen] = useState(false);
@@ -15,7 +17,48 @@ const ModalContainer = () => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
+  const [userHasToken, setUserHasToken] = useState<boolean>(false);
 
+    const dispatch = useDispatch();
+  
+    useEffect(() => {
+      const MRB_CONTRACT_ADDRESS_RAW =
+        "0:b5f322c4e4077bd559ed708c1a32afcfc005b5a36fb4082a07fec4df71d45cee";
+    
+      const checkIfUserHoldsMRBToken = () => {
+        try {
+          dispatch(setLoading(true));
+    
+          // Retrieve jettons from localStorage
+          const jettons = localStorage.getItem("jettons");
+    
+          if (jettons) {
+            // Parse the JSON string into an array or object
+            const parsedJettons = JSON.parse(jettons);
+    
+            // Ensure it's an array before checking for the contract address
+            const hasToken = Array.isArray(parsedJettons)
+              ? parsedJettons.some(
+                  (jetton) => jetton.address === MRB_CONTRACT_ADDRESS_RAW
+                )
+              : parsedJettons[MRB_CONTRACT_ADDRESS_RAW] !== undefined;
+             dispatch(sethasMRBToken(hasToken));
+            setUserHasToken(hasToken);
+          } else {
+            dispatch(sethasMRBToken(false));
+            setUserHasToken(false);
+          }
+        } catch (error) {
+          console.error("Error checking user status: ", error);
+          setUserHasToken(false);
+        } finally {
+          dispatch(setLoading(false));
+        }
+      };
+    
+      checkIfUserHoldsMRBToken();
+    }, [dispatch]);
+    
   // Handle deposit click: Open country selection first
   const handleDepositClick = () => {
     setIsCountrySelectorOpen(true);
@@ -61,7 +104,7 @@ const ModalContainer = () => {
         </div>
 
         {/* Promotional Banner */}
-        {isBannerVisible && (
+        {isBannerVisible && userHasToken && (
           <div className="w-full bg-gradient-to-r from-green-500 to-blue-500 p-4 mb-6 rounded-lg">
             <div className="flex justify-between items-center">
               <div>

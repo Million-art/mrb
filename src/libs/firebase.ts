@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_SECRET_KEY,
   authDomain: "mrjohn-8ee8b.firebaseapp.com",
   projectId: "mrjohn-8ee8b",
-  storageBucket: "mrjohn-8ee8b.appspot.com",
+  storageBucket: "mrjohn-8ee8b.firebasestorage.app",
   messagingSenderId: "662877699866",
   appId: "1:662877699866:web:451ade51fbfafafed236a3",
   measurementId: "G-BBLWJYWS31",

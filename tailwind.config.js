@@ -2,7 +2,7 @@ const plugin = require("tailwindcss/plugin")
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // Enables dark mode using the 'dark' class
+  darkMode: 'class',
 
   content: [
     "./index.html",

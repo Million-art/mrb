@@ -1,7 +1,6 @@
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from 'firebase-functions';
+import admin from '../firebase'; 
 
-admin.initializeApp();
 const db = admin.firestore();
 
 interface CreateAdminUserRequest {
