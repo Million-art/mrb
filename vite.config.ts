@@ -27,8 +27,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'), // Alias for src folder
-      buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6', // Alias for buffer
+      '@': path.resolve(__dirname, 'src'),
+      buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6', 
     },
   },
   optimizeDeps: {
@@ -44,13 +44,13 @@ export default defineConfig({
     },
   },
   define: {
-    global: 'globalThis', // Ensure global is defined
+    global: 'globalThis',
   },
   server: {
     // allowedHosts: ['.loca.lt'], // Allow localtunnels subdomains
     //  allowedHosts: ['https://9d50-185-183-33-221.ngrok-free.app'], // Allow localtunnels subdomains
      allowedHosts: [
-      "a3d9-185-107-56-213.ngrok-free.app",  
+      "08a2-89-33-8-51.ngrok-free.app",  
     ],
     
   },

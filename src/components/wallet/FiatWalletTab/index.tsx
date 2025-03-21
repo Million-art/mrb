@@ -22,9 +22,9 @@ const FiatWalletTab = () => {
   }
 
   return (
-    <div className="min-h-screen w-full text-white">
+    <div className="min-h-screen w-full text-white scrollbar-hidden">
       {/* Balance Card */}
-      <Card className=" rounded-lg shadow-md min-w-full">
+      <Card className=" rounded-lg shadow-md min-w-full scrollbar-hidden">
         <div className="mb-2">
           <p className="text-gray-300">Your Balance</p>
           <h1 className="text-4xl font-bold">0.00 $</h1>

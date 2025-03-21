@@ -17,7 +17,7 @@ const CryptoAnalyzer: React.FC = () => {
 
   const [showBuyTokenPopup, setShowBuyTokenPopup] = useState<boolean>(false);
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
-  const [userHasToken, setUserHasToken] = useState<boolean>(false); // New state
+  const [userHasToken, setUserHasToken] = useState<boolean>(false);
   const { t } = useTranslation("global");
 
   useEffect(() => {
