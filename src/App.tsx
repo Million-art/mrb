@@ -27,6 +27,8 @@ import { selectShowMessage, setShowMessage } from "./store/slice/messageSlice";
 import { setTopUsers } from "./store/slice/topUsersSlice";
 import { CONFIG } from "./libs/Config";
 import { FirestoreUser } from "./interface/FirestoreUser";
+import Remittance from "./components/wallet/FiatWalletTab/Remittance";
+import FiatDeposit from "./components/wallet/FiatWalletTab/Deposit/FiatDeposit";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -56,15 +58,14 @@ function App() {
       isPremium: data.isPremium || false,
       walletAddress: data.walletAddress || null,
       daily: {
-        claimedTime, // Use the converted value
+        claimedTime,
         claimedDay: data.daily?.claimedDay || 0,
       },
       completedTasks: data.completedTasks || [],
     };
   }, []);
 
-    // User data listener with caching
-// User data listener with caching
+   
 useEffect(() => {
   let unsubscribe: () => void;
   const userRef = doc(db, "users", String(telegramId));
@@ -208,6 +209,8 @@ useEffect(() => {
         <Route path="/swap" element={<Swap />} />
         <Route path="/pool" element={<Pool />} />
         <Route path="/addliquidity" element={<Pool />} />
+        <Route path="/remittance" element={<Remittance />} />
+        <Route path="/fiat-deposit" element={<FiatDeposit />} />
       </Routes>
     </>
   );

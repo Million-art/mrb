@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import FiatTransactions from "./FiatTransactions";
-import SendReciveFiat from "./SendReciveFiat";
+import SendReciveFiat from "./Buttons";
 import { telegramId } from "@/libs/telegram";
 import { db } from "@/libs/firebase"; 
 import { doc, getDoc } from "firebase/firestore";
