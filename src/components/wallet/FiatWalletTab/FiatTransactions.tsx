@@ -1,78 +1,18 @@
-import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, doc, getDoc } from "firebase/firestore";
-import { db } from "@/libs/firebase";
-import { telegramId } from "@/libs/telegram";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/store/store";
+import { fetchTransactions } from "@/store/slice/fiatDepositSlice";
 import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
-
-interface Transaction {
-  id: string;
-  amount: number;
-  senderTgId: string;
-  ambassadorId: string;
-  documents: string[];
-  createdAt: string;
-  status: string;
-  ambassadorName?: string;
-}
+import { telegramId } from "@/libs/telegram";
 
 const FiatTransactions = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const id = String(telegramId);
-  console.log(id)
+  const dispatch = useDispatch<AppDispatch>();
+  const { transactions, loading, error } = useSelector((state: RootState) => state.fiatDeposit);
+
   useEffect(() => {
-    console.log("Setting up onSnapshot listener");
-    setLoading(true);
-    setError(null);
+    dispatch(fetchTransactions(String(telegramId)));
+  }, [dispatch]);
 
-    const q = query(collection(db, "receipts"), where("senderTgId", "==", id));
-
-    const unsubscribe = onSnapshot(
-      q,
-      async (querySnapshot) => {
-        const fetchedTransactions: Transaction[] = [];
-
-        for (const transactionDoc of querySnapshot.docs) {
-          const data = transactionDoc.data();
-          const transaction: Transaction = {
-            id: transactionDoc.id,
-            amount: data.amount,
-            senderTgId: data.senderTgId,
-            ambassadorId: data.ambassadorId,
-            documents: data.documents,
-            status: data.status,
-            createdAt: data.createdAt,
-          };
-
-          // Fetch ambassador name
-          const ambassadorDoc = await getDoc(doc(db, "staffs", data.ambassadorId));
-          if (ambassadorDoc.exists()) {
-            const ambassadorData = ambassadorDoc.data();
-            transaction.ambassadorName = `${ambassadorData.firstName} ${ambassadorData.lastName}`;
-          } else {
-            transaction.ambassadorName = "Unknown Ambassador";
-          }
-
-          fetchedTransactions.push(transaction);
-        }
-
-        console.log("Fetched transactions:", fetchedTransactions);
-        setTransactions(fetchedTransactions);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching transactions:", error);
-        setError("Failed to fetch transactions. Please try again.");
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      console.log("Cleaning up onSnapshot listener");
-      unsubscribe();
-    };
-  }, [id]);  
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
@@ -88,7 +28,7 @@ const FiatTransactions = () => {
         <AlertCircle className="text-red-500 w-8 h-8 mb-2" />
         <p className="text-red-500 mb-4">{error}</p>
         <button
-          onClick={() => setLoading(true)}
+          onClick={() => dispatch(fetchTransactions(String(telegramId)))}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
