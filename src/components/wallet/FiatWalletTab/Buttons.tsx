@@ -1,26 +1,18 @@
 import { useEffect, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, X } from "lucide-react";
-import ReceiveModal from "./ReceiveModal";
-import SendModal from "./SendModal";
-import TransferModal from "./TransferModal";
-import CountrySelector from "./CountrySelector";
-import { sethasMRBToken, setLoading } from "@/store/slice/PremiumSlice";
+ import TransferModal from "./transfer/TransferModal";
+ import { sethasMRBToken, setLoading } from "@/store/slice/PremiumSlice";
 
-// Assuming this is the correct type definition for a country
-import { Country } from "@/interface/country"; 
-import { useDispatch } from "react-redux";
+  import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-const ModalContainer = () => {
-  const [isCountrySelectorOpen, setIsCountrySelectorOpen] = useState(false);
-  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
-  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+const Buttons = () => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
   const [userHasToken, setUserHasToken] = useState<boolean>(false);
 
     const dispatch = useDispatch();
-  
+    const navigate = useNavigate();
     useEffect(() => {
       const MRB_CONTRACT_ADDRESS_RAW =
         "0:b5f322c4e4077bd559ed708c1a32afcfc005b5a36fb4082a07fec4df71d45cee";
@@ -59,20 +51,16 @@ const ModalContainer = () => {
       checkIfUserHoldsMRBToken();
     }, [dispatch]);
     
-  // Handle deposit click: Open country selection first
-  const handleDepositClick = () => {
-    setIsCountrySelectorOpen(true);
+   const handleDepositClick = () => {
+      navigate("/fiat-deposit")
   };
 
-  // When a country is selected, open the ReceiveModal
-  const handleCountrySelect = (country: Country) => {
-    setSelectedCountry(country);
-    setIsCountrySelectorOpen(false);  
-    setIsReceiveModalOpen(true);  
+  const handleRemittanceClick = () => {
+    navigate("/remittance"); 
   };
-
+ 
   return (
-    <div className="w-full">
+    <div className="w-full scrollbar-hidden">
       <div className="w-full">
         <div className="grid grid-cols-3 gap-3 mb-6">
           {/* Deposit Button */}
@@ -86,7 +74,7 @@ const ModalContainer = () => {
 
           {/* Remittance Button */}
           <button
-            onClick={() => setIsSendModalOpen(true)}
+            onClick={handleRemittanceClick}
             className="bg-blue-light text-white px-4 py-3 rounded-md flex items-center justify-center gap-2"
           >
             <ArrowUp size={18} />
@@ -135,19 +123,11 @@ const ModalContainer = () => {
         )}
       </div>
 
-      {/* Country Selector Modal */}
-      {isCountrySelectorOpen && (
-        <CountrySelector onSelect={handleCountrySelect} onClose={() => setIsCountrySelectorOpen(false)} />
-      )}
 
-      {/* Modals */}
-      {isReceiveModalOpen && (
-        <ReceiveModal country={selectedCountry} onClose={() => setIsReceiveModalOpen(false)} />
-      )}
-      {isSendModalOpen && <SendModal onClose={() => setIsSendModalOpen(false)} />}
+      {/* {isSendModalOpen && <SendModal onClose={() => setIsSendModalOpen(false)} />} */}
       {isTransferModalOpen && <TransferModal onClose={() => setIsTransferModalOpen(false)} />}
     </div>
   );
 };
 
-export default ModalContainer;
+export default Buttons;
