@@ -274,10 +274,10 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
                                           <p className="text-xs text-gray-400">Account Number</p>
                                           <p className="text-sm font-medium">{method.details.accountNumber}</p>
                                         </div>
-                                        <div>
+                                        {/* <div>
                                           <p className="text-xs text-gray-400">Account Holder</p>
                                           <p className="text-sm font-medium">{method.details.accountHolderName}</p>
-                                        </div>
+                                        </div> */}
                                       </div>
                                     </div>
                                   )}
@@ -295,7 +295,7 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
                   </div>
                 ) : (
                   <div className="mt-4 text-center text-gray-400 py-6 bg-gray-800 rounded-lg">
-                    No available for now
+                    there is No Deposit option available for now.
                   </div>
                 )}
               </div>
