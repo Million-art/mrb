@@ -97,7 +97,7 @@ const SendRemittance = () => {
       <button
         onClick={fetchExchangeRate}
         disabled={isLoading || !fromCurrency || !toCurrency}
-        className="w-full bg-blue-500 text-white py-2 rounded mb-4 disabled:opacity-50"
+        className="w-full  text-white py-2 rounded mb-4 disabled:opacity-50"
       >
         {isLoading ? "Fetching Exchange Rate..." : "Get Exchange Rate"}
       </button>
@@ -115,7 +115,7 @@ const SendRemittance = () => {
       {/* Send Button */}
       <button
         disabled={!exchangeRate || !amount}
-        className="w-full bg-green-500 text-white py-2 rounded disabled:opacity-50"
+        className="w-full bg-blue text-white py-2 rounded disabled:opacity-50"
       >
         Send Remittance
       </button>
