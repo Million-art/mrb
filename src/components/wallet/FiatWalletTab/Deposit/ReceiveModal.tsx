@@ -286,7 +286,7 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
                             })}
                           </div>
                         ) : (
-                          <div className="text-center text-gray-400 py-4 bg-gray-800 rounded-lg">
+                          <div className="text-center text-gray-400 py-4  rounded-lg">
                             No payment methods available
                           </div>
                         )}
@@ -294,8 +294,8 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
                     ))}
                   </div>
                 ) : (
-                  <div className="mt-4 text-center text-gray-400 py-6 bg-gray-800 rounded-lg">
-                    there is No Deposit option available for now.
+                  <div className="mt-4 text-center text-gray-400 py-6 rounded-lg">
+                    There is no Deposit option available for now.
                   </div>
                 )}
               </div>
@@ -312,7 +312,7 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
                   placeholder="Enter amount"
                   value={amount || ""}
                   onChange={(e) => setAmount(Number(e.target.value))}
-                  className="w-full bg-gray-800 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue"
+                  className="w-full bg-transparent  border-2 border-gray-200 rounded-lg p-3 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue"
                   min="1"
                 />
               </div>
@@ -321,7 +321,7 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ onClose, country }) => {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Payment Receipt
                 </label>
-                <label className="w-full bg-gray-800 rounded-lg p-6 border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue transition-colors">
+                <label className="w-full  rounded-lg p-6 border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue transition-colors">
                   <ArrowLeft size={40} className="text-gray-400 mb-2" />
                   <span className="text-gray-300 text-center">
                     {file ? file.name : "Click to upload receipt"}

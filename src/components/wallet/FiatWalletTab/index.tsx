@@ -71,3 +71,4 @@ const FiatWalletTab = () => {
 };
 
 export default FiatWalletTab;
+
