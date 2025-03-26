@@ -67,6 +67,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
   const [loadingAmbassadors, setLoadingAmbassadors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const maskAccountNumber = useCallback((accountNumber?: string) => {
     if (!accountNumber) return "••••";
@@ -177,10 +178,13 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       const response = await sendMessage(requestData);
 
       console.log('Response from cloud function:', response.data);
-      onClose();
-
-      // Redirect to the bot
-      window.location.href = `https://t.me/mrbeasapp_bot`;
+      setSuccessMessage("Details sent successfully! Please check the bot for deposit details.");
+      
+      // Delay the redirection to allow the user to read the message
+      setTimeout(() => {
+        onClose();
+        window.location.href = `https://t.me/mrbeasapp_bot`; 
+      }, 3000);
     } catch (error: any) {
       console.error("Error sending data to bot:", error);
       if (error.code && error.message) {
@@ -277,6 +281,9 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
         </div>
 
         <div className="p-4">
+          {successMessage && (
+            <div className="text-center text-green-400 mb-4">{successMessage}</div>
+          )}
           <button
             onClick={sendPaymentMethodToBot}
             disabled={!selectedPayment || loading}
