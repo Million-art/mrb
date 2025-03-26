@@ -71,11 +71,18 @@ function App() {
 
   useEffect(() => {
     const handleStartParam = () => {
+      const decodeBase64URL = (str: string) => {
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        while (str.length % 4) {
+          str += '=';
+        }
+        return JSON.parse(Buffer.from(str, 'base64').toString());
+      };
       if (startParam) {
         try {
           // Parse the startParam which contains your receipt data
-          const receiptData = JSON.parse(decodeURIComponent(startParam));
-          
+          const receiptData = decodeBase64URL(startParam);
+
           // Redirect to upload-receipt page with the data
           navigate('/upload-receipt', {
             state: { receiptData },
@@ -90,6 +97,7 @@ function App() {
 
     handleStartParam();
   }, [navigate]);
+  
 useEffect(() => {
   let unsubscribe: () => void;
   const userRef = doc(db, "users", String(telegramId));
