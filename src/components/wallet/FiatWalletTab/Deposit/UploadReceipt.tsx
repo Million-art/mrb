@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
 import { db, storage } from '@/libs/firebase';
 import { ArrowLeft } from 'lucide-react';
+import { retrieveLaunchParams } from '@telegram-apps/sdk';
 
 interface ReceiptData {
   ambassador: {
@@ -20,7 +21,6 @@ interface ReceiptData {
 }
 
 const UploadReceipt = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -30,16 +30,25 @@ const UploadReceipt = () => {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const decodeBase64URL = (str: string) => {
+      // Add padding if needed
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) {
+        str += '=';
+      }
+      return JSON.parse(atob(str));
+    };
+
+    const { initData } = retrieveLaunchParams();
+    const startParam = initData?.startParam;
+
+    const loadData = async () => {
       try {
-        const params = new URLSearchParams(location.search);
-        const encodedData = params.get('data');
-        
-        if (!encodedData) {
+        if (!startParam) {
           throw new Error('No receipt data found');
         }
 
-        const decodedData = JSON.parse(decodeURIComponent(encodedData)) as ReceiptData;
+        const decodedData = decodeBase64URL(startParam) as ReceiptData;
         
         // Validate data isn't too old (1 hour expiration)
         if (Date.now() - decodedData.timestamp > 3600000) {
@@ -48,12 +57,13 @@ const UploadReceipt = () => {
 
         setReceiptData(decodedData);
       } catch (err: any) {
+        console.error('Error loading receipt data:', err);
         setError(err.message || 'Failed to load receipt details');
       }
     };
 
-    fetchData();
-  }, [location.search]);
+    loadData();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
