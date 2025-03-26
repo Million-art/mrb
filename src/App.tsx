@@ -29,6 +29,7 @@ import { CONFIG } from "./libs/Config";
 import { FirestoreUser } from "./interface/FirestoreUser";
 import Remittance from "./components/wallet/FiatWalletTab/Remittance";
 import FiatDeposit from "./components/wallet/FiatWalletTab/Deposit/FiatDeposit";
+import UploadReceipt from "./components/wallet/FiatWalletTab/Deposit/UploadReceipt";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -211,6 +212,7 @@ useEffect(() => {
         <Route path="/addliquidity" element={<Pool />} />
         <Route path="/remittance" element={<Remittance />} />
         <Route path="/fiat-deposit" element={<FiatDeposit />} />
+        <Route path="/upload-receipt" element={<UploadReceipt />} />
       </Routes>
     </>
   );
