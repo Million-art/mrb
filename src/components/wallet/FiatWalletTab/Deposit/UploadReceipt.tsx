@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
 import { db, storage } from '@/libs/firebase';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { retrieveLaunchParams } from '@telegram-apps/sdk';
 import HourglassAnimation from '../AnimateLoader';
 
@@ -229,7 +229,10 @@ const UploadReceipt = () => {
                     : 'bg-blue hover:bg-blue'
                 }`}
               >
-                {uploading ? 'Uploading...' : 'Submit Receipt'}
+                {uploading ?  
+                  <Loader2 className="animate-spin mr-2 inline-block" />
+                 : 
+                 'Submit Receipt'}
               </button>
             </>
           )}
