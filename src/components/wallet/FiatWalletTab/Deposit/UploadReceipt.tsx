@@ -164,10 +164,10 @@ const UploadReceipt = () => {
   }
 
   return (
-    <div className="flex flex-col items-center bg-gray-dark justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center bg-gray-dark justify-center min-h-screen p-4 mb-10">
       <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden">
         <div className="">
-          <h2 className="text-2xl font-bold mb-6 text-center">
+          <h2 className="text-2xl font-bold mb-4 text-center">
             Upload Receipt
           </h2>
 
@@ -181,7 +181,7 @@ const UploadReceipt = () => {
             </div>
           ) : (
             <>
-              <div className="mb-6">
+              <div className="mb-4">
                 <h3 className="font-semibold mb-2">Payment Details</h3>
                 <div className="p-4 rounded-md">
                   <p className="mb-1"><strong>Bank:</strong> {receiptData.payment.bank}</p>
