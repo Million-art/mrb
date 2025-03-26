@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { 
@@ -10,7 +10,8 @@ import { toast, ToastContainer } from "react-toastify";
 import { AppDispatch, RootState } from "@/store/store";
 import { 
   telegramId, userName, firstName, 
-  lastName, languageCode 
+  lastName, languageCode, 
+  startParam
 } from "@/libs/telegram";
 import BottomNav from "@/components/BottomNav";
 import Loading from "./screens/Loading";
@@ -36,6 +37,7 @@ function App() {
   const user = useSelector(selectUser, shallowEqual);
   const calculate = useSelector((state: RootState) => selectCalculate(state), shallowEqual);
   const message = useSelector((state: RootState) => selectShowMessage(state), shallowEqual);
+  const navigate = useNavigate();
 
   // Firebase user data processor
   const processUserData = useCallback((docSnap: DocumentSnapshot<FirestoreUser>): TUser => {
@@ -66,7 +68,28 @@ function App() {
     };
   }, []);
 
-   
+
+  useEffect(() => {
+    const handleStartParam = () => {
+      if (startParam) {
+        try {
+          // Parse the startParam which contains your receipt data
+          const receiptData = JSON.parse(decodeURIComponent(startParam));
+          
+          // Redirect to upload-receipt page with the data
+          navigate('/upload-receipt', {
+            state: { receiptData },
+            replace: true   
+          });
+        } catch (error) {
+          console.error('Error parsing startParam:', error);
+          // Optionally redirect to error page or main page
+        }
+      }
+    };
+
+    handleStartParam();
+  }, [navigate]);
 useEffect(() => {
   let unsubscribe: () => void;
   const userRef = doc(db, "users", String(telegramId));
