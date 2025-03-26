@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc } from 'firebase/firestore';
-import { db, storage } from '@/libs/firebase';
+import { functions, storage } from '@/libs/firebase';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { retrieveLaunchParams } from '@telegram-apps/sdk';
 import HourglassAnimation from '../AnimateLoader';
+import { telegramId } from '@/libs/telegram';
+import { httpsCallable } from 'firebase/functions';
 
 interface ReceiptData {
   ambassador: {
@@ -32,7 +33,6 @@ const UploadReceipt = () => {
 
   useEffect(() => {
     const decodeBase64URL = (str: string) => {
-      // Add padding if needed
       str = str.replace(/-/g, '+').replace(/_/g, '/');
       while (str.length % 4) {
         str += '=';
@@ -50,8 +50,7 @@ const UploadReceipt = () => {
         }
 
         const decodedData = decodeBase64URL(startParam) as ReceiptData;
-        
-        // Validate data isn't too old (1 hour expiration)
+
         if (Date.now() - decodedData.timestamp > 3600000) {
           throw new Error('This link has expired');
         }
@@ -70,7 +69,6 @@ const UploadReceipt = () => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Validate file
     const allowedTypes = ["image/png", "image/jpeg", "application/pdf"];
     if (!allowedTypes.includes(selectedFile.type)) {
       setError("Invalid file type. Please upload PNG, JPG, or PDF.");
@@ -95,36 +93,44 @@ const UploadReceipt = () => {
     setError(null);
 
     try {
-      // 1. Upload file to Firebase Storage
       const storageRef = ref(storage, `receipts/${Date.now()}_${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
-      // 2. Wait for upload to complete
-      const snapshot = await uploadTask;
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          // Optional: You can add progress tracking here
+        },
+        (error) => {
+          console.error("Upload failed:", error);
+          setError("Upload failed. Please try again.");
+          setUploading(false);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-      // 3. Create receipt document in Firestore
-      const receiptDoc = {
-        ambassadorId: receiptData.ambassador.id,
-        ambassadorName: receiptData.ambassador.name,
-        bankName: receiptData.payment.bank,
-        accountNumber: receiptData.payment.account,
-        amount: parseFloat(amount),
-        receiptUrl: downloadURL,
-        status: 'pending',
-        createdAt: new Date(),
-        paymentType: receiptData.payment.type
-      };
+          const createReceipt = httpsCallable(functions, 'createReceipt');
 
-      await addDoc(collection(db, 'receipts'), receiptDoc);
-
-      // 4. Show success and redirect
-      setSuccess("Receipt uploaded successfully!");
-      setTimeout(() => navigate('/fiat-deposit'), 2000);
+          const result = await createReceipt({
+            data: {
+              ambassadorId: receiptData.ambassador.id,
+              amount: parseFloat(amount),
+              senderTgId: String(telegramId),
+              documents: [{
+                url: downloadURL,
+                type: file.type.startsWith('image/') ? 'image' : 'pdf'
+              }]
+            }
+          });
+          console.log(result)
+          setSuccess("Receipt uploaded successfully!");
+          setTimeout(() => navigate('/fiat-deposit'), 2000);
+          setUploading(false);
+        }
+      );
     } catch (error: any) {
       console.error("Upload failed:", error);
       setError(error.message || "Upload failed. Please try again.");
-    } finally {
       setUploading(false);
     }
   };
@@ -132,7 +138,7 @@ const UploadReceipt = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <div className=" p-6 rounded-lg shadow-md max-w-md w-full text-center">
+        <div className="p-6 rounded-lg shadow-md max-w-md w-full text-center">
           <h2 className="text-xl font-bold text-red-500 mb-4">Error</h2>
           <p className="mb-4">{error}</p>
           <button
@@ -160,8 +166,8 @@ const UploadReceipt = () => {
   return (
     <div className="flex flex-col items-center bg-gray-dark justify-center min-h-screen p-4">
       <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold  mb-6 text-center">
+        <div className="">
+          <h2 className="text-2xl font-bold mb-6 text-center">
             Upload Receipt
           </h2>
 
@@ -177,7 +183,7 @@ const UploadReceipt = () => {
             <>
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Payment Details</h3>
-                <div className=" p-4 rounded-md">
+                <div className="p-4 rounded-md">
                   <p className="mb-1"><strong>Bank:</strong> {receiptData.payment.bank}</p>
                   <p className="mb-1"><strong>Account:</strong> {receiptData.payment.account}</p>
                   <p><strong>Ambassador:</strong> {receiptData.ambassador.name}</p>
@@ -185,7 +191,7 @@ const UploadReceipt = () => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium  mb-1">
+                <label className="block text-sm font-medium mb-1">
                   Amount
                 </label>
                 <input
@@ -198,7 +204,7 @@ const UploadReceipt = () => {
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium  mb-1">
+                <label className="block text-sm font-medium mb-1">
                   Receipt File
                 </label>
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-blue-500 transition-colors">
@@ -223,7 +229,7 @@ const UploadReceipt = () => {
               <button
                 onClick={handleUpload}
                 disabled={uploading || !file || !amount}
-                className={`w-full py-2 px-4 rounded-md  font-medium ${
+                className={`w-full py-2 px-4 rounded-md font-medium ${
                   uploading || !file || !amount
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-blue hover:bg-blue'
