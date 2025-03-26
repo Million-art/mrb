@@ -3,7 +3,7 @@ import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db, functions } from "@/libs/firebase";
 import { Ambassador, PaymentMethod } from "@/interface/Ambassador";
 import HourglassAnimation from "../AnimateLoader";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Loader2 } from "lucide-react";
 import { httpsCallable } from "firebase/functions";
 import { telegramId } from "@/libs/telegram";
 
@@ -65,6 +65,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     method: PaymentMethod;
   } | null>(null);
   const [loadingAmbassadors, setLoadingAmbassadors] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const maskAccountNumber = useCallback((accountNumber?: string) => {
@@ -149,6 +150,8 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       return;
     }
 
+    setLoading(true);
+
     const requestData = {
       jsonData: {
         paymentMethod: {
@@ -175,6 +178,9 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
 
       console.log('Response from cloud function:', response.data);
       onClose();
+
+      // Redirect to the bot
+      window.location.href = `https://t.me/mrbeasapp_bot`;
     } catch (error: any) {
       console.error("Error sending data to bot:", error);
       if (error.code && error.message) {
@@ -182,6 +188,8 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       } else {
         setError("Failed to send data. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   }, [selectedPayment, onClose, telegramId]);
 
@@ -271,15 +279,19 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
         <div className="p-4">
           <button
             onClick={sendPaymentMethodToBot}
-            disabled={!selectedPayment}
+            disabled={!selectedPayment || loading}
             className={`w-full bg-blue text-white font-bold py-2 px-4 rounded ${
-              !selectedPayment
+              !selectedPayment || loading
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-blue"
             }`}
             aria-label="Get payment details"
           >
-            Get Payment Detail
+            {loading ? (
+              <Loader2 className="animate-spin mr-2 inline-block" />
+            ) : (
+              "Get Payment Detail"
+            )}
           </button>
         </div>
       </div>
