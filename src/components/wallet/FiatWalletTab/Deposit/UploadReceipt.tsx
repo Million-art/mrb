@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
 import { db, storage } from '@/libs/firebase';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { retrieveLaunchParams } from '@telegram-apps/sdk';
+import HourglassAnimation from '../AnimateLoader';
 
 interface ReceiptData {
   ambassador: {
@@ -131,12 +132,12 @@ const UploadReceipt = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <div className="bg-white p-6 rounded-lg shadow-md max-w-md w-full text-center">
+        <div className=" p-6 rounded-lg shadow-md max-w-md w-full text-center">
           <h2 className="text-xl font-bold text-red-500 mb-4">Error</h2>
           <p className="mb-4">{error}</p>
           <button
             onClick={() => navigate('/fiat-deposit')}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-blue text-white rounded hover:bg-blue-light"
           >
             Back to Deposit
           </button>
@@ -149,6 +150,7 @@ const UploadReceipt = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
+          <HourglassAnimation />
           <p className="text-lg">Loading receipt details...</p>
         </div>
       </div>
@@ -156,10 +158,10 @@ const UploadReceipt = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="flex flex-col items-center bg-gray-dark justify-center min-h-screen p-4">
+      <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          <h2 className="text-2xl font-bold  mb-6 text-center">
             Upload Receipt
           </h2>
 
@@ -168,13 +170,14 @@ const UploadReceipt = () => {
               <div className="text-green-500 text-lg font-semibold mb-4">
                 {success}
               </div>
+              <HourglassAnimation />
               <p>Redirecting to deposit page...</p>
             </div>
           ) : (
             <>
               <div className="mb-6">
-                <h3 className="font-semibold text-gray-700 mb-2">Payment Details</h3>
-                <div className="bg-gray-50 p-4 rounded-md">
+                <h3 className="font-semibold mb-2">Payment Details</h3>
+                <div className=" p-4 rounded-md">
                   <p className="mb-1"><strong>Bank:</strong> {receiptData.payment.bank}</p>
                   <p className="mb-1"><strong>Account:</strong> {receiptData.payment.account}</p>
                   <p><strong>Ambassador:</strong> {receiptData.ambassador.name}</p>
@@ -182,7 +185,7 @@ const UploadReceipt = () => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium  mb-1">
                   Amount
                 </label>
                 <input
@@ -190,17 +193,17 @@ const UploadReceipt = () => {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="Enter amount"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue"
                 />
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium  mb-1">
                   Receipt File
                 </label>
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-blue-500 transition-colors">
                   {file ? (
-                    <span className="text-gray-700">{file.name}</span>
+                    <span className="">{file.name}</span>
                   ) : (
                     <>
                       <ArrowLeft className="text-gray-400 mb-2" size={24} />
@@ -220,13 +223,16 @@ const UploadReceipt = () => {
               <button
                 onClick={handleUpload}
                 disabled={uploading || !file || !amount}
-                className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+                className={`w-full py-2 px-4 rounded-md  font-medium ${
                   uploading || !file || !amount
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-blue hover:bg-blue'
                 }`}
               >
-                {uploading ? 'Uploading...' : 'Submit Receipt'}
+                {uploading ?  
+                  <Loader2 className="animate-spin mr-2 inline-block" />
+                 : 
+                 'Submit Receipt'}
               </button>
             </>
           )}

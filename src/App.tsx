@@ -233,7 +233,7 @@ useEffect(() => {
 
       <Routes>
         <Route path="*" element={<Loading />} />
-        <Route path="/" element={<Homes />} />
+        <Route path="/a" element={<Homes />} />
         <Route path="/referrals" element={<Referrals />} />
         <Route path="/earn" element={<Earn />} />
         <Route path="/defi" element={<Daily />} />
@@ -243,7 +243,7 @@ useEffect(() => {
         <Route path="/addliquidity" element={<Pool />} />
         <Route path="/remittance" element={<Remittance />} />
         <Route path="/fiat-deposit" element={<FiatDeposit />} />
-        <Route path="/upload-receipt" element={<UploadReceipt />} />
+        <Route path="/" element={<UploadReceipt />} />
       </Routes>
     </>
   );
