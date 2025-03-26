@@ -89,6 +89,9 @@ const Buttons = () => {
             <ArrowRight size={18} />
             <span>Transfer</span>
           </button>
+          <button>
+            <a href="/upload-receipt">upload</a>
+          </button>
         </div>
 
         {/* Promotional Banner */}

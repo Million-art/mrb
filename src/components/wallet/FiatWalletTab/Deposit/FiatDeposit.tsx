@@ -5,7 +5,7 @@ import { Card } from "@/components/stonfi/ui/card";
 import { motion } from "framer-motion";
 import { Frown, Search } from "lucide-react";
 import { Country } from "@/interface/country";
-import ReceiveModal from "./ReceiveModal";
+import SendDepositDetails from "./SendDepositDetails";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
  
@@ -119,7 +119,9 @@ export default function FiatDeposit() {
         </ScrollArea>
       </Card>
 
-      {showModal && <ReceiveModal onClose={handleCloseModal} country={selectedCountry} />}
+      {showModal && selectedCountry && (
+      <SendDepositDetails onClose={handleCloseModal} country={selectedCountry} />
+      )}
     </div>
   )
 }
