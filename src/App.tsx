@@ -31,6 +31,7 @@ import { FirestoreUser } from "./interface/FirestoreUser";
 import Remittance from "./components/wallet/FiatWalletTab/Remittance";
 import FiatDeposit from "./components/wallet/FiatWalletTab/Deposit/FiatDeposit";
 import UploadReceipt from "./components/wallet/FiatWalletTab/Deposit/UploadReceipt";
+import { initializeReceiptData, setError } from "./store/slice/depositReceiptSlice";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +39,7 @@ function App() {
   const calculate = useSelector((state: RootState) => selectCalculate(state), shallowEqual);
   const message = useSelector((state: RootState) => selectShowMessage(state), shallowEqual);
   const navigate = useNavigate();
-
+   const isInitialized = useSelector((state: RootState) => state.depositReceipt.isInitialized);
   // Firebase user data processor
   const processUserData = useCallback((docSnap: DocumentSnapshot<FirestoreUser>): TUser => {
     const data = docSnap.data() || {} as FirestoreUser;
@@ -78,26 +79,24 @@ function App() {
         }
         return JSON.parse(Buffer.from(str, 'base64').toString());
       };
-      if (startParam) {
-        try {
-          // Parse the startParam which contains your receipt data
-          const receiptData = decodeBase64URL(startParam);
 
-          // Redirect to upload-receipt page with the data
-          navigate('/upload-receipt', {
-            state: { receiptData },
-            replace: true   
-          });
-        } catch (error) {
+      if (startParam && !isInitialized) {
+        try {
+          const receiptData = decodeBase64URL(startParam);
+          //dispatch initialized data
+          dispatch(initializeReceiptData(receiptData))
+          navigate('/upload-receipt', { replace: true });
+        } catch (error:any) {
           console.error('Error parsing startParam:', error);
-          // Optionally redirect to error page or main page
+          //set dispatch error
+          dispatch(setError(error));
         }
       }
     };
 
     handleStartParam();
-  }, [navigate]);
-  
+  }, [navigate, startParam, isInitialized]);
+ 
 useEffect(() => {
   let unsubscribe: () => void;
   const userRef = doc(db, "users", String(telegramId));

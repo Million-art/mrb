@@ -13,6 +13,7 @@ import swapTransactionSlice from "./slice/swapTransactionSlice";
 import liquidityFormSlice from "./slice/LiqudityForm";
 import fiatDepositSlice from "./slice/fiatDepositSlice";
 import fiatBalanceSlice from "./slice/fiatBalanceSlice";
+import depositReceiptSlice from "./slice/depositReceiptSlice";
 
 export const store = configureStore({
     reducer: {
@@ -30,6 +31,7 @@ export const store = configureStore({
         liquidityForm:liquidityFormSlice,
         fiatDeposit:fiatDepositSlice,
         fiatBalance:fiatBalanceSlice,
+        depositReceipt:depositReceiptSlice,
 
 
     },
