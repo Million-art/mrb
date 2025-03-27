@@ -85,13 +85,13 @@ const UploadReceipt: React.FC = () => {
       }));
       return;
     }
-
+  
     const { 
       ambassador: { id: ambassadorId }, 
       payment: { bank, account, type },
       timestamp
     } = receiptData;
-
+  
     // 2. Validate all required fields
     if (!file || !amount || !ambassadorId) {
       setUploadState(prev => ({
@@ -100,16 +100,16 @@ const UploadReceipt: React.FC = () => {
       }));
       return;
     }
-
+  
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) {
+    if (isNaN(parsedAmount)) {  // <-- Missing closing parenthesis added here
       setUploadState(prev => ({
         ...prev,
         error: "Please enter a valid number for amount"
       }));
       return;
     }
-
+  
     setUploadState({
       loading: true,
       step: 'uploading',
@@ -117,12 +117,12 @@ const UploadReceipt: React.FC = () => {
       error: null,
       success: null
     });
-
+  
     try {
       // 3. Upload file to storage
       const storageRef = ref(storage, `receipts/${Date.now()}_${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
+  
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -151,7 +151,7 @@ const UploadReceipt: React.FC = () => {
               step: 'creating',
               progress: 100
             }));
-
+  
             // 5. Prepare data for cloud function
             const requestData = {
               data: {
@@ -173,13 +173,13 @@ const UploadReceipt: React.FC = () => {
                 createdAt: new Date(timestamp).toISOString()
               }
             };
-
+  
             // 6. Call cloud function
             const createReceipt = httpsCallable(functions, 'createReceipt');
             const result = await createReceipt(requestData);
-
+  
             console.log("Receipt created:", result.data);
-
+  
             setUploadState({
               loading: false,
               step: 'success',
@@ -187,12 +187,12 @@ const UploadReceipt: React.FC = () => {
               error: null,
               success: "Receipt uploaded successfully!"
             });
-
+  
             setTimeout(() => {
               dispatch(clearReceipt());
               navigate('/fiat-deposit');
             }, 3000);
-
+  
           } catch (error: any) {
             console.error("Error creating receipt:", error);
             let errorMessage = "Failed to create receipt";
@@ -220,6 +220,7 @@ const UploadReceipt: React.FC = () => {
       });
     }
   };
+  
   if (!receiptData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
