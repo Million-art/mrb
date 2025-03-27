@@ -30,7 +30,7 @@ const UploadReceipt: React.FC = () => {
     error: null,
     success: null
   });
-
+  console.log('recccccc',receiptData)
   useEffect(() => {
     if (!receiptData) {
       setUploadState(prev => ({
@@ -78,7 +78,22 @@ const UploadReceipt: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    if (!file || !receiptData || !amount) {
+    if (!receiptData) {
+      setUploadState(prev => ({
+        ...prev,
+        error: "Missing receipt data"
+      }));
+      return;
+    }
+
+    const { 
+      ambassador: { id: ambassadorId }, 
+      payment: { bank, account, type },
+      timestamp
+    } = receiptData;
+
+    // 2. Validate all required fields
+    if (!file || !amount || !ambassadorId) {
       setUploadState(prev => ({
         ...prev,
         error: "Please fill all required fields"
@@ -87,7 +102,7 @@ const UploadReceipt: React.FC = () => {
     }
 
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount)) {
+    if (isNaN(parsedAmount) {
       setUploadState(prev => ({
         ...prev,
         error: "Please enter a valid number for amount"
@@ -104,11 +119,10 @@ const UploadReceipt: React.FC = () => {
     });
 
     try {
-      // 1. Upload file to storage
+      // 3. Upload file to storage
       const storageRef = ref(storage, `receipts/${Date.now()}_${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
-      // Track upload progress
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -129,7 +143,7 @@ const UploadReceipt: React.FC = () => {
         },
         async () => {
           try {
-            // 2. Get download URL
+            // 4. Get download URL
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             
             setUploadState(prev => ({
@@ -138,21 +152,31 @@ const UploadReceipt: React.FC = () => {
               progress: 100
             }));
 
-            // 3. Call cloud function
-            const createReceipt = httpsCallable(functions, 'createReceipt');
-            
-            const result = await createReceipt({
+            // 5. Prepare data for cloud function
+            const requestData = {
               data: {
-                ambassadorId: receiptData.ambassador.id,
+                ambassadorId,  // Must be included
                 amount: parsedAmount,
                 senderTgId: String(telegramId),
                 documents: [{
                   url: downloadURL,
                   type: file.type.startsWith('image/') ? 'image' : 'pdf',
                   name: file.name
-                }]
+                }],
+                // Optional: Include payment details if needed
+                paymentDetails: {
+                  bank,
+                  accountNumber: account,
+                  type
+                },
+                // Convert timestamp to ISO string if needed
+                createdAt: new Date(timestamp).toISOString()
               }
-            });
+            };
+
+            // 6. Call cloud function
+            const createReceipt = httpsCallable(functions, 'createReceipt');
+            const result = await createReceipt(requestData);
 
             console.log("Receipt created:", result.data);
 
@@ -164,7 +188,6 @@ const UploadReceipt: React.FC = () => {
               success: "Receipt uploaded successfully!"
             });
 
-            // Redirect after 3 seconds
             setTimeout(() => {
               dispatch(clearReceipt());
               navigate('/fiat-deposit');
@@ -172,13 +195,10 @@ const UploadReceipt: React.FC = () => {
 
           } catch (error: any) {
             console.error("Error creating receipt:", error);
-            
             let errorMessage = "Failed to create receipt";
             if (error.details) {
-              // Handle callable function errors
               errorMessage = error.details.message || errorMessage;
             }
-
             setUploadState({
               loading: false,
               step: 'error',
@@ -200,7 +220,6 @@ const UploadReceipt: React.FC = () => {
       });
     }
   };
-
   if (!receiptData) {
     return (
       <div className="flex items-center justify-center min-h-screen">

@@ -176,7 +176,6 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     try {
       const sendMessage = httpsCallable(functions, 'dmdepositdetail');
       const response = await sendMessage(requestData);
-
       console.log('Response from cloud function:', response.data);
       setSuccessMessage("Details sent successfully! Please check the bot for deposit details.");
       
