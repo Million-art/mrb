@@ -214,7 +214,7 @@ const UploadReceipt: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center bg-gray-dark min-h-screen p-4">
-      <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden bg-white p-6">
+      <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden p-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Upload Receipt</h2>
 
         {/* Error Display */}
