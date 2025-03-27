@@ -219,7 +219,7 @@ const UploadReceipt: React.FC = () => {
 
         {/* Error Display */}
         {uploadState.error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 border border-red-200 rounded-lg">
             <div className="flex items-center text-red-600 mb-2">
               <XCircle className="mr-2" />
               <span className="font-medium">Error</span>
@@ -230,7 +230,7 @@ const UploadReceipt: React.FC = () => {
 
         {/* Success Display */}
         {uploadState.success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-6 p-4 border border-green-200 rounded-lg">
             <div className="flex items-center text-green-600 mb-2">
               <CheckCircle className="mr-2" />
               <span className="font-medium">Success</span>
@@ -241,7 +241,7 @@ const UploadReceipt: React.FC = () => {
         )}
 
         {/* Payment Details */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mb-6 p-4  rounded-lg">
           <h3 className="font-semibold mb-3">Payment Details</h3>
           <div className="space-y-2">
             <p><span className="font-medium">Bank:</span> {receiptData.payment.bank}</p>
@@ -260,7 +260,7 @@ const UploadReceipt: React.FC = () => {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Enter amount"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue"
             disabled={uploadState.loading}
           />
         </div>
@@ -271,7 +271,7 @@ const UploadReceipt: React.FC = () => {
             Receipt File
           </label>
           <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors
-            ${uploadState.loading ? 'border-gray-300 bg-gray-50' : 'border-gray-300 hover:border-blue-500'}`}>
+            ${uploadState.loading ? 'border-gray-300' : 'border-gray-300 hover:border-blue'}`}>
             {file ? (
               <div className="text-center p-4">
                 <p className="font-medium">{file.name}</p>
@@ -311,7 +311,7 @@ const UploadReceipt: React.FC = () => {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
-                className="bg-blue-600 h-2.5 rounded-full"
+                className="bg-blue h-2.5 rounded-full"
                 style={{ width: `${uploadState.progress}%` }}
               ></div>
             </div>
@@ -322,10 +322,10 @@ const UploadReceipt: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={uploadState.loading || !file || !amount}
-          className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-colors
+          className={`w-full py-3 px-4 rounded-lg font-medium  transition-colors
             ${uploadState.loading || !file || !amount
               ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-blue hover:bg-blue'
             }`}
         >
           {uploadState.loading ? (
