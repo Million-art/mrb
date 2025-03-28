@@ -4,3 +4,4 @@ export * from "./ambassador";
 export * from "./receipt";
 export * from "./approveReceipt";
 export * from "./dmdepositdetails";
+export * from "./getExchange";
