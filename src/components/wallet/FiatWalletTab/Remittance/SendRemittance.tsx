@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { Loader2, ArrowRight, XCircle } from "lucide-react";
 
 interface QuoteResponse {
   quote_id: string;
@@ -120,107 +121,132 @@ const SendRemittance = () => {
   };
 
   return (
-    <div className="bg-[#1E1E1E] text-white p-4 rounded-md max-w-md mx-auto mb-16">
-      <h2 className="text-xl font-bold mb-4">Send Remittance</h2>
+    <div className="flex flex-col items-center bg-gray-dark min-h-screen pt-4">
+      <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden p-2">
+        <h2 className="text-2xl font-bold mb-6 text-center">Send Remittance</h2>
 
-      <div className="space-y-4">
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 border border-red-200 rounded-lg">
+            <div className="flex items-center text-red-600 mb-2">
+              <XCircle className="mr-2" />
+              <span className="font-medium">Error</span>
+            </div>
+            <p>{error}</p>
+          </div>
+        )}
+
         {/* Currency Inputs */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm mb-1">From Currency</label>
+            <label className="block text-sm font-medium mb-2">From Currency</label>
             <input
               type="text"
               value={fromCurrency}
               onChange={(e) => setFromCurrency(e.target.value.toUpperCase())}
-              className="w-full p-2 bg-gray-700 rounded"
+              className="w-full px-4 py-2 border bg-transparent border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue"
               placeholder="USDC"
             />
           </div>
           <div>
-            <label className="block text-sm mb-1">To Currency</label>
+            <label className="block text-sm font-medium mb-2">To Currency</label>
             <input
               type="text"
               value={toCurrency}
               onChange={(e) => setToCurrency(e.target.value.toUpperCase())}
-              className="w-full p-2 bg-gray-700 rounded"
+              className="w-full px-4 py-2 border bg-transparent border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue"
               placeholder="VES"
             />
           </div>
         </div>
 
         {/* Amount Input */}
-        <div>
-          <label className="block text-sm mb-1">Amount to Send</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">Amount to Send</label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-2 bg-gray-700 rounded"
+            className="w-full px-4 py-2 border bg-transparent border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue"
             placeholder="0.00"
             min="0"
             step="0.01"
           />
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="p-2 bg-red-900 text-white rounded text-sm">
-            {error}
-          </div>
-        )}
-
         {/* Get Exchange Rate Button */}
         <button
           onClick={fetchExchangeRate}
           disabled={isLoading || !fromCurrency || !toCurrency}
-          className="w-full bg-blue py-2 rounded disabled:opacity-50"
+          className={`w-full py-3 px-4 rounded-lg font-medium transition-colors mb-6
+            ${isLoading || !fromCurrency || !toCurrency
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue hover:bg-blue'
+            }`}
         >
-          {isLoading ? "Fetching Rate..." : "Get Exchange Rate"}
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="animate-spin mr-2" />
+              Fetching Rate...
+            </div>
+          ) : (
+            'Get Exchange Rate'
+          )}
         </button>
 
         {/* Exchange Rate Display */}
         {exchangeRate && (
-          <div className="bg-gray-800 p-3 rounded">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Exchange Rate:</span>
-              <span>1 {fromCurrency} = {exchangeRate} {toCurrency}</span>
+          <div className="mb-6 p-4 bg-gray-800 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Exchange Rate:</span>
+              <div className="flex items-center">
+                <span className="mr-2">1 {fromCurrency}</span>
+                <ArrowRight size={16} className="mx-1" />
+                <span className="ml-2 font-bold">{exchangeRate} {toCurrency}</span>
+              </div>
             </div>
           </div>
         )}
 
         {/* Quote Details */}
         {quote && (
-          <div className="bg-gray-800 p-3 rounded space-y-3">
-            <div className="flex justify-between">
-              <span>Amount to Send:</span>
-              <span>{formatCurrency(parseFloat(amount), fromCurrency)}</span>
-            </div>
+          <div className="mb-6 p-4 bg-gray-800 rounded-lg space-y-4">
+            <h3 className="font-semibold text-lg mb-2">Transfer Quote</h3>
             
-            <div className="flex justify-between text-sm text-gray-400">
-              <span>Fees:</span>
-              <span>{formatCurrency(quote.fees / 100, fromCurrency)}</span>
-            </div>
-            
-            <div className="flex justify-between font-medium">
-              <span>Total Cost:</span>
-              <span>
-                {formatCurrency(
-                  parseFloat(amount) + (quote.fees / 100), 
-                  fromCurrency
-                )}
-              </span>
-            </div>
-            
-            <div className="pt-2 border-t border-gray-700">
-              <div className="flex justify-between text-green-400">
-                <span>Recipient Gets:</span>
-                <span>
-                  {formatCurrency(quote.destination_amount / 100, toCurrency)}
-                </span>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-300">Amount to Send:</span>
+                <span>{formatCurrency(parseFloat(amount), fromCurrency)}</span>
+              </div>
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Fees:</span>
+                <span className="text-gray-400">{formatCurrency(quote.fees / 100, fromCurrency)}</span>
+              </div>
+              
+              <div className="pt-2 border-t border-gray-700">
+                <div className="flex justify-between font-medium">
+                  <span>Total Cost:</span>
+                  <span>
+                    {formatCurrency(
+                      parseFloat(amount) + (quote.fees / 100), 
+                      fromCurrency
+                    )}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t border-gray-700">
+                <div className="flex justify-between text-green-400">
+                  <span>Recipient Gets:</span>
+                  <span>
+                    {formatCurrency(quote.destination_amount / 100, toCurrency)}
+                  </span>
+                </div>
               </div>
             </div>
             
-            <div className="text-xs text-gray-400">
+            <div className="pt-2 border-t border-gray-700 text-xs text-gray-400 space-y-1">
               <div>Quote ID: {quote.quote_id}</div>
               <div>Expires: {new Date(quote.expires_at).toLocaleString()}</div>
               {quote.estimated_delivery && (
@@ -234,9 +260,20 @@ const SendRemittance = () => {
         <button
           onClick={createTransferQuote}
           disabled={!exchangeRate || !amount || isCreatingQuote}
-          className="w-full bg-green-600 py-2 rounded disabled:opacity-50"
+          className={`w-full py-3 px-4 rounded-lg font-medium transition-colors
+            ${!exchangeRate || !amount || isCreatingQuote
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-green-600 hover:bg-green-700'
+            }`}
         >
-          {isCreatingQuote ? "Creating Quote..." : "Create Transfer Quote"}
+          {isCreatingQuote ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="animate-spin mr-2" />
+              Creating Quote...
+            </div>
+          ) : (
+            'Create Transfer Quote'
+          )}
         </button>
       </div>
     </div>
