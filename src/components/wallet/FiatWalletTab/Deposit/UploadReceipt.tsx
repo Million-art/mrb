@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { db, functions, storage } from '@/libs/firebase';
+import { db, storage } from '@/libs/firebase';
 import { ArrowLeft, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { telegramId } from '@/libs/telegram';
-import { httpsCallable } from 'firebase/functions';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { clearReceipt } from '@/store/slice/depositReceiptSlice';
@@ -166,7 +165,7 @@ const UploadReceipt: React.FC = () => {
                 uploadedAt: new Date().toISOString()
               }
             });    
-            console.log(receiptData)       
+            console.log(receiptRef,receiptData)       
             // 5. Handle success
             setUploadState({
               loading: false,
