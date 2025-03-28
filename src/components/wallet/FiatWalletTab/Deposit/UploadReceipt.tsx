@@ -157,7 +157,7 @@ const UploadReceipt: React.FC = () => {
             const createReceipt = httpsCallable(functions, 'createReceipt' );
             
             const result = await createReceipt(requestData);
-   
+            console.log(result)
             // 5. Handle success
             setUploadState({
               loading: false,
