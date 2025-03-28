@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/libs/firebase';
@@ -30,15 +30,7 @@ const UploadReceipt: React.FC = () => {
     error: null,
     success: null
   });
-   useEffect(() => {
-    if (!receiptData) {
-      setUploadState(prev => ({
-        ...prev,
-        error: 'No receipt data found. Redirecting...'
-      }));
-      setTimeout(() => navigate('/fiat-deposit'), 2000);
-    }
-  }, [receiptData, navigate]);
+ 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
