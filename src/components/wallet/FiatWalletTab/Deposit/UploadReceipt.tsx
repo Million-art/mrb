@@ -82,7 +82,7 @@ const UploadReceipt: React.FC = () => {
       return;
     }
   
-    const { ambassador: { id: ambassadorId }, timestamp } = receiptData;
+    const { ambassador: { id: ambassadorId } } = receiptData;
   
     // Validate required fields
     if (!file || !amount || !ambassadorId || !telegramId) {
@@ -146,8 +146,7 @@ const UploadReceipt: React.FC = () => {
                 amount: parsedAmount,
                 senderTgId: String(telegramId), 
                 documents: [downloadURL], 
-                createdAt: new Date(timestamp).toISOString()
-              }
+               }
             };
   
             console.log("Final payload to Cloud Function:", JSON.stringify(requestData, null, 2));
