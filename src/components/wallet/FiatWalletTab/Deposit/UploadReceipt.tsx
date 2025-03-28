@@ -85,7 +85,7 @@ const UploadReceipt: React.FC = () => {
     const { ambassador: { id: ambassadorId } } = receiptData;
   
     // Validate required fields
-    if (!file || !amount || !ambassadorId || !telegramId) {
+    if (!file || !amount || !ambassadorId) {
       setUploadState(prev => ({
         ...prev,
         error: "Please fill all required fields and ensure Telegram ID exists"
@@ -93,7 +93,7 @@ const UploadReceipt: React.FC = () => {
       return;
     }
   
-    const parsedAmount = Math.floor(Number(amount)); // Ensure integer value
+    const parsedAmount = Math.floor(Number(amount)); 
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       setUploadState(prev => ({
         ...prev,
