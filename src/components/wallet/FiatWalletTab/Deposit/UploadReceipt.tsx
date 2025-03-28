@@ -93,7 +93,7 @@ const UploadReceipt: React.FC = () => {
       return;
     }
   
-    const parsedAmount = parseFloat(amount);
+    const parsedAmount = Math.floor(Number(amount)); // Ensure integer value
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       setUploadState(prev => ({
         ...prev,
@@ -140,21 +140,24 @@ const UploadReceipt: React.FC = () => {
               progress: 100
             }));
   
+            // 3. Prepare the EXACT data structure the Cloud Function expects
             const requestData = {
               data: {
-                ambassadorId,
-                amount: parsedAmount,
-                senderTgId: String(telegramId), 
-                documents: [downloadURL], 
-               }
+                ambassadorId: String(ambassadorId).trim(), // Ensure string and trim
+                amount: parsedAmount, // Already validated as number
+                senderTgId: String(telegramId).trim(), // Ensure string and trim
+                documents: [downloadURL], // MUST be array of strings
+                createdAt: new Date().toISOString() // Add timestamp
+              }
             };
   
             console.log("Final payload to Cloud Function:", JSON.stringify(requestData, null, 2));
   
-            // 4. Call Cloud Function
-            const createReceipt = httpsCallable(functions, 'createReceipt');
+            // 4. Call Cloud Function with proper headers
+            const createReceipt = httpsCallable(functions, 'createReceipt' );
+            
             const result = await createReceipt(requestData);
-            console.log(result)
+   
             // 5. Handle success
             setUploadState({
               loading: false,
@@ -171,7 +174,12 @@ const UploadReceipt: React.FC = () => {
             }, 3000);
   
           } catch (error: any) {
-            console.error("Cloud Function Error:", error);
+            console.error("Cloud Function Error:", {
+              message: error.message,
+              details: error.details,
+              stack: error.stack
+            });
+            
             setUploadState({
               loading: false,
               step: 'error',
