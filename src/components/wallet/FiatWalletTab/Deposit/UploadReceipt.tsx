@@ -142,7 +142,7 @@ const UploadReceipt: React.FC = () => {
               progress: 100
             }));
   
-            // Prepare the EXACT data structure the Cloud Function expects
+            // Prepare the EXACT data  structure the Cloud Function expects
             const requestData = {
               data: {
                 ambassadorId: String(ambassadorId).trim(),
