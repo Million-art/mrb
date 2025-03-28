@@ -82,7 +82,7 @@ const UploadReceipt: React.FC = () => {
       return;
     }
   
-    const { ambassador: { id: ambassadorId }, telegramId } = receiptData;
+    const { ambassador: { id: ambassadorId } } = receiptData;
   
     // Validate required fields
     if (!file || !amount || !ambassadorId || !telegramId) {
