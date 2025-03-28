@@ -82,7 +82,7 @@ const UploadReceipt: React.FC = () => {
       return;
     }
   
-    const { ambassador: { id: ambassadorId } } = receiptData;
+    const { ambassador: { id: ambassadorId }, telegramId } = receiptData;
   
     // Validate required fields
     if (!file || !amount || !ambassadorId || !telegramId) {
@@ -104,26 +104,28 @@ const UploadReceipt: React.FC = () => {
   
     setUploadState({
       loading: true,
-      step: 'uploading',
+      step: "uploading",
       progress: 0,
       error: null,
       success: null
     });
   
     try {
-      // 1. Upload file to Firebase Storage
+      // Upload file to Firebase Storage
       const storageRef = ref(storage, `receipts/${Date.now()}_${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
   
-      uploadTask.on('state_changed',
+      uploadTask.on(
+        "state_changed",
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setUploadState(prev => ({ ...prev, progress }));
         },
         (error) => {
+          console.error("File Upload Error:", error);
           setUploadState({
             loading: false,
-            step: 'error',
+            step: "error",
             progress: 0,
             error: "File upload failed. Please try again.",
             success: null
@@ -131,58 +133,56 @@ const UploadReceipt: React.FC = () => {
         },
         async () => {
           try {
-            // 2. Get download URL after upload completes
+            // Get download URL after upload completes
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            
+  
             setUploadState(prev => ({
               ...prev,
-              step: 'creating',
+              step: "creating",
               progress: 100
             }));
   
-            // 3. Prepare the EXACT data structure the Cloud Function expects
+            // Prepare the EXACT data structure the Cloud Function expects
             const requestData = {
               data: {
-                ambassadorId: String(ambassadorId).trim(), // Ensure string and trim
-                amount: parsedAmount, // Already validated as number
-                senderTgId: String(telegramId).trim(), // Ensure string and trim
-                documents: [downloadURL], // MUST be array of strings
-                createdAt: new Date().toISOString() // Add timestamp
+                ambassadorId: String(ambassadorId).trim(),
+                amount: parsedAmount,
+                senderTgId: String(telegramId).trim(),
+                documents: [downloadURL],
+                createdAt: new Date().toISOString()
               }
             };
   
             console.log("Final payload to Cloud Function:", JSON.stringify(requestData, null, 2));
   
-            // 4. Call Cloud Function with proper headers
-            const createReceipt = httpsCallable(functions, 'createReceipt' );
-            
+            // Call Cloud Function with proper headers
+            const createReceipt = httpsCallable(functions, "createReceipt");
+  
             const result = await createReceipt(requestData);
-            console.log(result)
-            // 5. Handle success
+  
+            console.log("Cloud Function Response:", result);
+  
+            // Handle success
             setUploadState({
               loading: false,
-              step: 'success',
+              step: "success",
               progress: 100,
               error: null,
               success: "Receipt uploaded successfully!"
             });
   
-            // 6. Cleanup and redirect
+            // Cleanup and redirect
             setTimeout(() => {
               dispatch(clearReceipt());
-              navigate('/fiat-deposit');
+              navigate("/fiat-deposit");
             }, 3000);
   
           } catch (error: any) {
-            console.error("Cloud Function Error:", {
-              message: error.message,
-              details: error.details,
-              stack: error.stack
-            });
-            
+            console.error("Cloud Function Error:", error);
+  
             setUploadState({
               loading: false,
-              step: 'error',
+              step: "error",
               progress: 0,
               error: error.message || "Failed to create receipt",
               success: null
@@ -194,13 +194,14 @@ const UploadReceipt: React.FC = () => {
       console.error("Upload Error:", error);
       setUploadState({
         loading: false,
-        step: 'error',
+        step: "error",
         progress: 0,
         error: error.message || "An unexpected error occurred",
         success: null
       });
     }
   };
+  
   
   if (!receiptData) {
     return (
