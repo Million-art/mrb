@@ -165,7 +165,8 @@ const UploadReceipt: React.FC = () => {
               metadata: {
                 uploadedAt: new Date().toISOString()
               }
-            });           
+            });    
+            console.log(receiptData)       
             // 5. Handle success
             setUploadState({
               loading: false,
