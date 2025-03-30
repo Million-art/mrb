@@ -5,3 +5,5 @@ export * from "./receipt";
 export * from "./approveReceipt";
 export * from "./dmdepositdetails";
 export * from "./getExchange";
+export * from "./payTransferQuote";
+export * from "./createTransferQuote";
