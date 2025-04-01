@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
-import { fetchTransactions } from "@/store/slice/fiatDepositSlice";
-import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { fetchTransactions, stopListeningToTransactions } from "@/store/slice/fiatDepositSlice";
+import { Loader2, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
 import { telegramId } from "@/libs/telegram";
 
 const FiatTransactions = () => {
@@ -11,7 +11,15 @@ const FiatTransactions = () => {
 
   useEffect(() => {
     dispatch(fetchTransactions(String(telegramId)));
-  }, [dispatch]);
+    
+    return () => {
+      dispatch(stopListeningToTransactions());
+    };
+  }, [dispatch, telegramId]);
+
+  const handleRetry = () => {
+    dispatch(fetchTransactions(String(telegramId)));
+  };
 
   if (loading) {
     return (
@@ -23,13 +31,33 @@ const FiatTransactions = () => {
   }
 
   if (error) {
+    const isIndexError = error.includes("The query requires an index");
+    
     return (
-      <div className="flex flex-col items-center justify-center h-64">
+      <div className="flex flex-col items-center justify-center h-64 p-4 text-center">
         <AlertCircle className="text-red-500 w-8 h-8 mb-2" />
-        <p className="text-red-500 mb-4">{error}</p>
+        <p className="text-red-500 mb-2">{isIndexError ? "Database configuration needed" : error}</p>
+        
+        {isIndexError && (
+          <div className="mb-4">
+            <p className="text-gray-300 text-sm mb-2">
+              This feature requires a database index to be created.
+            </p>
+            <a
+              href={error.match(/https:\/\/[^\s]+/)?.[0] || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline flex items-center justify-center gap-1"
+            >
+              <span>Click here to create it</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        )}
+        
         <button
-          onClick={() => dispatch(fetchTransactions(String(telegramId)))}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          onClick={handleRetry}
+          className="flex items-center gap-2 px-4 py-2 bg-blue text-white rounded-lg hover:bg-blue-light transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Retry
