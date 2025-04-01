@@ -44,7 +44,8 @@ const PaymentMethodItem: React.FC<{
           <span className="font-medium text-white">{method.details.bankName}</span>
         </div>
         <p className="text-sm text-gray-400">
-          Account: {maskAccountNumber(method.details.accountNumber)}
+          {/* Account: {maskAccountNumber(method.details.accountNumber)} */}
+           Account: {method.details.accountNumber} 
         </p>
       </div>
       <div
