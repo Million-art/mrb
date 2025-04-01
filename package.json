@@ -29,6 +29,7 @@
     "@telegram-apps/sdk": "^2.11.1",
     "@tonconnect/ui-react": "^2.0.9",
     "bignumber.js": "^9.1.2",
+    "busboy": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.0.4",
     "cors": "^2.8.5",

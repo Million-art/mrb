@@ -139,7 +139,7 @@ const SendRemittance = () => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gray-dark min-h-screen pt-4 mb-10">
+    <div className="flex flex-col items-center min-h-screen pt-4 mb-10">
       <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden p-2">
         <h2 className="text-2xl font-bold mb-6 text-center">Send Remittance</h2>
 

@@ -40,7 +40,7 @@ const FiatWalletTab = () => {
         <div className="mb-2">
           <p className="text-gray-300">Your Balance</p>
           <h1 className="text-3xl font-bold">{realBalance.toFixed(2)} USDC</h1>
-          <div className="bg-gray-900 inline-block rounded-md">
+          <div className=" inline-block rounded-md">
             <p className="font-bold"></p>
           </div>
         </div>
