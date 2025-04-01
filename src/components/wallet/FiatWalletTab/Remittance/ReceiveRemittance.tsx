@@ -60,7 +60,7 @@ const ReceiveRemittance = () => {
   };
 
   return (
-    <div className="bg-[#1E1E1E] text-white p-4 mb-10">
+    <div className=" text-white p-4 mb-10">
       <h2 className="text-xl font-bold mb-4">Connect Bank Account</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Bank Code */}

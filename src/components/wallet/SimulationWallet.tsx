@@ -74,7 +74,7 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
   return (
     <div className="min-h-screen p-2 w-full text-white">
       <div className="max-w-md">
-        <Card className="flex justify-between items-center mb-2 bg-gray-dark p-1 text-white rounded-lg">
+        <Card className="flex justify-between items-center mb-2  p-1 text-white rounded-lg">
           <div className="">
             <div className="text-xl font-bold">{btcData.price}</div>
             <div className={`flex items-center text-sm ${parseFloat(btcData.changePercent) < 0 ? "text-red-400" : "text-green-400"}`}>

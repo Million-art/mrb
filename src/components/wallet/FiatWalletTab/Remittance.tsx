@@ -8,7 +8,7 @@ const Remittance = () => {
 
 
   return (
-    <div className="bg-[#1E1E1E] text-white w-full min-h-screen p-4">
+    <div className=" text-white w-full min-h-screen p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button

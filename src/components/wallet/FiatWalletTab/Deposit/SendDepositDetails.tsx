@@ -44,8 +44,8 @@ const PaymentMethodItem: React.FC<{
           <span className="font-medium text-white">{method.details.bankName}</span>
         </div>
         <p className="text-sm text-gray-400">
-          {/* Account: {maskAccountNumber(method.details.accountNumber)} */}
-           Account: {method.details.accountNumber} 
+           Account: {maskAccountNumber(method.details.accountNumber)} 
+           {/* Account: {method.details.accountNumber}  */}
         </p>
       </div>
       <div
@@ -198,8 +198,8 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
   }, [selectedPayment, onClose, telegramId]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center h-[100vh] bg-black bg-opacity-80 z-50">
-      <div className="bg-[#1E1E1E] text-white w-full max-w-md flex flex-col max-h-[100vh] overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center h-[100vh] bg-opacity-80 z-50">
+      <div className=" text-white w-full max-w-md flex flex-col max-h-[100vh] overflow-hidden">
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800 sticky top-0 bg-[#1E1E1E] z-10">
           <button
             onClick={onClose}
@@ -265,9 +265,8 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                         </div>
                       ) : (
                         <div className="text-center text-gray-400 py-4 rounded-lg">
-                          No payment methods available
-                        </div>
-                      )}
+                         </div>
+                      )} 
                     </div>
                   ))}
                 </div>

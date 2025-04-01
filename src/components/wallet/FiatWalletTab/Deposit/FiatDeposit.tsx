@@ -57,7 +57,7 @@ export default function FiatDeposit() {
   }
 
   return (
-    <div className="container bg-[#1E1E1E] mx-auto p-6 max-w-xl mb-10 scrollbar-hidden">
+    <div className="container mx-auto p-6 max-w-xl mb-10 scrollbar-hidden">
               {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
