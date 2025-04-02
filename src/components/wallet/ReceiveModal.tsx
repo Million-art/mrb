@@ -13,7 +13,7 @@ const ReceiveModal = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center ">
+    <div className="fixed bg-black inset-0 flex items-center justify-center ">
       <div className=" text-white w-full max-w-md rounded-xl overflow-hidden flex flex-col h-full max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-800">

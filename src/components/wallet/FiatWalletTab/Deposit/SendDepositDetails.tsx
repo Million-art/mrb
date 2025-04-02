@@ -198,9 +198,9 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
   }, [selectedPayment, onClose, telegramId]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center h-[100vh] bg-opacity-80 z-50">
+    <div className="fixed bg-black inset-0 flex items-center justify-center h-[100vh] z-50">
       <div className=" text-white w-full max-w-md flex flex-col max-h-[100vh] overflow-hidden">
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800 sticky top-0 bg-[#1E1E1E] z-10">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800 sticky top-0  z-10">
           <button
             onClick={onClose}
             className="hover:text-gray-300"

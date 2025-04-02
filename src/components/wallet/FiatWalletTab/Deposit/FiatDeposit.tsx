@@ -9,7 +9,7 @@ import SendDepositDetails from "./SendDepositDetails";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
  
-const countries: Country[] = [
+export const countries: Country[] = [
   { currency: "Venezuelan Bolivar", code: "VES", name: "Venezuela", flag: "https://flagcdn.com/ve.svg" },
   { currency: "Colombian Peso", code: "COP", name: "Colombia", flag: "https://flagcdn.com/co.svg" },
   { currency: "Argentine Peso", code: "ARS", name: "Argentina", flag: "https://flagcdn.com/ar.svg" },
