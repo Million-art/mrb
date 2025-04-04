@@ -26,6 +26,8 @@ export type FormData = {
     idDocBackFile: File | null;
     idDocFrontPreview: string;
     idDocBackPreview: string;
+    idDocFrontUploaded: boolean;
+    idDocBackUploaded: boolean;
   };
   
   // Step 4: Additional Info
