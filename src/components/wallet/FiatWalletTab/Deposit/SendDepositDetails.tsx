@@ -6,6 +6,8 @@ import HourglassAnimation from "../AnimateLoader";
 import { ArrowLeft, X, Loader2 } from "lucide-react";
 import { httpsCallable } from "firebase/functions";
 import { telegramId } from "@/libs/telegram";
+import { useDispatch } from "react-redux";
+import { setShowMessage } from "@/store/slice/messageSlice";
 
 interface Country {
   name: string;
@@ -68,7 +70,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
   const [loadingAmbassadors, setLoadingAmbassadors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
   const maskAccountNumber = useCallback((accountNumber?: string) => {
     if (!accountNumber) return "••••";
@@ -178,7 +180,11 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       const sendMessage = httpsCallable(functions, 'dmdepositdetail');
       const response = await sendMessage(requestData);
       console.log('Response from cloud function:', response.data);
-      setSuccessMessage("Details sent successfully! Please check the bot for deposit details.");
+      
+      dispatch(setShowMessage({
+        message: "Details sent successfully! Please check the bot for deposit details.",
+        color: "green"
+      }));
       
       // Delay the redirection to allow the user to read the message
       setTimeout(() => {
@@ -189,13 +195,21 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       console.error("Error sending data to bot:", error);
       if (error.code && error.message) {
         setError(`Error: ${error.message}`);
+        dispatch(setShowMessage({
+          message: `Error: ${error.message}`,
+          color: "red"
+        }));
       } else {
         setError("Failed to send data. Please try again.");
+        dispatch(setShowMessage({
+          message: "Failed to send data. Please try again.",
+          color: "red"
+        }));
       }
     } finally {
       setLoading(false);
     }
-  }, [selectedPayment, onClose, telegramId]);
+  }, [selectedPayment, onClose, telegramId, dispatch]);
 
   return (
     <div className="fixed bg-black inset-0 flex items-center justify-center h-[100vh] z-50">
@@ -280,9 +294,6 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
         </div>
 
         <div className="p-4">
-          {successMessage && (
-            <div className="text-center text-green-400 mb-4">{successMessage}</div>
-          )}
           <button
             onClick={sendPaymentMethodToBot}
             disabled={!selectedPayment || loading}

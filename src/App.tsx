@@ -32,7 +32,8 @@ import Remittance from "./components/wallet/FiatWalletTab/Remittance";
 import FiatDeposit from "./components/wallet/FiatWalletTab/Deposit/FiatDeposit";
 import UploadReceipt from "./components/wallet/FiatWalletTab/Deposit/UploadReceipt";
 import { initializeReceiptData, setError } from "./store/slice/depositReceiptSlice";
-import CreateAccount from "./components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
+import CreateCustomerPage from "./screens/CreateCustomerPage";
+import CreateBankAccountPage from "./screens/CreateBankAccountPage";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -237,14 +238,15 @@ useEffect(() => {
         <Route path="/referrals" element={<Referrals />} />
         <Route path="/earn" element={<Earn />} />
         <Route path="/defi" element={<Daily />} />
-        <Route path="/airdrops" element={<Airdrop />} />
+        <Route path="/wallet" element={<Airdrop />} />
         <Route path="/swap" element={<Swap />} />
         <Route path="/pool" element={<Pool />} />
         <Route path="/addliquidity" element={<Pool />} />
         <Route path="/remittance" element={<Remittance />} />
         <Route path="/fiat-deposit" element={<FiatDeposit />} />
         <Route path="/upload-receipt" element={<UploadReceipt />} />
-        <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/create-customer" element={<CreateCustomerPage />} />
+        <Route path="/create-bank-account" element={<CreateBankAccountPage />} />
       </Routes>
     </>
   );
