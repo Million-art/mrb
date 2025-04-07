@@ -32,7 +32,6 @@ interface CreateBankAccountProps {
 export default function CreateBankAccount({ customerId, showLoader = true }: CreateBankAccountProps) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
   const [copied, setCopied] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -94,7 +93,6 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
     } catch (err: any) {
       console.error('Error:', err);
       const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to delete bank account';
-      setError(errorMessage);
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"
@@ -114,22 +112,30 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
 
   const handleSubmit = async () => {
     if (!formData.bank_code || !formData.id_doc_number) {
-      setError("Required fields must be filled");
+      dispatch(setShowMessage({
+        message: "Required fields must be filled",
+        color: "red"
+      }));
       return;
     }
 
     if (formData.id_doc_number.length < 8) {
-      setError("ID document number must be at least 8 characters long");
+      dispatch(setShowMessage({
+        message: "ID document number must be at least 8 characters long",
+        color: "red"
+      }));
       return;
     }
 
     if (!formData.id_doc_number.startsWith('V')) {
-      setError("ID document number must start with 'V'");
+      dispatch(setShowMessage({
+        message: "ID document number must start with 'V'",
+        color: "red"
+      }));
       return;
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const response = await axios.post(getBankAccountsUrl(customerId), formData);
@@ -142,7 +148,6 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
     } catch (err: any) {
       console.error('Error:', err);
       const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to create bank account';
-      setError(errorMessage);
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"
@@ -156,7 +161,7 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
   if (isLoading || !dataFetched) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        {/* <Loader2 className="h-8 w-8 animate-spin text-blue" /> */}
+        <Loader2 className="h-8 w-8 animate-spin text-blue" />
       </div>
     );
   }
@@ -165,7 +170,7 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
   if (displayMode === 'details' && bankAccount) {
     return (
       <div className="space-y-4">
-        <div className="mb-4 p-3 rounded-lg bg-gray-dark mt-14">
+        <div className="mb-4 p-3 rounded-lg bg-gray-dark">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Bank Account ID</p>
@@ -199,17 +204,16 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
           )}
           
           {bankAccount.account_number && (
-            <div className=" p-3 rounded-lg bg-gray-dark">
-              <p className="text-sm text-gray-400">Phone Number</p>
-              <p className="text-base font-medium">{bankAccount.phone_number}</p>
+            <div className="p-3 rounded-lg bg-gray-dark">
+              <p className="text-sm text-gray-400">Account Number</p>
+              <p className="text-base font-medium">{bankAccount.account_number}</p>
             </div>
           )}
           
           {bankAccount.phone_number && (
-         
             <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
-             <p className="text-sm text-gray-400">Account Number</p>
-             <p className="text-base font-medium">{bankAccount.account_number}</p>
+              <p className="text-sm text-gray-400">Phone Number</p>
+              <p className="text-base font-medium">{bankAccount.phone_number}</p>
             </div>
           )}
         </div>
@@ -263,12 +267,6 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
   // Create bank account form
   return (
     <div className="space-y-4">
-      {error && (
-        <div className="mb-6 p-4 bg-red-500/20 border border-red-500 text-red-500 rounded-md text-sm">
-          {error}
-        </div>
-      )}
-
       <div className="space-y-2">
         <Label htmlFor="bank_code">Bank Code *</Label>
         <Input

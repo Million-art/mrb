@@ -32,7 +32,6 @@ export default function CreateCustomerForm() {
   })
 
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
   const dispatch = useDispatch()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -45,18 +44,23 @@ export default function CreateCustomerForm() {
 
   const handleSubmit = async () => {
     if (!formData.legal_name || !formData.email || !formData.phone_number || !formData.type) {
-      setError("All fields are required");
+      dispatch(setShowMessage({
+        message: "All fields are required",
+        color: "red"
+      }));
       return;
     }
 
     // Validate phone number format
     if (!formData.phone_number.startsWith("+58")) {
-      setError("Phone number must start with +58 for Venezuela");
+      dispatch(setShowMessage({
+        message: "Phone number must start with +58 for Venezuela",
+        color: "red"
+      }));
       return;
     }
 
     setLoading(true);
-    setError("");
 
     try {
       await axios.post(
@@ -77,7 +81,6 @@ export default function CreateCustomerForm() {
       console.error('Error:', err);
       // Get the specific error message from the API response
       const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to create customer account';
-      setError(errorMessage);
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"
@@ -89,13 +92,6 @@ export default function CreateCustomerForm() {
 
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-black rounded-lg text-white">
-
-      {error && (
-        <div className="mb-6 p-4 bg-red-500/20 border border-red-500 text-red-500 rounded-md text-sm">
-          {error}
-        </div>
-      )}
-
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="legal_name">Legal Name *</Label>

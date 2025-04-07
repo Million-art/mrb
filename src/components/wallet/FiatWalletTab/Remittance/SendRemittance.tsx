@@ -1,7 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
-import { Loader2, ArrowRight, XCircle, CheckCircle } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { QuoteResponse } from "@/interface/QuoteExchange";
+import { useDispatch } from "react-redux";
+import { setShowMessage } from "@/store/slice/messageSlice";
 
 const SendRemittance = () => {
   // Form state
@@ -15,18 +17,18 @@ const SendRemittance = () => {
   const [isCreatingQuote, setIsCreatingQuote] = useState(false);
   const [isPayingQuote, setIsPayingQuote] = useState(false);
   const [isConfirmingQuote, setIsConfirmingQuote] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const dispatch = useDispatch();
 
-  
   const fetchExchangeRate = async () => {
     if (!fromCurrency || !toCurrency) {
-      setError("Please select both currencies");
+      dispatch(setShowMessage({
+        message: "Please select both currencies",
+        color: "red"
+      }));
       return;
     }
 
     setIsLoading(true);
-    setError("");
     setExchangeRate(null);
     setQuote(null);
 
@@ -42,7 +44,10 @@ const SendRemittance = () => {
         throw new Error("Invalid exchange rate data");
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to fetch exchange rate");
+      dispatch(setShowMessage({
+        message: err.response?.data?.error || "Failed to fetch exchange rate",
+        color: "red"
+      }));
       console.error("Exchange rate error:", err);
     } finally {
       setIsLoading(false);
@@ -51,13 +56,14 @@ const SendRemittance = () => {
 
   const createTransferQuote = async () => {
     if (!amount || !fromCurrency || !toCurrency) {
-      setError("Please fill all required fields");
+      dispatch(setShowMessage({
+        message: "Please fill all required fields",
+        color: "red"
+      }));
       return;
     }
   
     setIsCreatingQuote(true);
-    setError("");
-    setSuccess("");
   
     try {
       const response = await axios.post(
@@ -69,10 +75,16 @@ const SendRemittance = () => {
       );
   
       setQuote(response.data);
-      setSuccess("Transfer quote created successfully!");
+      dispatch(setShowMessage({
+        message: "Transfer quote created successfully!",
+        color: "green"
+      }));
     } catch (err: any) {
       const errorMessage = err.response?.data?.error || "Failed to create transfer quote";
-      setError(errorMessage);
+      dispatch(setShowMessage({
+        message: errorMessage,
+        color: "red"
+      }));
       console.error("Quote creation error:", err);
     } finally {
       setIsCreatingQuote(false);
@@ -83,8 +95,6 @@ const SendRemittance = () => {
     if (!quote?.id) return;
   
     setIsPayingQuote(true);
-    setError("");
-    setSuccess("");
   
     try {
       const response = await axios.post(
@@ -92,10 +102,16 @@ const SendRemittance = () => {
         { quoteId: quote.id }
       );
   
-      setSuccess("Transfer payment initiated successfully!");
+      dispatch(setShowMessage({
+        message: "Transfer payment initiated successfully!",
+        color: "green"
+      }));
       setQuote(response.data); 
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to pay transfer quote");
+      dispatch(setShowMessage({
+        message: err.response?.data?.error || "Failed to pay transfer quote",
+        color: "red"
+      }));
       console.error("Payment error:", err);
     } finally {
       setIsPayingQuote(false);
@@ -106,8 +122,6 @@ const SendRemittance = () => {
     if (!quote?.id) return;
   
     setIsConfirmingQuote(true);
-    setError("");
-    setSuccess("");
   
     try {
       const response = await axios.post(
@@ -115,10 +129,16 @@ const SendRemittance = () => {
         { quoteId: quote.id }
       );
   
-      setSuccess("Transfer confirmed successfully!");
+      dispatch(setShowMessage({
+        message: "Transfer confirmed successfully!",
+        color: "green"
+      }));
       setQuote(response.data);
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to confirm transfer");
+      dispatch(setShowMessage({
+        message: err.response?.data?.error || "Failed to confirm transfer",
+        color: "red"
+      }));
       console.error("Confirmation error:", err);
     } finally {
       setIsConfirmingQuote(false);
@@ -142,29 +162,6 @@ const SendRemittance = () => {
     <div className="flex flex-col items-center min-h-screen pt-4 mb-10">
       <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden p-2">
         <h2 className="text-2xl font-bold mb-6 text-center">Send Remittance</h2>
-
-        {/* Success Display */}
-        {success && (
-          <div className="mb-6 p-4 border border-green-200 rounded-lg">
-            <div className="flex items-center text-green-600 mb-2">
-              <CheckCircle className="mr-2" />
-              <span className="font-medium">Success</span>
-            </div>
-            <p>{success}</p>
-          </div>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <div className="mb-6 p-4 border border-red-200 rounded-lg">
-            <div className="flex items-center text-red-600 mb-2">
-              <XCircle className="mr-2" />
-              <span className="font-medium">Error</span>
-            </div>
-            <p>{error}</p>
-          </div>
-        )}
-
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
