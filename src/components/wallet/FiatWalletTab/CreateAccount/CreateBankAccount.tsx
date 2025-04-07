@@ -5,11 +5,11 @@ import { Label } from "@/components/stonfi/ui/label";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
-import { useNavigate } from "react-router-dom";
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import './phone-input-dark.css';
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, X, Loader2 } from "lucide-react";
+import { getBankAccountsUrl, getBankAccountUrl } from "@/config/api";
 
 interface BankAccountFormData {
   bank_code: string;
@@ -26,15 +26,19 @@ interface BankAccount extends BankAccountFormData {
 
 interface CreateBankAccountProps {
   customerId: string;
+  showLoader?: boolean;
 }
 
-export default function CreateBankAccount({ customerId }: CreateBankAccountProps) {
-  const navigate = useNavigate();
+export default function CreateBankAccount({ customerId, showLoader = true }: CreateBankAccountProps) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [displayMode, setDisplayMode] = useState<'loading' | 'details' | 'form'>('loading');
+  const [dataFetched, setDataFetched] = useState(false);
 
   const [formData, setFormData] = useState<BankAccountFormData>({
     bank_code: "",
@@ -47,21 +51,19 @@ export default function CreateBankAccount({ customerId }: CreateBankAccountProps
   useEffect(() => {
     const fetchBankAccount = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3002/customers/${customerId}/bank-accounts`
-        );
+        const response = await axios.get(getBankAccountsUrl(customerId));
         if (response.data && response.data.length > 0) {
           setBankAccount(response.data[0]);
-          setFormData({
-            bank_code: response.data[0].bank_code,
-            beneficiary_name: response.data[0].beneficiary_name,
-            account_number: response.data[0].account_number,
-            id_doc_number: response.data[0].id_doc_number,
-            phone_number: response.data[0].phone_number,
-          });
+          setDisplayMode('details');
+        } else {
+          setDisplayMode('form');
         }
       } catch (err) {
         console.error('Error fetching bank account:', err);
+        setDisplayMode('form');
+      } finally {
+        setIsLoading(false);
+        setDataFetched(true);
       }
     };
 
@@ -73,6 +75,32 @@ export default function CreateBankAccount({ customerId }: CreateBankAccountProps
       await navigator.clipboard.writeText(bankAccount.kontigoBankAccountId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!bankAccount) return;
+    
+    setLoading(true);
+    try {
+      await axios.delete(getBankAccountUrl(customerId, bankAccount.id));
+      setBankAccount(null);
+      setShowDeleteConfirm(false);
+      setDisplayMode('form');
+      dispatch(setShowMessage({
+        message: "Bank account deleted successfully!",
+        color: "green"
+      }));
+    } catch (err: any) {
+      console.error('Error:', err);
+      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to delete bank account';
+      setError(errorMessage);
+      dispatch(setShowMessage({
+        message: errorMessage,
+        color: "red"
+      }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,30 +132,16 @@ export default function CreateBankAccount({ customerId }: CreateBankAccountProps
     setError("");
 
     try {
-      if (bankAccount) {
-        await axios.put(
-          `http://localhost:3002/customers/${customerId}/bank-accounts/${bankAccount.id}`,
-          formData
-        );
-        dispatch(setShowMessage({
-          message: "Bank account updated successfully!",
-          color: "green"
-        }));
-      } else {
-        await axios.post(
-          `http://localhost:3002/customers/${customerId}/bank-accounts`,
-          formData
-        );
-        dispatch(setShowMessage({
-          message: "Bank account created successfully!",
-          color: "green"
-        }));
-      }
-
-      navigate("/wallet");
+      const response = await axios.post(getBankAccountsUrl(customerId), formData);
+      setBankAccount(response.data);
+      setDisplayMode('details');
+      dispatch(setShowMessage({
+        message: "Bank account created successfully!",
+        color: "green"
+      }));
     } catch (err: any) {
       console.error('Error:', err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to save bank account';
+      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to create bank account';
       setError(errorMessage);
       dispatch(setShowMessage({
         message: errorMessage,
@@ -138,10 +152,20 @@ export default function CreateBankAccount({ customerId }: CreateBankAccountProps
     }
   };
 
-  return (
-    <div className="space-y-4">
-      {bankAccount && (
-        <div className="mb-6 p-4 bg-gray-800 rounded-lg">
+  // Show loading state until data is fetched
+  if (isLoading || !dataFetched) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        {/* <Loader2 className="h-8 w-8 animate-spin text-blue" /> */}
+      </div>
+    );
+  }
+
+  // Bank account details view
+  if (displayMode === 'details' && bankAccount) {
+    return (
+      <div className="space-y-4">
+        <div className="mb-4 p-3 rounded-lg bg-gray-dark mt-14">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Bank Account ID</p>
@@ -155,8 +179,90 @@ export default function CreateBankAccount({ customerId }: CreateBankAccountProps
             </button>
           </div>
         </div>
-      )}
 
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 rounded-lg bg-gray-dark">
+            <p className="text-sm text-gray-400">Bank Code</p>
+            <p className="text-base font-medium">{bankAccount.bank_code}</p>
+          </div>
+          
+          <div className="p-3 rounded-lg bg-gray-dark">
+            <p className="text-sm text-gray-400">ID Document</p>
+            <p className="text-base font-medium">{bankAccount.id_doc_number}</p>
+          </div>
+          
+          {bankAccount.beneficiary_name && (
+            <div className="p-3 rounded-lg bg-gray-dark">
+              <p className="text-sm text-gray-400">Beneficiary</p>
+              <p className="text-base font-medium">{bankAccount.beneficiary_name}</p>
+            </div>
+          )}
+          
+          {bankAccount.account_number && (
+            <div className=" p-3 rounded-lg bg-gray-dark">
+              <p className="text-sm text-gray-400">Phone Number</p>
+              <p className="text-base font-medium">{bankAccount.phone_number}</p>
+            </div>
+          )}
+          
+          {bankAccount.phone_number && (
+         
+            <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
+             <p className="text-sm text-gray-400">Account Number</p>
+             <p className="text-base font-medium">{bankAccount.account_number}</p>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
+          disabled={loading}
+        >
+          {loading ? "Deleting..." : "Delete Bank Account"}
+        </Button>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-gray-dark p-6 rounded-lg max-w-md w-full mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Delete Bank Account</h3>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete this bank account? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  disabled={loading}
+                >
+                  {loading ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Create bank account form
+  return (
+    <div className="space-y-4">
       {error && (
         <div className="mb-6 p-4 bg-red-500/20 border border-red-500 text-red-500 rounded-md text-sm">
           {error}
@@ -232,7 +338,7 @@ export default function CreateBankAccount({ customerId }: CreateBankAccountProps
           className="w-full bg-blue hover:bg-blue-light text-white"
           disabled={loading}
         >
-          {loading ? "Saving..." : bankAccount ? "Update Bank Account" : "Create Bank Account"}
+          {loading ? "Creating..." : "Create Bank Account"}
         </Button>
       </div>
     </div>

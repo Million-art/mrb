@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux"
 import { setShowMessage } from "@/store/slice/messageSlice"
 import { telegramId } from "@/libs/telegram"
 import { useNavigate } from "react-router-dom"
+import { getCustomerUrl } from "@/config/api"
 
 interface FormData {
   legal_name: string;
@@ -59,7 +60,7 @@ export default function CreateCustomerForm() {
 
     try {
       await axios.post(
-        "http://localhost:3002/customers",
+        getCustomerUrl(),
         formData
       );
 
