@@ -35,7 +35,7 @@ const BottomNav = () => {
           icon={<img src={WalletIcon} alt="Wallet" />}
           label="Wallet"
           currentScreen={currentScreen}
-          url="/airdrops"
+          url="/wallet"
         />
         <Btn
           icon={<img src={TrophyIcon} alt="Trophy" />}

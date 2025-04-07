@@ -7,4 +7,3 @@ export * from "./dmdepositdetails";
 export * from "./getExchange";
 export * from "./payTransferQuote";
 export * from "./createTransferQuote";
-export * from "./CreateAccount";

@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/libs/firebase';
-import { ArrowLeft, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { telegramId } from '@/libs/telegram';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { clearReceipt } from '@/store/slice/depositReceiptSlice';
+import { setShowMessage } from '@/store/slice/messageSlice';
 import { addDoc, collection } from 'firebase/firestore';
 
 interface UploadState {
   loading: boolean;
   step: 'idle' | 'uploading' | 'creating' | 'success' | 'error';
   progress: number;
-  error: string | null;
-  success: string | null;
 }
 
 const UploadReceipt: React.FC = () => {
@@ -26,11 +25,8 @@ const UploadReceipt: React.FC = () => {
   const [uploadState, setUploadState] = useState<UploadState>({
     loading: false,
     step: 'idle',
-    progress: 0,
-    error: null,
-    success: null
+    progress: 0
   });
- 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -40,9 +36,7 @@ const UploadReceipt: React.FC = () => {
     setUploadState({
       loading: false,
       step: 'idle',
-      progress: 0,
-      error: null,
-      success: null
+      progress: 0
     });
 
     // Validate file
@@ -50,17 +44,17 @@ const UploadReceipt: React.FC = () => {
     const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!allowedTypes.includes(selectedFile.type)) {
-      setUploadState(prev => ({
-        ...prev,
-        error: "Invalid file type. Please upload PNG, JPG, or PDF."
+      dispatch(setShowMessage({
+        message: "Invalid file type. Please upload PNG, JPG, or PDF.",
+        color: "red"
       }));
       return;
     }
 
     if (selectedFile.size > maxSize) {
-      setUploadState(prev => ({
-        ...prev,
-        error: "File size too large. Max 5MB allowed."
+      dispatch(setShowMessage({
+        message: "File size too large. Max 5MB allowed.",
+        color: "red"
       }));
       return;
     }
@@ -70,7 +64,10 @@ const UploadReceipt: React.FC = () => {
 
   const handleUpload = async () => {
     if (!receiptData) {
-      setUploadState(prev => ({ ...prev, error: "Missing receipt data" }));
+      dispatch(setShowMessage({
+        message: "Missing receipt data",
+        color: "red"
+      }));
       return;
     }
   
@@ -78,18 +75,18 @@ const UploadReceipt: React.FC = () => {
   
     // Validate required fields
     if (!file || !amount || !ambassadorId || !telegramId) {
-      setUploadState(prev => ({
-        ...prev,
-        error: "Please fill all required fields"
+      dispatch(setShowMessage({
+        message: "Please fill all required fields",
+        color: "red"
       }));
       return;
     }
   
     const parsedAmount = Math.floor(Number(amount));
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setUploadState(prev => ({
-        ...prev,
-        error: "Amount must be a positive number"
+      dispatch(setShowMessage({
+        message: "Amount must be a positive number",
+        color: "red"
       }));
       return;
     }
@@ -97,9 +94,7 @@ const UploadReceipt: React.FC = () => {
     setUploadState({
       loading: true,
       step: 'uploading',
-      progress: 0,
-      error: null,
-      success: null
+      progress: 0
     });
   
     try {
@@ -116,10 +111,12 @@ const UploadReceipt: React.FC = () => {
           setUploadState({
             loading: false,
             step: 'error',
-            progress: 0,
-            error: "File upload failed. Please try again.",
-            success: null
+            progress: 0
           });
+          dispatch(setShowMessage({
+            message: "File upload failed. Please try again.",
+            color: "red"
+          }));
         },
         async () => {
           try {
@@ -139,33 +136,27 @@ const UploadReceipt: React.FC = () => {
               senderTgId: String(telegramId).trim(),
               documents: [downloadURL],
               createdAt: new Date().toISOString(),
-              status: "pending", // Add initial status
+              status: "pending",
               metadata: {
                 uploadedAt: new Date().toISOString()
               }
             };
   
             // 4. Direct Firestore write
-            const receiptRef = await addDoc(collection(db, "receipts"), {
-              ambassadorId: String(ambassadorId).trim(),
-              amount: parsedAmount,
-              senderTgId: String(telegramId).trim(),
-              documents: [downloadURL],
-              createdAt: new Date().toISOString(),
-              status: "pending",
-              metadata: {
-                uploadedAt: new Date().toISOString()
-              }
-            });    
-            console.log(receiptRef,receiptData)       
+            const receiptRef = await addDoc(collection(db, "receipts"), receiptData);    
+            console.log(receiptRef, receiptData);       
+            
             // 5. Handle success
             setUploadState({
               loading: false,
               step: 'success',
-              progress: 100,
-              error: null,
-              success: "Receipt uploaded successfully!"
+              progress: 100
             });
+
+            dispatch(setShowMessage({
+              message: "Receipt uploaded successfully!",
+              color: "green"
+            }));
   
             // 6. Cleanup and redirect
             setTimeout(() => {
@@ -178,10 +169,12 @@ const UploadReceipt: React.FC = () => {
             setUploadState({
               loading: false,
               step: 'error',
-              progress: 0,
-              error: error.message || "Failed to save receipt",
-              success: null
+              progress: 0
             });
+            dispatch(setShowMessage({
+              message: error.message || "Failed to save receipt",
+              color: "red"
+            }));
           }
         }
       );
@@ -190,10 +183,12 @@ const UploadReceipt: React.FC = () => {
       setUploadState({
         loading: false,
         step: 'error',
-        progress: 0,
-        error: error.message || "An unexpected error occurred",
-        success: null
+        progress: 0
       });
+      dispatch(setShowMessage({
+        message: error.message || "An unexpected error occurred",
+        color: "red"
+      }));
     }
   };
   
@@ -213,31 +208,8 @@ const UploadReceipt: React.FC = () => {
       <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden p-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Upload Receipt</h2>
 
-        {/* Error Display */}
-        {uploadState.error && (
-          <div className="mb-6 p-4 border border-red-200 rounded-lg">
-            <div className="flex items-center text-red-600 mb-2">
-              <XCircle className="mr-2" />
-              <span className="font-medium">Error</span>
-            </div>
-            <p>{uploadState.error}</p>
-          </div>
-        )}
-
-        {/* Success Display */}
-        {uploadState.success && (
-          <div className="mb-6 p-4 border border-green-200 rounded-lg">
-            <div className="flex items-center text-green-600 mb-2">
-              <CheckCircle className="mr-2" />
-              <span className="font-medium">Success</span>
-            </div>
-            <p>{uploadState.success}</p>
-            <p className="mt-2 text-sm">Redirecting...</p>
-          </div>
-        )}
-
         {/* Payment Details */}
-        <div className="mb-6 p-4  rounded-lg">
+        <div className="mb-6 p-4 rounded-lg">
           <h3 className="font-semibold mb-3">Payment Details</h3>
           <div className="space-y-2">
             <p><span className="font-medium">Bank:</span> {receiptData.payment.bank}</p>
@@ -318,7 +290,7 @@ const UploadReceipt: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={uploadState.loading || !file || !amount}
-          className={`w-full py-3 px-4 rounded-lg font-medium  transition-colors
+          className={`w-full py-3 px-4 rounded-lg font-medium transition-colors
             ${uploadState.loading || !file || !amount
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-blue hover:bg-blue'

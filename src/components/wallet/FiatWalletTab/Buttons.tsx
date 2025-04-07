@@ -52,7 +52,7 @@ const Buttons = () => {
   };
 
   const handleCreateAccountClick = () => {
-    navigate("/create-account"); 
+    navigate("/create-customer"); 
   };
  
   return (
