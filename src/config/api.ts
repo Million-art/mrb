@@ -1,22 +1,43 @@
-// API Configuration
-export const API_CONFIG = {
-  BASE_URL: "http://localhost:3002",
-  ENDPOINTS: {
-    CUSTOMERS: "/customers",
-    BANK_ACCOUNTS: "/bank-accounts"
+  // API Configuration
+  export const API_CONFIG = {
+    BASE_URL: "http://localhost:3002",
+    ENDPOINTS: {
+      CUSTOMERS: "/customers",
+      BANK_ACCOUNTS: "/bank-accounts",
+      QUOTES: "/quotes",
+      EXCHANGE_RATE: "/exchange-rates"
+    }
+  };
+
+  export const EXCHANGE_RATE_URL = (source_currency: string, destination_currency: string) => {
+    const base = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EXCHANGE_RATE}`;
+    return `${base}?source_currency=${encodeURIComponent(source_currency)}&destination_currency=${encodeURIComponent(destination_currency)}`;
+  };
+  export const getCustomerUrl = (customerId?: string) => {
+    const base = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CUSTOMERS}`;
+    return customerId ? `${base}/${customerId}` : base;
+  };
+
+  export const getBankAccountsUrl = (customerId: string) => {
+    return `${getCustomerUrl(customerId)}${API_CONFIG.ENDPOINTS.BANK_ACCOUNTS}`;
+  };
+
+  export const getBankAccountUrl = (customerId: string, bankAccountId: string) => {
+    return `${getBankAccountsUrl(customerId)}/${bankAccountId}`;
+  }; 
+
+  export const getQuotesUrl = (customerId: string) => {
+    return `${getCustomerUrl(customerId)}${API_CONFIG.ENDPOINTS.QUOTES}`;
+  };
+
+  export const getQuoteCreateUrl = (customerId: string) => {
+    return `${API_CONFIG.BASE_URL}/quote/${customerId}/create`;
+  };
+
+
+  export const getQuotePayUrl = (customerId: string, quoteId: string, amount:number) => {
+    return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay/${amount}`;
   }
-};
 
-// Helper functions to generate URLs
-export const getCustomerUrl = (customerId?: string) => {
-  const base = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CUSTOMERS}`;
-  return customerId ? `${base}/${customerId}` : base;
-};
+ 
 
-export const getBankAccountsUrl = (customerId: string) => {
-  return `${getCustomerUrl(customerId)}${API_CONFIG.ENDPOINTS.BANK_ACCOUNTS}`;
-};
-
-export const getBankAccountUrl = (customerId: string, bankAccountId: string) => {
-  return `${getBankAccountsUrl(customerId)}/${bankAccountId}`;
-}; 
