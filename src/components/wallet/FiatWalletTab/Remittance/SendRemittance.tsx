@@ -10,26 +10,6 @@ import { telegramId } from "@/libs/telegram";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 
-// Helper function to format crypto and fiat currencies
-const formatCurrencyValue = (value: number, currency: string) => {
-  if (['USDC', 'USDT', 'BTC', 'ETH'].includes(currency)) {
-    return new Intl.NumberFormat(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6
-    }).format(value);
-  }
-  
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(value);
-  } catch {
-    return `${value.toFixed(2)} ${currency}`;
-  }
-};
 
 const SendRemittance = () => {
   // Form state
