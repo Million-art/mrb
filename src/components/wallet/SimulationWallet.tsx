@@ -119,7 +119,7 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
                 <div className="flex items-center justify-between space-x-4">
                   <div className="flex items-center gap-4">
                     <img
-                      src="https://cryptologos.cc/logos/bitcoin-btc-logo.png"
+                      src="https://res.cloudinary.com/dd6sildog/image/upload/v1744210593/R_cpoorc.png"
                       alt="Bitcoin"
                       className="h-10 w-10 rounded-full"
                     />
@@ -136,7 +136,7 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
                 <div className="flex items-center justify-between space-x-4">
                   <div className="flex items-center gap-4">
                     <img
-                      src="https://cryptologos.cc/logos/toncoin-ton-logo.png"
+                      src="https://res.cloudinary.com/dd6sildog/image/upload/v1744210472/OIP_2_ny2wlg.jpg"
                       alt="Toncoin"
                       className="h-10 w-10 rounded-full"
                     />
