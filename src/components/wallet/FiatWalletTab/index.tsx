@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import FiatTransactions from "./Transactions/DepositTransactions";
 import SendReciveFiat from "./Buttons";
 import { telegramId } from "@/libs/telegram";
 import { useSelector, useDispatch } from "react-redux";
