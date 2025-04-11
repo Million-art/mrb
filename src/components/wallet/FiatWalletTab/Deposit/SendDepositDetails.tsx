@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { collection, query, where, getDocs, limit } from "firebase/firestore";
-import { db, functions } from "@/libs/firebase";
+import { db } from "@/libs/firebase";
 import { Ambassador, PaymentMethod } from "@/interface/Ambassador";
 import HourglassAnimation from "../AnimateLoader";
 import { ArrowLeft, X, Loader2 } from "lucide-react";
-import { httpsCallable } from "firebase/functions";
 import { telegramId } from "@/libs/telegram";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
+import { dmDepositDetails } from "@/config/api";
 
 interface Country {
   name: string;
@@ -177,8 +177,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     };
 
     try {
-      const sendMessage = httpsCallable(functions, 'dmdepositdetail');
-      const response = await sendMessage(requestData);
+       const response = await dmDepositDetails(requestData);
       console.log('Response from cloud function:', response.data);
       
       dispatch(setShowMessage({

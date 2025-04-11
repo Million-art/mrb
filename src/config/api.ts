@@ -38,6 +38,27 @@
   export const getQuotePayUrl = (customerId: string, quoteId: string, amount:number) => {
     return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay/${amount}`;
   }
+  export const dmDepositDetails = async (depositDetails) => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/dm-deposit-details`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(depositDetails),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send deposit details');
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error('Error sending deposit details:', error);
+      throw error;
+    }
+  };
 
  
 
