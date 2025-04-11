@@ -14,7 +14,6 @@ const TransferTransactions = () => {
     transferTransactions, 
     isLoading, 
     error, 
-    lastUpdated 
   } = useSelector((state: RootState) => state.transferTransactions);
 
   useEffect(() => {
