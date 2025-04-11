@@ -2,12 +2,14 @@ import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import FiatTransactions from "./FiatTransactions";
+import FiatTransactions from "./Transactions/DepositTransactions";
 import SendReciveFiat from "./Buttons";
 import { telegramId } from "@/libs/telegram";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
 import { fetchRealBalance } from "@/store/slice/fiatBalanceSlice";
+import DepositTransactions from "./Transactions/DepositTransactions";
+import TransferTransactions from "./Transactions/TransferTransactions";
 
 const FiatWalletTab = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -48,20 +50,34 @@ const FiatWalletTab = () => {
       </Card>
 
       {/* Transactions Tab */}
-      <Tabs defaultValue="remittance" className="w-full">
+      <Tabs defaultValue="deposit" className="w-full mt-14"> 
+          <h1 className="text-center text-xl">Transactions</h1>
         <TabsList className="w-full flex gap-3 border-b border-gray-800">
           <TabsTrigger
-            value="remittance"
+            value="deposit"
             className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
           >
-            Transactions
+            Deposit
+          </TabsTrigger>
+          <TabsTrigger
+            value="transfer"
+            className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+          >
+            Transfer 
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="remittance">
+        <TabsContent value="deposit">
           <Card>
             <CardContent className="p-4">
-              <FiatTransactions />
+              <DepositTransactions />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="transfer">
+          <Card>
+            <CardContent className="p-4">
+              <TransferTransactions />
             </CardContent>
           </Card>
         </TabsContent>

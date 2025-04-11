@@ -34,6 +34,7 @@ import UploadReceipt from "./components/wallet/FiatWalletTab/Deposit/UploadRecei
 import { initializeReceiptData, setError } from "./store/slice/depositReceiptSlice";
 import CreateCustomerPage from "./screens/CreateCustomerPage";
 import CreateBankAccountPage from "./screens/CreateBankAccountPage";
+import TrasferBalancePage from "./screens/TrasferBalancePage";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -247,6 +248,8 @@ useEffect(() => {
         <Route path="/upload-receipt" element={<UploadReceipt />} />
         <Route path="/create-customer" element={<CreateCustomerPage />} />
         <Route path="/create-bank-account" element={<CreateBankAccountPage />} />
+        <Route path="/balance-transfer" element={<TrasferBalancePage />} />
+
       </Routes>
     </>
   );

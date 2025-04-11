@@ -43,6 +43,7 @@ const Buttons = () => {
     checkIfUserHoldsMRBToken();
   }, [dispatch]);
 
+
   const handleDepositClick = () => {
     navigate("/fiat-deposit");
   };
@@ -55,26 +56,34 @@ const Buttons = () => {
     navigate("/create-customer"); 
   };
  
+  const handleTransferClick = () => {
+    navigate("/balance-transfer"); 
+  };
+
+  
   return (
     <div className="w-full scrollbar-hidden">
       <div className="w-full">
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-4 gap-3 mb-6">
           {/* Deposit Icon */}
           <div onClick={handleDepositClick} className="flex flex-col items-center cursor-pointer">
-            <ArrowDown size={30} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
-            <span className="text-sm mt-2">Deposit</span>
+            <ArrowDown size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
+            <span className="text-xs mt-2">Deposit</span>
           </div>
 
           {/* Remittance Icon */}
           <div onClick={handleRemittanceClick} className="flex flex-col items-center cursor-pointer">
-            <ArrowUp size={30} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
-            <span className="text-sm mt-2">Remittance</span>
+            <ArrowUp size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
+            <span className="text-xs mt-2">Remittance</span>
           </div>
 
-          {/* Landmark  Account Icon - Changed to Landmark  */}
+           <div onClick={handleTransferClick} className="flex flex-col items-center cursor-pointer">
+            <ArrowRight  size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" /> 
+            <span className="text-xs mt-2">Transfer</span>
+          </div>
           <div onClick={handleCreateAccountClick} className="flex flex-col items-center cursor-pointer">
-            <Landmark  size={30} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" /> 
-            <span className="text-sm mt-2">Account</span>
+            <Landmark  size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" /> 
+            <span className="text-xs mt-2">Account</span>
           </div>
         </div>
 
