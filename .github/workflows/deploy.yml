@@ -1,51 +1,51 @@
-name: Deploy
+name: remi_server
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build:
-    name: Build
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
         with:
-          node-version: '22'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install dependencies
-        run: npm install --verbose
+      - name: Extract Short SHA
+        id: vars
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build project
-        run: npm run build
-
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v4
+      - name: Build & Push Docker Image
+        uses: docker/build-push-action@v5
         with:
-          name: production-files
-          path: ./dist
+          context: ./remi_Backend
+          file: ./remi_Backend/Dockerfile
+          push: true
+          tags: |
+            millionmulugeta/remi_server:latest
+            millionmulugeta/remi_server:${{ env.SHORT_SHA }}
 
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.0
         with:
-          name: production-files
-          path: ./dist
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull millionmulugeta/remi_server:latest
+            docker stop remi_server || true
+            docker rm remi_server || true
+            docker run -d --name remi_server \
+              --env-file /home/ubuntu/.env \
+              -p 80:80 \
+              millionmulugeta/remi_server:latest
