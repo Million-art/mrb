@@ -17,7 +17,7 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build Docker image for frontend
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest ./mini_app
 
       - name: Push Docker image for frontend
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
@@ -26,13 +26,15 @@ jobs:
         env:
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+            set -e
+            echo "🔐 Connected to server"
+            cd /home/million/mrbeas
 
             echo "📦 Pulling latest mini_app image..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
 
             echo "🛑 Stopping current containers..."
-            cd /home/million/mrbeas
             docker-compose down
 
             echo "🚀 Starting updated containers..."
