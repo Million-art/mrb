@@ -1,6 +1,6 @@
   // API Configuration
   export const API_CONFIG = {
-    BASE_URL: "http://backend.mrbeas.net",
+    BASE_URL: "https://backend.mrbeas.net",
     ENDPOINTS: {
       CUSTOMERS: "/customers",
       BANK_ACCOUNTS: "/bank-accounts",
