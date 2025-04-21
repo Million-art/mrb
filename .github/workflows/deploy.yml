@@ -1,4 +1,4 @@
-name: Build, Push Docker Image & Deploy Frontend
+name: Build, Push Frontend Docker Image & Deploy
 
 on:
   push:
@@ -6,43 +6,56 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  frontend-deploy:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: ✅ Checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 🐛 Debug folder structure
-        run: ls -la
-
-      - name: 🔐 Log in to Docker Hub
+      # 🔐 Docker login
+      - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: 🛠 Build Docker image (Dockerfile is in root)
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest .
+      # 🛠 Build Docker image
+      - name: Build frontend Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/remi_client:latest .
 
-      - name: 🚀 Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
+      # 🚀 Push image to Docker Hub
+      - name: Push frontend image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/remi_client:latest
 
-      - name: 📦 Deploy to Server via SSH
+      # 🔄 SSH and deploy frontend
+      - name: SSH and deploy frontend on server
         env:
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no \
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+
             set -e
-            echo "✅ Connected to server"
 
-            echo "📥 Pulling latest image..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
+            echo "🔐 Connected to server (frontend)"
 
-            echo "🛑 Stopping existing containers..."
-            cd /home/million/mrbeas
+            export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
+
+            cd /home/million/mrbeas_client || {
+              echo "❌ Failed to cd into /home/million/mrbeas_client"
+              exit 1
+            }
+
+            echo "🛑 Stopping old frontend containers..."
             docker-compose down
 
-            echo "🚀 Starting updated containers..."
+            echo "🧹 Cleaning up old frontend Docker images..."
+            docker image prune -af || true
+
+            echo "⬇️ Pulling latest frontend image..."
+            docker pull \${DOCKERHUB_USERNAME}/remi_client:latest
+
+            echo "🚀 Starting frontend containers..."
             docker-compose up -d --build
 
-            echo "🎉 Deployment complete!"
+            echo "✅ Frontend deployment successful!"
           EOF
