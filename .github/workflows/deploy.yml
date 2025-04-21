@@ -1,4 +1,4 @@
-name: Build, Push Frontend Docker Image & Deploy
+name: Build & Deploy Frontend
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  frontend-deploy:
+  build-and-deploy-frontend:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,48 +14,44 @@ jobs:
         uses: actions/checkout@v3
 
       # 🔐 Docker login
-      - name: Log in to Docker Hub
+      - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      # 🛠 Build Docker image
-      - name: Build frontend Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/remi_client:latest .
+      # 🛠 Build frontend Docker image
+      - name: Build Frontend Docker Image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest .
 
-      # 🚀 Push image to Docker Hub
-      - name: Push frontend image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/remi_client:latest
+      # 🚀 Push frontend image to Docker Hub
+      - name: Push Frontend Docker Image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
 
-      # 🔄 SSH and deploy frontend
-      - name: SSH and deploy frontend on server
+      # 🔄 SSH into server and redeploy
+      - name: SSH and deploy on server
         env:
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no \
-          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
 
             set -e
+            echo "🔐 Connected to server"
 
-            echo "🔐 Connected to server (frontend)"
-
-            export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
-
-            cd /home/million/mrbeas_client || {
-              echo "❌ Failed to cd into /home/million/mrbeas_client"
+            cd /home/million/mrbeas || {
+              echo "❌ Failed to cd into /home/million/mrbeas"
               exit 1
             }
 
-            echo "🛑 Stopping old frontend containers..."
+            echo "🛑 Stopping containers..."
             docker-compose down
 
-            echo "🧹 Cleaning up old frontend Docker images..."
+            echo "🧹 Pruning unused Docker images..."
             docker image prune -af || true
 
             echo "⬇️ Pulling latest frontend image..."
-            docker pull \${DOCKERHUB_USERNAME}/remi_client:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
 
-            echo "🚀 Starting frontend containers..."
+            echo "🚀 Rebuilding and starting services..."
             docker-compose up -d --build
 
-            echo "✅ Frontend deployment successful!"
+            echo "✅ Frontend deployed!"
           EOF
