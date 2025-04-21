@@ -1,13 +1,12 @@
-# Frontend Dockerfile (React/Vite)
 FROM node:18 as build
 
 WORKDIR /app
 
-COPY mini_app/package*.json ./
-COPY mini_app/.env .env
+COPY package*.json ./
+COPY .env .env
 RUN npm install
 
-COPY mini_app/ ./
+COPY . ./
 RUN npm run build
 
 FROM nginx:alpine
