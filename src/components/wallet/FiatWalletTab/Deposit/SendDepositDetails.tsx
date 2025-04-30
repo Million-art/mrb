@@ -89,7 +89,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       const q = query(
         collection(db, "staffs"),
         where("role", "==", "ambassador"),
-        where("kyc", "==", "approved"),
+        where("kycStatus", "==", "approved"),
         where("country", "==", country.name),
         limit(20)
       );
