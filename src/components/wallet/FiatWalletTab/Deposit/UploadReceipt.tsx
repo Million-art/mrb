@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '@/libs/firebase';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { telegramId } from '@/libs/telegram';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { clearReceipt } from '@/store/slice/depositReceiptSlice';
 import { setShowMessage } from '@/store/slice/messageSlice';
-import { addDoc, collection } from 'firebase/firestore';
 
 interface UploadState {
   loading: boolean;
@@ -98,86 +95,65 @@ const UploadReceipt: React.FC = () => {
     });
   
     try {
-      // 1. Upload file to Firebase Storage
-      const storageRef = ref(storage, `receipts/${Date.now()}_${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-  
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append('receipt', file);
+      formData.append('ambassadorId', String(ambassadorId).trim());
+      formData.append('amount', String(parsedAmount));
+      formData.append('senderTgId', String(telegramId).trim());
+      formData.append('createdAt', new Date().toISOString());
+      
+      // Track upload progress with XMLHttpRequest
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
           setUploadState(prev => ({ ...prev, progress }));
-        },
-        (error) => {
+        }
+      });
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
           setUploadState({
             loading: false,
-            step: 'error',
-            progress: 0
+            step: 'success',
+            progress: 100
           });
+          
           dispatch(setShowMessage({
-            message: "File upload failed. Please try again.",
-            color: "red"
+            message: "Receipt uploaded successfully!",
+            color: "green"
           }));
-        },
-        async () => {
-          try {
-            // 2. Get download URL after upload completes
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            
-            setUploadState(prev => ({
-              ...prev,
-              step: 'creating',
-              progress: 100
-            }));
-  
-            // 3. Create document directly in Firestore
-            const receiptData = {
-              ambassadorId: String(ambassadorId).trim(),
-              amount: parsedAmount,
-              senderTgId: String(telegramId).trim(),
-              documents: [downloadURL],
-              createdAt: new Date().toISOString(),
-              status: "pending",
-              metadata: {
-                uploadedAt: new Date().toISOString()
-              }
-            };
-  
-            // 4. Direct Firestore write
-            const receiptRef = await addDoc(collection(db, "receipts"), receiptData);    
-            console.log(receiptRef, receiptData);       
-            
-            // 5. Handle success
-            setUploadState({
-              loading: false,
-              step: 'success',
-              progress: 100
-            });
-
-            dispatch(setShowMessage({
-              message: "Receipt uploaded successfully!",
-              color: "green"
-            }));
-  
-            // 6. Cleanup and redirect
-            setTimeout(() => {
-              dispatch(clearReceipt());
-              navigate('/fiat-deposit');
-            }, 3000);
-  
-          } catch (error: any) {
-            console.error("Firestore Error:", error);
-            setUploadState({
-              loading: false,
-              step: 'error',
-              progress: 0
-            });
-            dispatch(setShowMessage({
-              message: error.message || "Failed to save receipt",
-              color: "red"
-            }));
-          }
+          
+          // Cleanup and redirect
+          setTimeout(() => {
+            dispatch(clearReceipt());
+            navigate('/fiat-deposit');
+          }, 3000);
+        } else {
+          throw new Error(xhr.responseText || 'Upload failed');
         }
-      );
+      });
+      
+      xhr.addEventListener('error', () => {
+        throw new Error('Network error occurred while uploading');
+      });
+      
+      xhr.open('POST', 'http://localhost:3000/api/receipts/upload');
+      xhr.send(formData);
+      
+      // Set state to creating when upload is complete
+      xhr.addEventListener('loadend', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setUploadState(prev => ({
+            ...prev,
+            step: 'creating',
+            progress: 100
+          }));
+        }
+      });
+      
     } catch (error: any) {
       console.error("Upload Error:", error);
       setUploadState({
@@ -272,7 +248,7 @@ const UploadReceipt: React.FC = () => {
             <div className="flex justify-between text-sm mb-1">
               <span>
                 {uploadState.step === 'uploading' && 'Uploading...'}
-                {uploadState.step === 'creating' && 'Creating receipt...'}
+                {uploadState.step === 'creating' && 'Processing receipt...'}
                 {uploadState.step === 'success' && 'Completed!'}
               </span>
               <span>{Math.round(uploadState.progress)}%</span>
