@@ -113,13 +113,15 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
   const handleSubmit = async () => {
     if (!formData.bank_code || !formData.id_doc_number) {
       dispatch(setShowMessage({
-        message: "Required fields must be filled",
+        message: "Bank code and ID document number are required",
         color: "red"
       }));
       return;
     }
 
-    if (formData.id_doc_number.length < 8) {
+    // Enhanced ID document number validation
+    const idDocNumber = formData.id_doc_number.trim();
+    if (idDocNumber.length < 8) {
       dispatch(setShowMessage({
         message: "ID document number must be at least 8 characters long",
         color: "red"
@@ -127,9 +129,9 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
       return;
     }
 
-    if (!formData.id_doc_number.startsWith('V')) {
+    if (!idDocNumber.match(/^[Vv]\d{7,}$/)) {
       dispatch(setShowMessage({
-        message: "ID document number must start with 'V'",
+        message: "ID document number must start with 'V' followed by at least 7 digits",
         color: "red"
       }));
       return;
@@ -138,7 +140,10 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
     setLoading(true);
 
     try {
-      const response = await axios.post(getBankAccountsUrl(customerId), formData);
+      const response = await axios.post(getBankAccountsUrl(customerId), {
+        ...formData,
+        id_doc_number: idDocNumber.toUpperCase() // Normalize to uppercase
+      });
       setBankAccount(response.data);
       setDisplayMode('details');
       dispatch(setShowMessage({
@@ -304,13 +309,19 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
       <div className="space-y-2">
         <Label htmlFor="id_doc_number">ID Document Number *</Label>
         <Input
-          placeholder="Enter ID document number (e.g., V1234567)"
+          placeholder="Enter ID document number (e.g., V12345678)"
           name="id_doc_number"
           value={formData.id_doc_number}
           onChange={handleChange}
           className="bg-black border border-gray-600 text-white text-left [&:not(:placeholder-shown)]:bg-black"
           required
+          pattern="[Vv]\d{7,}"
+          title="ID must start with 'V' followed by at least 7 digits"
+          maxLength={20}
         />
+        <p className="text-xs text-gray-400 mt-1">
+          Must start with 'V' followed by at least 7 digits (e.g., V12345678)
+        </p>
       </div>
 
       <div className="space-y-2">
