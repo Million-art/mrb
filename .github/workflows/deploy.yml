@@ -1,57 +1,54 @@
-name: Build & Deploy Frontend
+name: Mini App Frontend Deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build-and-deploy-frontend:
+  deploy-mini-app:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: ✅ Checkout code
+        uses: actions/checkout@v4
 
-      # 🔐 Docker login
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: 🔐 Docker Hub Login
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
+          docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      # 🛠 Build frontend Docker image
-      - name: Build Frontend Docker Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest .
+      - name: 🛠 Build Docker Image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest \
+            .
 
-      # 🚀 Push frontend image to Docker Hub
-      - name: Push Frontend Docker Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
+      - name: 🚀 Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
 
-      # 🔄 SSH into server and redeploy
-      - name: SSH and deploy on server
+      - name: 🖥️ Deploy to Server
         env:
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: |
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no \
-          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             set -e
-            echo "🔐 Connected to server"
-
-            cd /home/million/mrbeas || {
-              echo "❌ Failed to cd into /home/million/mrbeas"
-              exit 1
-            }
-
-            echo "🛑 Stopping containers..."
-            docker-compose down
-
-            echo "🧹 Pruning unused Docker images..."
-            docker image prune -af || true
-
-            echo "⬇️ Pulling latest frontend image..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mini_app:latest
-
-            echo "🚀 Rebuilding and starting services..."
-            docker-compose up -d --build
-
-            echo "✅ Frontend deployed!"
+            echo "🔐 Connected to production server"
+            
+            cd /home/million/mrbeas || exit 1
+            
+            echo "⬇️ Pulling latest mini_app image..."
+            docker-compose pull mini_app
+            
+            echo "🔄 Updating mini_app service..."
+            docker-compose up -d --no-deps mini_app
+            
+            echo "🔄 Reloading Caddy reverse proxy..."
+            docker exec caddy_reverse_proxy caddy reload
+            
+            echo "🧹 Cleaning old images..."
+            docker image prune -af --filter "until=24h"
+            
+            echo "✅ Mini App deployment complete!"
           EOF
