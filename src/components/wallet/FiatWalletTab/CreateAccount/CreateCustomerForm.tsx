@@ -19,7 +19,28 @@ interface FormData {
   phone_number: string;
   type: "individual" | "business";
   telegram_id: string;
+  id_doc_country: string;
+  id_doc_type: string;
 }
+
+const DOCUMENT_TYPES = [
+  { value: "passport", label: "Passport" },
+  { value: "national_id", label: "National ID" },
+  { value: "drivers_license", label: "Driver's License" },
+  { value: "residence_permit", label: "Residence Permit" }
+];
+
+const COUNTRIES = [
+  { value: "MX", label: "Mexico" },
+  { value: "GT", label: "Guatemala" },
+  { value: "SV", label: "El Salvador" },
+  { value: "PA", label: "Panama" },
+  { value: "CO", label: "Colombia" },
+  { value: "PE", label: "Peru" },
+  { value: "CL", label: "Chile" },
+  { value: "AR", label: "Argentina" },
+  { value: "GB", label: "United Kingdom" }
+];
 
 export default function CreateCustomerForm() {
   const navigate = useNavigate();
@@ -28,7 +49,9 @@ export default function CreateCustomerForm() {
     email: "",
     phone_number: "",
     type: "individual",
-    telegram_id: String(telegramId)
+    telegram_id: String(telegramId),
+    id_doc_country: "MX", // Default to Mexico
+    id_doc_type: "national_id" // Default to National ID
   })
 
   const [loading, setLoading] = useState(false)
@@ -43,7 +66,7 @@ export default function CreateCustomerForm() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.legal_name || !formData.email || !formData.phone_number || !formData.type) {
+    if (!formData.legal_name || !formData.email || !formData.phone_number || !formData.type || !formData.id_doc_country || !formData.id_doc_type) {
       dispatch(setShowMessage({
         message: "All fields are required",
         color: "red"
@@ -147,6 +170,42 @@ export default function CreateCustomerForm() {
           >
             <option value="individual">Individual</option>
             <option value="business">Business</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="id_doc_country">ID Document Country *</Label>
+          <select
+            id="id_doc_country"
+            name="id_doc_country"
+            value={formData.id_doc_country}
+            onChange={handleChange}
+            className="w-full h-10 px-3 py-2 bg-black border border-gray-600 rounded-md text-white text-left [&:not(:placeholder-shown)]:bg-black"
+            required
+          >
+            {COUNTRIES.map(country => (
+              <option key={country.value} value={country.value}>
+                {country.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="id_doc_type">ID Document Type *</Label>
+          <select
+            id="id_doc_type"
+            name="id_doc_type"
+            value={formData.id_doc_type}
+            onChange={handleChange}
+            className="w-full h-10 px-3 py-2 bg-black border border-gray-600 rounded-md text-white text-left [&:not(:placeholder-shown)]:bg-black"
+            required
+          >
+            {DOCUMENT_TYPES.map(docType => (
+              <option key={docType.value} value={docType.value}>
+                {docType.label}
+              </option>
+            ))}
           </select>
         </div>
 

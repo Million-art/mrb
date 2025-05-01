@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { clearReceipt } from '@/store/slice/depositReceiptSlice';
 import { setShowMessage } from '@/store/slice/messageSlice';
+import { API_CONFIG } from '@/config/api';
 
 interface UploadState {
   loading: boolean;
@@ -140,7 +141,7 @@ const UploadReceipt: React.FC = () => {
         throw new Error('Network error occurred while uploading');
       });
       
-      xhr.open('POST', 'http://localhost:3000/api/receipts/upload');
+      xhr.open('POST', `${API_CONFIG.BASE_URL}/api/receipts/upload`);
       xhr.send(formData);
       
       // Set state to creating when upload is complete
@@ -151,6 +152,9 @@ const UploadReceipt: React.FC = () => {
             step: 'creating',
             progress: 100
           }));
+        } else {
+          const errorMessage = xhr.responseText || 'Upload failed';
+          throw new Error(errorMessage);
         }
       });
       
@@ -161,8 +165,23 @@ const UploadReceipt: React.FC = () => {
         step: 'error',
         progress: 0
       });
+      
+      // Enhanced error handling with more specific messages
+      let errorMessage = "An unexpected error occurred";
+      if (error.message) {
+        if (error.message.includes('Network Error')) {
+          errorMessage = "Network error. Please check your connection and try again.";
+        } else if (error.message.includes('413')) {
+          errorMessage = "File size too large. Please try a smaller file.";
+        } else if (error.message.includes('415')) {
+          errorMessage = "Invalid file type. Please upload PNG, JPG, or PDF.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       dispatch(setShowMessage({
-        message: error.message || "An unexpected error occurred",
+        message: errorMessage,
         color: "red"
       }));
     }
