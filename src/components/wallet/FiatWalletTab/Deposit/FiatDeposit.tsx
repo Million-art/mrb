@@ -19,18 +19,7 @@ export const countries: Country[] = [
   { currency: "Chilean Peso", code: "CLP", name: "Chile", flag: "https://flagcdn.com/cl.svg" },
   { currency: "Argentine Peso", code: "ARS", name: "Argentina", flag: "https://flagcdn.com/ar.svg" },
   { currency: "British Pound", code: "GBP", name: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
-  {
-    currency: "Tether (USDT)",
-    code: "USDT",
-    name: "Tether Stablecoin",
-    flag: "https://cryptologos.cc/logos/tether-usdt-logo.png",
-  },
-  {
-    currency: "USD Coin (USDC)",
-    code: "USDC",
-    name: "Circle Stablecoin",
-    flag: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
-  },
+ 
 ]
 
 export default function FiatDeposit() {
