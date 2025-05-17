@@ -39,9 +39,11 @@
   export const getQuotePayUrl = (customerId: string, quoteId: string, amount:number) => {
     return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay/${amount}`;
   }
+ 
   export const dmDepositDetails = async (depositDetails) => {
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL2}/dm-deposit-details`, {
+      const response = await fetch(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details
+`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
