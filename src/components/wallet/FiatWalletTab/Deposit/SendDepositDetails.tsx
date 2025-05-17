@@ -155,6 +155,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     }
 
     setLoading(true);
+    setError(null);
 
     const requestData = {
       jsonData: {
@@ -177,7 +178,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     };
 
     try {
-       const response = await dmDepositDetails(requestData);
+      const response = await dmDepositDetails(requestData);
       console.log('Response from cloud function:', response.data);
       
       dispatch(setShowMessage({
@@ -192,19 +193,23 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       }, 3000);
     } catch (error: any) {
       console.error("Error sending data to bot:", error);
-      if (error.code && error.message) {
-        setError(`Error: ${error.message}`);
-        dispatch(setShowMessage({
-          message: `Error: ${error.message}`,
-          color: "red"
-        }));
-      } else {
-        setError("Failed to send data. Please try again.");
-        dispatch(setShowMessage({
-          message: "Failed to send data. Please try again.",
-          color: "red"
-        }));
+      
+      let errorMessage = "Failed to send data. Please try again.";
+      
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        errorMessage = "Network error: Please check your internet connection and try again.";
+      } else if (error.response) {
+        // Handle API error responses
+        errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
       }
+
+      setError(errorMessage);
+      dispatch(setShowMessage({
+        message: errorMessage,
+        color: "red"
+      }));
     } finally {
       setLoading(false);
     }
