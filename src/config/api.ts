@@ -1,6 +1,7 @@
   // API Configuration
   export const API_CONFIG = {
-    BASE_URL: "https://backend.mrbeas.net",
+    BASE_URL2: "dashboard-backend.mrbeas.net",
+    BASE_URL: "api.glofica.com",
     ENDPOINTS: {
       CUSTOMERS: "/customers",
       BANK_ACCOUNTS: "/bank-accounts",
@@ -40,7 +41,7 @@
   }
   export const dmDepositDetails = async (depositDetails) => {
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/dm-deposit-details`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL2}/dm-deposit-details`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
