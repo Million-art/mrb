@@ -39,9 +39,34 @@
   export const getQuotePayUrl = (customerId: string, quoteId: string, amount:number) => {
     return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay/${amount}`;
   }
+/*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Sends deposit details to the dashboard backend, to be used in the
+   * deposit confirmation DM flow.
+   *
+   * @param {Object} depositDetails - Deposit details to be sent to the
+   * backend. The object should contain the following properties:
+   *
+   * - `amount`: The amount of the deposit (in the destination currency).
+   * - `currency`: The destination currency of the deposit.
+   * - `paymentMethod`: The payment method used for the deposit (e.g.
+   * "bank_transfer", "card", etc.).
+   * - `reference`: A reference for the deposit (e.g. the transaction ID
+   * from the payment provider).
+   * - `sender`: The sender's Telegram username.
+   *
+   * @throws {Error} If the request to the backend fails, or if the
+   * response from the backend is not a 200 OK.
+   *
+   * @returns {Promise<Object>} A promise that resolves to the response
+   * from the backend, which should be an object with a `status` property
+   * set to "ok" if the request was successful.
+   */
+/*******  68f115dd-76c0-4483-bbc4-4da685732fc7  *******/
   export const dmDepositDetails = async (depositDetails) => {
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL2}/dm-deposit-details`, {
+      const response = await fetch(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details
+`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
