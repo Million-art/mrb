@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
  
 export const countries: Country[] = [
+  { currency: "Venezuelan Bolívar", code: "VES", name: "Venezuela", flag: "https://flagcdn.com/ve.svg" },
   { currency: "Mexican Peso", code: "MXN", name: "Mexico", flag: "https://flagcdn.com/mx.svg" },
   { currency: "Guatemalan Quetzal", code: "GTQ", name: "Guatemala", flag: "https://flagcdn.com/gt.svg" },
   { currency: "US Dollar", code: "USD", name: "El Salvador", flag: "https://flagcdn.com/sv.svg" },
@@ -19,7 +20,6 @@ export const countries: Country[] = [
   { currency: "Chilean Peso", code: "CLP", name: "Chile", flag: "https://flagcdn.com/cl.svg" },
   { currency: "Argentine Peso", code: "ARS", name: "Argentina", flag: "https://flagcdn.com/ar.svg" },
   { currency: "British Pound", code: "GBP", name: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
- 
 ]
 
 export default function FiatDeposit() {
