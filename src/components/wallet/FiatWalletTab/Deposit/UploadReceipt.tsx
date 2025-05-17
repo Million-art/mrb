@@ -160,11 +160,21 @@ const UploadReceipt: React.FC = () => {
           }, 3000);
         } else {
           const errorResponse = JSON.parse(xhr.responseText || '{}');
+          setUploadState({
+            loading: false,
+            step: 'error',
+            progress: 0
+          });
           throw new Error(errorResponse.message || 'Upload failed');
         }
       });
       
       xhr.addEventListener('error', () => {
+        setUploadState({
+          loading: false,
+          step: 'error',
+          progress: 0
+        });
         throw new Error('Network error occurred while uploading. Please check your connection and try again.');
       });
       
@@ -181,6 +191,11 @@ const UploadReceipt: React.FC = () => {
           }));
         } else {
           const errorResponse = JSON.parse(xhr.responseText || '{}');
+          setUploadState({
+            loading: false,
+            step: 'error',
+            progress: 0
+          });
           throw new Error(errorResponse.message || 'Upload failed');
         }
       });
