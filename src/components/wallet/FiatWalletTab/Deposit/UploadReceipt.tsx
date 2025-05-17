@@ -205,7 +205,7 @@ const UploadReceipt: React.FC = () => {
 
         {/* Payment Details */}
         <div className="mb-6 p-4 rounded-lg">
-          <h3 className="font-semibold mb-3">Payment Details</h3>
+          <h3 className="font-semibold mb-3">Deposit Details</h3>
           <div className="space-y-2">
             <p><span className="font-medium">Bank:</span> {receiptData.payment.bank}</p>
             <p><span className="font-medium">Account:</span> {receiptData.payment.account}</p>

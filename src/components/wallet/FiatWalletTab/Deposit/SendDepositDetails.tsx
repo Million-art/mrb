@@ -179,6 +179,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
 
     try {
       const response = await dmDepositDetails(requestData);
+        console.log('Request data:', requestData);
       console.log('Response from cloud function:', response.data);
       
       dispatch(setShowMessage({
