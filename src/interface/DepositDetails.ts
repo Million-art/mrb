@@ -1,5 +1,6 @@
 export interface Ambassador {
     id: string;
+    uid: string;
     name: string;
     username: string;
   }
