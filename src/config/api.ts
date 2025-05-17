@@ -1,7 +1,7 @@
   // API Configuration
   export const API_CONFIG = {
-    BASE_URL2: "dashboard-backend.mrbeas.net",
-    BASE_URL: "api.glofica.com",
+    BASE_URL2: "https://dashboard-backend.mrbeas.net",
+    BASE_URL: "https://api.glofica.com",
     ENDPOINTS: {
       CUSTOMERS: "/customers",
       BANK_ACCOUNTS: "/bank-accounts",
