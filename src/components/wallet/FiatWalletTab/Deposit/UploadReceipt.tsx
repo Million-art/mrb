@@ -63,18 +63,44 @@ const UploadReceipt: React.FC = () => {
   const handleUpload = async () => {
     if (!receiptData) {
       dispatch(setShowMessage({
-        message: "Missing receipt data",
+        message: "Missing receipt data. Please try again.",
         color: "red"
       }));
       return;
     }
   
-    const { ambassador: { id: ambassadorId } } = receiptData;
+    // Get ambassador uid from the data
+    const { ambassador } = receiptData;
+    const ambassadorId = ambassador.uid || ambassador.id;
   
-    // Validate required fields
-    if (!file || !amount || !ambassadorId || !telegramId) {
+    // Enhanced validation
+    if (!file) {
       dispatch(setShowMessage({
-        message: "Please fill all required fields",
+        message: "Please select a receipt file",
+        color: "red"
+      }));
+      return;
+    }
+
+    if (!amount) {
+      dispatch(setShowMessage({
+        message: "Please enter the deposit amount",
+        color: "red"
+      }));
+      return;
+    }
+
+    if (!ambassadorId) {
+      dispatch(setShowMessage({
+        message: "Invalid ambassador data. Please try again.",
+        color: "red"
+      }));
+      return;
+    }
+
+    if (!telegramId) {
+      dispatch(setShowMessage({
+        message: "Unable to identify your account. Please try again.",
         color: "red"
       }));
       return;
@@ -123,7 +149,7 @@ const UploadReceipt: React.FC = () => {
           });
           
           dispatch(setShowMessage({
-            message: "Receipt uploaded successfully!",
+            message: "Receipt uploaded successfully! The ambassador will review it shortly.",
             color: "green"
           }));
           
@@ -133,12 +159,13 @@ const UploadReceipt: React.FC = () => {
             navigate('/fiat-deposit');
           }, 3000);
         } else {
-          throw new Error(xhr.responseText || 'Upload failed');
+          const errorResponse = JSON.parse(xhr.responseText || '{}');
+          throw new Error(errorResponse.message || 'Upload failed');
         }
       });
       
       xhr.addEventListener('error', () => {
-        throw new Error('Network error occurred while uploading');
+        throw new Error('Network error occurred while uploading. Please check your connection and try again.');
       });
       
       xhr.open('POST', `${API_CONFIG.BASE_URL2}/api/receipts/upload`);
@@ -153,8 +180,8 @@ const UploadReceipt: React.FC = () => {
             progress: 100
           }));
         } else {
-          const errorMessage = xhr.responseText || 'Upload failed';
-          throw new Error(errorMessage);
+          const errorResponse = JSON.parse(xhr.responseText || '{}');
+          throw new Error(errorResponse.message || 'Upload failed');
         }
       });
       
@@ -167,14 +194,16 @@ const UploadReceipt: React.FC = () => {
       });
       
       // Enhanced error handling with more specific messages
-      let errorMessage = "An unexpected error occurred";
+      let errorMessage = "An unexpected error occurred. Please try again.";
       if (error.message) {
         if (error.message.includes('Network Error')) {
           errorMessage = "Network error. Please check your connection and try again.";
         } else if (error.message.includes('413')) {
-          errorMessage = "File size too large. Please try a smaller file.";
+          errorMessage = "File size too large. Please try a smaller file (max 5MB).";
         } else if (error.message.includes('415')) {
           errorMessage = "Invalid file type. Please upload PNG, JPG, or PDF.";
+        } else if (error.message.includes('Ambassador not found')) {
+          errorMessage = "Invalid ambassador data. Please try again.";
         } else {
           errorMessage = error.message;
         }
