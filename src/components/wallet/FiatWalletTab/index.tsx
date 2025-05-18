@@ -9,6 +9,7 @@ import { RootState, AppDispatch } from "@/store/store";
 import { fetchRealBalance } from "@/store/slice/fiatBalanceSlice";
 import DepositTransactions from "./Transactions/DepositTransactions";
 import TransferTransactions from "./Transactions/TransferTransactions";
+import ExchangeRates from "./Transactions/ExchangeRates";
 
 const FiatWalletTab = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -48,9 +49,8 @@ const FiatWalletTab = () => {
         <SendReciveFiat />
       </Card>
 
-      {/* Transactions Tab */}
-      <Tabs defaultValue="deposit" className="w-full mt-14"> 
-          <h1 className="text-center text-xl">Transactions</h1>
+       <Tabs defaultValue="deposit" className="w-full mt-14"> 
+          <h1 className="text-center text-xl"> </h1>
         <TabsList className="w-full flex gap-3 border-b border-gray-800">
           <TabsTrigger
             value="deposit"
@@ -63,6 +63,12 @@ const FiatWalletTab = () => {
             className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
           >
             Transfer 
+          </TabsTrigger>
+          <TabsTrigger
+            value="exchange"
+            className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+          >
+            Exchange Rates
           </TabsTrigger>
         </TabsList>
 
@@ -77,6 +83,13 @@ const FiatWalletTab = () => {
           <Card>
             <CardContent className="p-4">
               <TransferTransactions />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="exchange">
+          <Card>
+            <CardContent className="p-4">
+              <ExchangeRates />
             </CardContent>
           </Card>
         </TabsContent>
