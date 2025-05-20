@@ -344,10 +344,17 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
       <div className="pt-4">
         <Button
           onClick={handleSubmit}
-          className="w-full bg-blue hover:bg-blue-light text-white"
+          className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
           disabled={loading}
         >
-          {loading ? "Creating..." : "Create Bank Account"}
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            "Create Bank Account"
+          )}
         </Button>
       </div>
     </div>

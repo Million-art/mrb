@@ -12,6 +12,7 @@ import { setShowMessage } from "@/store/slice/messageSlice"
 import { telegramId } from "@/libs/telegram"
 import { useNavigate } from "react-router-dom"
 import { getCustomerUrl } from "@/config/api"
+import { Loader2 } from "lucide-react"
 
 interface FormData {
   legal_name: string;
@@ -209,13 +210,20 @@ export default function CreateCustomerForm() {
           </select>
         </div>
 
-        <div className="pt-4">
+        <div className="space-y-2">
           <Button 
             onClick={handleSubmit} 
-            className="w-full bg-blue hover:bg-blue-light text-white"
+            className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
             disabled={loading}
           >
-            {loading ? "Submitting..." : "Create Account"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </Button>
         </div>
       </div>

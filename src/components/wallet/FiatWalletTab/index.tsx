@@ -10,6 +10,7 @@ import { fetchRealBalance } from "@/store/slice/fiatBalanceSlice";
 import DepositTransactions from "./Transactions/DepositTransactions";
 import TransferTransactions from "./Transactions/TransferTransactions";
 import ExchangeRates from "./Transactions/ExchangeRates";
+import LinkWallet from "./LinkWallet/LinkWallet";
 
 const FiatWalletTab = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -49,8 +50,8 @@ const FiatWalletTab = () => {
         <SendReciveFiat />
       </Card>
 
-       <Tabs defaultValue="deposit" className="w-full mt-14"> 
-          <h1 className="text-center text-xl"> </h1>
+      <Tabs defaultValue="deposit" className="w-full mt-14">
+        <h1 className="text-center text-xl"> </h1>
         <TabsList className="w-full flex gap-3 border-b border-gray-800">
           <TabsTrigger
             value="deposit"
@@ -62,13 +63,19 @@ const FiatWalletTab = () => {
             value="transfer"
             className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
           >
-            Transfer 
+            Transfer
           </TabsTrigger>
           <TabsTrigger
             value="exchange"
             className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
           >
             Exchange Rates
+          </TabsTrigger>
+          <TabsTrigger
+            value="link-wallet"
+            className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+          >
+            Link Wallet
           </TabsTrigger>
         </TabsList>
 
@@ -90,6 +97,13 @@ const FiatWalletTab = () => {
           <Card>
             <CardContent className="p-4">
               <ExchangeRates />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="link-wallet">
+          <Card>
+            <CardContent className="p-4">
+              <LinkWallet />
             </CardContent>
           </Card>
         </TabsContent>
