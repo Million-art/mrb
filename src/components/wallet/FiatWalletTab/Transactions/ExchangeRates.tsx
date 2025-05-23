@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/libs/firebase";
+import { ScrollArea } from "@/components/stonfi/ui/scroll-area";
 
 interface ExchangeRate {
   id: string;
@@ -61,37 +62,43 @@ const ExchangeRates = () => {
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-gray-800">
-            <th className="text-left py-2 px-2 text-gray-400 font-medium text-xs">Country</th>
-            <th className="text-left py-2 px-2 text-gray-400 font-medium text-xs">Currency</th>
-            <th className="text-right py-2 px-2 text-gray-400 font-medium text-xs">Rate</th>
-            <th className="text-right py-2 px-2 text-gray-400 font-medium text-xs">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {exchangeRates.map((rate) => (
-            <tr key={rate.id} className="border-b border-gray-800 hover:bg-gray-800/50">
-              <td className="py-2 px-2 text-white text-xs">{rate.countryName}</td>
-              <td className="py-2 px-2 text-white text-xs">{rate.currencyCode}</td>
-              <td className="py-2 px-2 text-white text-xs text-right">{rate.rate.toFixed(2)}</td>
-              <td className="py-2 px-2 text-gray-400 text-xs text-right">
-                {new Date(rate.updatedAt).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
-          {exchangeRates.length === 0 && (
-            <tr>
-              <td colSpan={4} className="py-3 text-center text-gray-400 text-xs">
-                No exchange rates available
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+    <ScrollArea className="h-[400px] pr-4">
+      <div className="space-y-3">
+        {exchangeRates.map((rate) => (
+          <div
+            key={rate.id}
+            className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <img
+                  src={`https://flagcdn.com/${rate.countryCode.toLowerCase()}.svg`}
+                  alt={rate.countryName}
+                  className="w-7 h-5 object-cover rounded"
+                />
+              </div>
+              <div>
+                <h3 className="font-medium text-white text-sm">{rate.countryName}</h3>
+                <p className="text-xs text-gray-400">{rate.currencyCode}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-base font-semibold text-white">
+                1 USDC = {rate.rate.toFixed(2)} {rate.currencyCode}
+              </p>
+              <p className="text-xs text-gray-400">
+                Updated {new Date(rate.updatedAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        ))}
+        {exchangeRates.length === 0 && (
+          <div className="text-center py-8 text-gray-400 text-sm">
+            No exchange rates available
+          </div>
+        )}
+      </div>
+    </ScrollArea>
   );
 };
 
