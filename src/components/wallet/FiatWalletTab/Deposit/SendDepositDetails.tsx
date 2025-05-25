@@ -3,7 +3,7 @@ import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 import { Ambassador, PaymentMethod } from "@/interface/Ambassador";
 import HourglassAnimation from "../AnimateLoader";
-import { ArrowLeft, X, Loader2 } from "lucide-react";
+import { ArrowLeft, X, Loader2, Currency } from "lucide-react";
 import { telegramId } from "@/libs/telegram";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
@@ -11,6 +11,15 @@ import { dmDepositDetails } from "@/config/api";
 
 interface Country {
   name: string;
+}
+
+interface ExchangeRate {
+  id: string;
+  countryCode: string;
+  currencyCode: string;
+  rate: number;
+  countryName: string;
+  updatedAt: string;
 }
 
 interface ReceiveModalProps {
@@ -70,6 +79,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
   const [loadingAmbassadors, setLoadingAmbassadors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const dispatch = useDispatch();
 
   const maskAccountNumber = useCallback((accountNumber?: string) => {
@@ -130,9 +140,36 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     }
   }, [country]);
 
+  const fetchExchangeRate = useCallback(async () => {
+    try {
+      const exchangeRatesRef = collection(db, "exchangeRates");
+      const q = query(
+        exchangeRatesRef,
+        where("countryName", "==", country.name),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        const rateData = doc.data() as Omit<ExchangeRate, 'id'>;
+        setExchangeRate({
+          id: doc.id,
+          ...rateData
+        });
+      } else {
+        setExchangeRate(null);
+      }
+    } catch (error) {
+      console.error("Error fetching exchange rate:", error);
+      setExchangeRate(null);
+    }
+  }, [country.name]);
+
   useEffect(() => {
     fetchAmbassadors();
-  }, [fetchAmbassadors]);
+    fetchExchangeRate();
+  }, [fetchAmbassadors, fetchExchangeRate]);
 
   const handlePaymentMethodSelect = useCallback(
     (methodId: string, ambassadorId: string) => {
@@ -218,8 +255,8 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
 
   return (
     <div className="fixed bg-black inset-0 flex items-center justify-center h-[100vh] z-50">
-      <div className=" text-white w-full max-w-md flex flex-col max-h-[100vh] overflow-hidden">
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800 sticky top-0  z-10">
+      <div className="text-white w-full max-w-md flex flex-col max-h-[100vh] overflow-hidden">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800 sticky top-0 z-10">
           <button
             onClick={onClose}
             className="hover:text-gray-300"
@@ -239,7 +276,33 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
 
         <div className="flex-1 overflow-y-auto scrollbar-hidden">
           {country && (
-            <div className="p-6 border-b border-gray-800">
+            <div className="p-6">
+              {/* Exchange Rate Display */}
+              <div className="mb-6 p-3 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Currency className="w-4 h-4 text-blue" />
+                    <div>
+                      {exchangeRate ? (
+                        <>
+                          <p className="text-sm text-gray-400">Exchange Rate</p>
+                          <p className="text-base font-medium">
+                            1 USDC = {exchangeRate.rate.toFixed(2)} {exchangeRate.currencyCode}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-400">No exchange rate available</p>
+                      )}
+                    </div>
+                  </div>
+                  {exchangeRate && (
+                    <p className="text-xs text-gray-500">
+                      {new Date(exchangeRate.updatedAt).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+
               <div className="flex items-center justify-center gap-4">
                 <div className="text-center">
                   <p className="font-semibold text-lg">{country.name}</p>
@@ -298,7 +361,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
           )}
         </div>
 
-        <div className="p-4">
+        <div className="flex-shrink-0 p-4 border-t border-gray-800">
           <button
             onClick={sendPaymentMethodToBot}
             disabled={!selectedPayment || loading}

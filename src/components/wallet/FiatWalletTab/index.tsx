@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { Loader2, Currency, Wallet, ExternalLink, Unlink } from "lucide-react";
+import { Loader2, Wallet, ExternalLink, Unlink } from "lucide-react";
 import { useEffect, useState } from "react";
 import SendReciveFiat from "./Buttons";
 import { telegramId } from "@/libs/telegram";
@@ -9,14 +9,6 @@ import { RootState, AppDispatch } from "@/store/store";
 import { fetchRealBalance } from "@/store/slice/fiatBalanceSlice";
 import DepositTransactions from "./Transactions/DepositTransactions";
 import TransferTransactions from "./Transactions/TransferTransactions";
-import ExchangeRates from "./Transactions/ExchangeRates";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/stonfi/ui/dialog";
 import { Button } from "@/components/stonfi/ui/button";
 import LinkWallet from "./LinkWallet";
 import { doc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
@@ -25,7 +17,6 @@ import { db } from '@/libs/firebase';
 const FiatWalletTab = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { realBalance, loading, error } = useSelector((state: RootState) => state.fiatBalance);
-  const [isExchangeRateOpen, setIsExchangeRateOpen] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
@@ -110,39 +101,6 @@ const FiatWalletTab = () => {
             </div>
             <SendReciveFiat />
           </Card>
-
-          {/* Exchange Rates Section */}
-          <div className="mt-8 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-xl blur-xl"></div>
-            <div className="relative bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-xl p-6 backdrop-blur-sm border border-white/10">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    Exchange Rates
-                  </h2>
-                  <p className="text-sm text-gray-300">Current exchange rates for all supported currencies</p>
-                </div>
-                <Dialog open={isExchangeRateOpen} onOpenChange={setIsExchangeRateOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="flex items-center gap-1.5 text-sm bg-white/10 hover:bg-white/20 transition-colors"
-                    >
-                      <Currency className="w-3.5 h-3.5" />
-                      View All
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[600px] border-none bg-black/80 backdrop-blur-xl">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">Exchange Rates</DialogTitle>
-                    </DialogHeader>
-                    <ExchangeRates />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-          </div>
 
           {/* Transactions Section */}
           <div className="mt-8">
