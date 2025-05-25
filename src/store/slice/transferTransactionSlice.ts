@@ -68,7 +68,7 @@ export const fetchTransferTransactions = createAsyncThunk(
                 id: snapshot.id,
                 amount: data.amount,
                 recipientId: data.recipientId,
-                createdAt: data.createdAt
+                createdAt: data.createdAt,
               };
 
               try {

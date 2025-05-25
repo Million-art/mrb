@@ -14,7 +14,6 @@ const TransferTransactions = () => {
     transferTransactions, 
     isLoading, 
     error, 
-    lastUpdated 
   } = useSelector((state: RootState) => state.transferTransactions);
 
   useEffect(() => {
@@ -32,7 +31,7 @@ const TransferTransactions = () => {
   if (isLoading && !transferTransactions.length) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-blue-500" size={32} />
+        <Loader2 className="animate-spin" size={32} />
       </div>
     );
   }
@@ -66,7 +65,7 @@ const TransferTransactions = () => {
         
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2  text-blue"
         >
           <RefreshCw className="w-4 h-4" />
           Retry
@@ -78,7 +77,7 @@ const TransferTransactions = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl">Transfer History</h2>
+        <h2 className="text-xl font-semibold">Transfer History</h2>
         <button
           onClick={handleRefresh}
           className="flex items-center text-sm text-blue hover:text-blue-light"
@@ -133,11 +132,7 @@ const TransferTransactions = () => {
         </div>
       )}
 
-      {lastUpdated && (
-        <p className="text-xs text-gray-500 text-right">
-          Last updated: {new Date(lastUpdated).toLocaleTimeString()}
-        </p>
-      )}
+    
     </div>
   );
 };
