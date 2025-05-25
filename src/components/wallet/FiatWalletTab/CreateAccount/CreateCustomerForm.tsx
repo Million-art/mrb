@@ -76,9 +76,9 @@ export default function CreateCustomerForm() {
     }
 
     // Validate phone number format
-    if (!formData.phone_number.startsWith("+")) {
+    if (!formData.phone_number.startsWith("+58")) {
       dispatch(setShowMessage({
-        message: "Phone number must start with +",
+        message: "Phone number must start with +58 for Venezuela",
         color: "red"
       }));
       return;
