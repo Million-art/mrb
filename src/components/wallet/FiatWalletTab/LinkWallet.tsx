@@ -30,7 +30,7 @@ const LinkWallet = ({ walletAddress, onWalletUpdate }: LinkWalletProps) => {
       setSuccess(null);
       const userRef = doc(db, 'users', String(telegramId));
       await updateDoc(userRef, {
-        usdcWalletAddress: newAddress.trim()
+        usdcexternalWalletAddress: newAddress.trim()
       });
       onWalletUpdate(newAddress.trim());
       setSuccess('Wallet connected successfully');
@@ -50,7 +50,7 @@ const LinkWallet = ({ walletAddress, onWalletUpdate }: LinkWalletProps) => {
       setSuccess(null);
       const userRef = doc(db, 'users', String(telegramId));
       await updateDoc(userRef, {
-        usdcWalletAddress: deleteField()
+        usdcexternalWalletAddress: deleteField()
       });
       onWalletUpdate(null);
       setSuccess('Wallet disconnected successfully');
