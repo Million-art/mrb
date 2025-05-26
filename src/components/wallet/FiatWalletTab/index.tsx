@@ -59,13 +59,30 @@ const FiatWalletTab = () => {
 
   const fetchWalletAddress = async () => {
     try {
+      if (!telegramId) {
+        console.error('No telegram ID available');
+        return;
+      }
+
       const userRef = doc(db, 'users', String(telegramId));
       const userDoc = await getDoc(userRef);
-      if (userDoc.exists() && userDoc.data().usdcWalletAddress) {
-        setWalletAddress(userDoc.data().usdcWalletAddress);
+      
+      if (userDoc.exists()) {
+        const walletAddress = userDoc.data().usdcWalletAddress;
+        if (walletAddress) {
+          console.log('Wallet address found:', walletAddress);
+          setWalletAddress(walletAddress);
+        } else {
+          console.log('No wallet address found for user');
+          setWalletAddress(null);
+        }
+      } else {
+        console.log('User document not found');
+        setWalletAddress(null);
       }
     } catch (error) {
       console.error('Error fetching wallet address:', error);
+      setWalletAddress(null);
     }
   };
 
@@ -229,44 +246,50 @@ const FiatWalletTab = () => {
           </Tabs>
 
           {/* Connected Wallet Section */}
-          <div className="mb-32">
-            <h2 className="text-xl font-semibold">Connected USDC Wallet Address</h2>
-          </div>
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ExternalLink className="w-4 h-4 text-gray-400" />
-                <div>
-                  <p className="text-sm break-all bg-gray-800/50 p-2 rounded-lg text-left" dir="ltr">
-                    {walletAddress}
-                  </p>
+          <div className="mt-8 mb-24">
+            <h2 className="text-lg font-semibold mb-2">Connected USDC Wallet Address</h2>
+            <Card className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 flex-1">
+                  <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    {walletAddress ? (
+                      <p className="text-sm break-all bg-gray-800/50 p-2 rounded-lg text-left" dir="ltr">
+                        {walletAddress}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-400">No wallet address found</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  {walletAddress && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigator.clipboard.writeText(walletAddress)}
+                      className="text-blue hover:text-blue/90"
+                    >
+                      Copy
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleUnlinkWallet}
+                    disabled={isUnlinking}
+                    className="text-red-500 hover:text-red-400"
+                  >
+                    {isUnlinking ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Unlink className="w-4 h-4" />
+                    )}
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigator.clipboard.writeText(walletAddress)}
-                  className="text-blue hover:text-blue/90"
-                >
-                  Copy
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleUnlinkWallet}
-                  disabled={isUnlinking}
-                  className="text-red-500 hover:text-red-400"
-                >
-                  {isUnlinking ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Unlink className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </>
       )}
     </div>
