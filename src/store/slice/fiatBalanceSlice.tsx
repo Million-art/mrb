@@ -21,13 +21,17 @@ export const fetchRealBalance = createAsyncThunk(
       const userRef = doc(db, 'users', telegramId);
       const userDoc = await getDoc(userRef);
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        return userData.realBalance || 0;
-      } else {
-        throw new Error('No such user document!');
+      if (!userDoc.exists()) {
+        console.error('User document not found for telegramId:', telegramId);
+        return 0;
       }
+
+      const userData = userDoc.data();
+      const balance = userData.realBalance || 0;
+      console.log('Fetched real balance:', { telegramId, balance });
+      return balance;
     } catch (error) {
+      console.error('Error fetching real balance:', error);
       return rejectWithValue('Failed to fetch real balance');
     }
   }
