@@ -5,10 +5,7 @@ import {
   where, 
   onSnapshot,  
   orderBy, 
-  limit,
-  DocumentData,
-  QueryDocumentSnapshot,
-  Timestamp
+  limit
 } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 
