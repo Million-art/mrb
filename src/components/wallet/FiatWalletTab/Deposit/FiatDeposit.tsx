@@ -10,16 +10,16 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
  
 export const countries: Country[] = [
-  { currency: "Venezuelan Bolívar", code: "VES", name: "Venezuela", flag: "https://flagcdn.com/ve.svg" },
-  { currency: "Mexican Peso", code: "MXN", name: "Mexico", flag: "https://flagcdn.com/mx.svg" },
-  { currency: "Guatemalan Quetzal", code: "GTQ", name: "Guatemala", flag: "https://flagcdn.com/gt.svg" },
-  { currency: "US Dollar", code: "USD", name: "El Salvador", flag: "https://flagcdn.com/sv.svg" },
-  { currency: "Panamanian Balboa", code: "PAB", name: "Panama", flag: "https://flagcdn.com/pa.svg" },
-  { currency: "Colombian Peso", code: "COP", name: "Colombia", flag: "https://flagcdn.com/co.svg" },
-  { currency: "Peruvian Sol", code: "PEN", name: "Peru", flag: "https://flagcdn.com/pe.svg" },
-  { currency: "Chilean Peso", code: "CLP", name: "Chile", flag: "https://flagcdn.com/cl.svg" },
-  { currency: "Argentine Peso", code: "ARS", name: "Argentina", flag: "https://flagcdn.com/ar.svg" },
-  { currency: "British Pound", code: "GBP", name: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
+  { currency: "VES", code: "VES", name: "Venezuela", flag: "https://flagcdn.com/ve.svg" },
+  { currency: "MXN", code: "MXN", name: "Mexico", flag: "https://flagcdn.com/mx.svg" },
+  { currency: "GTQ", code: "GTQ", name: "Guatemala", flag: "https://flagcdn.com/gt.svg" },
+  { currency: "USD", code: "USD", name: "El Salvador", flag: "https://flagcdn.com/sv.svg" },
+  { currency: "PAB", code: "PAB", name: "Panama", flag: "https://flagcdn.com/pa.svg" },
+  { currency: "COP", code: "COP", name: "Colombia", flag: "https://flagcdn.com/co.svg" },
+  { currency: "PEN", code: "PEN", name: "Peru", flag: "https://flagcdn.com/pe.svg" },
+  { currency: "CLP", code: "CLP", name: "Chile", flag: "https://flagcdn.com/cl.svg" },
+  { currency: "ARS", code: "ARS", name: "Argentina", flag: "https://flagcdn.com/ar.svg" },
+  { currency: "GBP", code: "GBP", name: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
 ]
 
 export default function FiatDeposit() {

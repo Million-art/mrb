@@ -15,7 +15,6 @@ interface Country {
 
 interface ExchangeRate {
   id: string;
-  countryCode: string;
   currencyCode: string;
   rate: number;
   countryName: string;
