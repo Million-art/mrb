@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Loader2, Wallet, ExternalLink, Unlink } from "lucide-react";
 import { useEffect, useState } from "react";
 import SendReciveFiat from "./Buttons";
-import { telegramId } from "@/libs/telegram";
+import { telegramId, userName } from "@/libs/telegram";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
 import { fetchRealBalance } from "@/store/slice/fiatBalanceSlice";
@@ -11,7 +11,7 @@ import DepositTransactions from "./Transactions/DepositTransactions";
 import TransferTransactions from "./Transactions/TransferTransactions";
 import { Button } from "@/components/stonfi/ui/button";
 import LinkWallet from "./LinkWallet";
-import { doc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteField, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/libs/firebase';
 
 const FiatWalletTab = () => {
@@ -19,13 +19,43 @@ const FiatWalletTab = () => {
   const { realBalance, loading, error } = useSelector((state: RootState) => state.fiatBalance);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
+  const [isStaff, setIsStaff] = useState<boolean | null>(null);
+  const [isCheckingStaff, setIsCheckingStaff] = useState(true);
 
   useEffect(() => {
+    checkStaffStatus();
     if (walletAddress) {
       dispatch(fetchRealBalance(String(telegramId)));
     }
     fetchWalletAddress();
   }, [dispatch, walletAddress]);
+
+  const checkStaffStatus = async () => {
+    try {
+      setIsCheckingStaff(true);
+      if (!userName) {
+        setIsStaff(false);
+        return;
+      }
+
+      // Remove @ if present for comparison
+      const cleanUsername = userName.startsWith('@') ? userName.slice(1) : userName;
+      
+      const staffsRef = collection(db, 'staffs');
+      const q = query(
+        staffsRef,
+        where('tgUsername', 'in', [cleanUsername, `@${cleanUsername}`])
+      );
+      
+      const querySnapshot = await getDocs(q);
+      setIsStaff(!querySnapshot.empty);
+    } catch (error) {
+      console.error('Error checking staff status:', error);
+      setIsStaff(false);
+    } finally {
+      setIsCheckingStaff(false);
+    }
+  };
 
   const fetchWalletAddress = async () => {
     try {
@@ -54,7 +84,7 @@ const FiatWalletTab = () => {
     }
   };
 
-  if (loading) {
+  if (loading || isCheckingStaff) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="animate-spin text-white w-6 h-6" />
@@ -70,6 +100,65 @@ const FiatWalletTab = () => {
     );
   }
 
+  // If user is staff, show full wallet UI without connection prompt
+  if (isStaff) {
+    return (
+      <div className="min-h-screen w-full text-white scrollbar-hidden">
+        {/* Balance Card */}
+        <Card className="rounded-lg shadow-md min-w-full scrollbar-hidden">
+          <div className="mb-2">
+            <div>
+              <p className="text-gray-300">Your Balance</p>
+              <h1 className="text-3xl font-bold">{realBalance.toFixed(2)} USDC</h1>
+            </div>
+            <div className="inline-block rounded-md">
+              <p className="font-bold"></p>
+            </div>
+          </div>
+          <SendReciveFiat />
+        </Card>
+
+        {/* Transactions Section */}
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Transactions</h2>
+        </div>
+
+        <Tabs defaultValue="deposit" className="w-full">
+          <TabsList className="w-full flex gap-3 border-b border-gray-800">
+            <TabsTrigger
+              value="deposit"
+              className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+            >
+              Deposit
+            </TabsTrigger>
+            <TabsTrigger
+              value="transfer"
+              className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+            >
+              Transfer
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="deposit">
+            <Card>
+              <CardContent className="p-4">
+                <DepositTransactions />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="transfer">
+            <Card>
+              <CardContent className="p-4">
+                <TransferTransactions />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  }
+
+  // For regular users, show conditional UI based on wallet connection
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
       {!walletAddress ? (
@@ -103,85 +192,81 @@ const FiatWalletTab = () => {
           </Card>
 
           {/* Transactions Section */}
-          <div className="mt-8">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">Transactions</h2>
-            </div>
-
-            <Tabs defaultValue="deposit" className="w-full">
-              <TabsList className="w-full flex gap-3 border-b border-gray-800">
-                <TabsTrigger
-                  value="deposit"
-                  className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
-                >
-                  Deposit
-                </TabsTrigger>
-                <TabsTrigger
-                  value="transfer"
-                  className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
-                >
-                  Transfer
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="deposit">
-                <Card>
-                  <CardContent className="p-4">
-                    <DepositTransactions />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="transfer">
-                <Card>
-                  <CardContent className="p-4">
-                    <TransferTransactions />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold">Transactions</h2>
           </div>
+
+          <Tabs defaultValue="deposit" className="w-full">
+            <TabsList className="w-full flex gap-3 border-b border-gray-800">
+              <TabsTrigger
+                value="deposit"
+                className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+              >
+                Deposit
+              </TabsTrigger>
+              <TabsTrigger
+                value="transfer"
+                className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
+              >
+                Transfer
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="deposit">
+              <Card>
+                <CardContent className="p-4">
+                  <DepositTransactions />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="transfer">
+              <Card>
+                <CardContent className="p-4">
+                  <TransferTransactions />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
           {/* Connected Wallet Section */}
-          <div className="mt-8 mb-32">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">Connected USDC Wallet Address</h2>
-            </div>
-            <Card className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm break-all bg-gray-800/50 p-2 rounded-lg text-left" dir="ltr">
-                      {walletAddress}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigator.clipboard.writeText(walletAddress)}
-                    className="text-blue hover:text-blue/90"
-                  >
-                    Copy
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleUnlinkWallet}
-                    disabled={isUnlinking}
-                    className="text-red-500 hover:text-red-400"
-                  >
-                    {isUnlinking ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Unlink className="w-4 h-4" />
-                    )}
-                  </Button>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold">Connected USDC Wallet Address</h2>
+          </div>
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-sm break-all bg-gray-800/50 p-2 rounded-lg text-left" dir="ltr">
+                    {walletAddress}
+                  </p>
                 </div>
               </div>
-            </Card>
-          </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigator.clipboard.writeText(walletAddress)}
+                  className="text-blue hover:text-blue/90"
+                >
+                  Copy
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleUnlinkWallet}
+                  disabled={isUnlinking}
+                  className="text-red-500 hover:text-red-400"
+                >
+                  {isUnlinking ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Unlink className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </Card>
         </>
       )}
     </div>
