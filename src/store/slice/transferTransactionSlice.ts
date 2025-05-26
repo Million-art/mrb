@@ -4,26 +4,26 @@ import {
   query, 
   where, 
   onSnapshot,  
-  getDoc, 
   orderBy, 
   limit,
   DocumentData,
   QueryDocumentSnapshot,
-  doc as firestoreDoc 
+  Timestamp
 } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 
-interface TransferData {
-  amount: number;
-  recipientId: string;
-  createdAt: string;
-}
-
 interface TransferTransaction {
   id: string;
+  userId: string;
+  type: 'transfer_in' | 'transfer_out';
   amount: number;
+  status: 'completed' | 'pending' | 'failed';
+  relatedTransferId: string;
+  senderId: string;
   recipientId: string;
+  balance: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 interface TransferTransactionsState {
@@ -37,91 +37,135 @@ const initialState: TransferTransactionsState = {
   transferTransactions: [],
   isLoading: false,
   error: null,
-  lastUpdated: null,
+  lastUpdated: null
 };
-
-let transferTransactionsUnsubscribe: (() => void) | null = null;
 
 export const fetchTransferTransactions = createAsyncThunk(
   'transferTransactions/fetchTransferTransactions',
-  async (telegramId: string, { dispatch, rejectWithValue }) => {
+  async (userId: string, { dispatch }) => {
     try {
-      // Clean up previous listener if exists
-      if (transferTransactionsUnsubscribe) {
-        transferTransactionsUnsubscribe();
-        transferTransactionsUnsubscribe = null;
-      }
+      const transactionsRef = collection(db, 'transactions');
+      
+      // Create two separate queries for transfer_in and transfer_out
+      const incomingQuery = query(
+        transactionsRef,
+        where('userId', '==', userId),
+        where('type', '==', 'transfer_in'),
+        orderBy('createdAt', 'desc'),
+        limit(25)
+      );
 
-      const q = query(
-        collection(db, "transfers"),
-        where("senderTgId", "==", telegramId),
-        orderBy("createdAt", "desc"),
-        limit(10)
+      const outgoingQuery = query(
+        transactionsRef,
+        where('userId', '==', userId),
+        where('type', '==', 'transfer_out'),
+        orderBy('createdAt', 'desc'),
+        limit(25)
       );
 
       return new Promise<void>((resolve, reject) => {
-        transferTransactionsUnsubscribe = onSnapshot(q, 
-          async (querySnapshot) => {
-            const transactionsPromises = querySnapshot.docs.map(async (snapshot: QueryDocumentSnapshot<DocumentData>) => {
-              const data = snapshot.data() as TransferData;
-              const transaction: TransferTransaction = {
-                id: snapshot.id,
-                amount: data.amount,
-                recipientId: data.recipientId,
-                createdAt: data.createdAt,
-              };
+        let incomingUnsubscribe: (() => void) | null = null;
+        let outgoingUnsubscribe: (() => void) | null = null;
+        let incomingTransactions: TransferTransaction[] = [];
+        let outgoingTransactions: TransferTransaction[] = [];
 
-              try {
-                const recipientDocRef = firestoreDoc(db, "recipients", data.recipientId);
-                const recipientDoc = await getDoc(recipientDocRef);
-                
-                if (recipientDoc.exists()) {
-                  const recipientData = recipientDoc.data() as { id: string; };
-                  transaction.recipientId = recipientData.id;
-                } else {
-                  console.error("Recipient not found:", data.recipientId);
-                }
-              } catch (error) {
-                console.error("Error fetching recipient:", error);
-                dispatch(setTransferTransactionsError("Error fetching recipient data"));
-                return null; // Return null if there's an error
+        const processTransactions = () => {
+          // Log the raw data we're getting
+          console.log('Incoming transactions:', incomingTransactions);
+          console.log('Outgoing transactions:', outgoingTransactions);
+
+          // Combine and sort transactions
+          const allTransactions = [...incomingTransactions, ...outgoingTransactions]
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, 50);
+
+          dispatch(setTransferTransactions({
+            transactions: allTransactions,
+            lastUpdated: new Date().toISOString()
+          }));
+        };
+
+        // Listen to incoming transfers
+        incomingUnsubscribe = onSnapshot(
+          incomingQuery,
+          (snapshot) => {
+            incomingTransactions = snapshot.docs.map(doc => {
+              const data = doc.data();
+              console.log('Raw incoming transaction data:', data);
+              if (!data.senderId || !data.recipientId) {
+                console.warn('Transaction missing senderId or recipientId:', data);
               }
-              return transaction;
+              return {
+                id: doc.id,
+                ...data
+              } as TransferTransaction;
             });
-
-            try {
-              const transactions = (await Promise.all(transactionsPromises)).filter(t => t !== null) as TransferTransaction[];
-              dispatch(setTransferTransactions({
-                transactions,
-                lastUpdated: new Date().toISOString()
-              }));
-            } catch (error) {
-              console.error("Error processing transactions:", error);
-              dispatch(setTransferTransactionsError("Error processing transactions"));
-            }
+            processTransactions();
           },
           (error) => {
-            console.error("Snapshot error:", error);
-            dispatch(setTransferTransactionsError('Failed to listen to transactions'));
-            reject(error);
+            console.error('Error fetching incoming transfers:', error);
+            if (error.message.includes('requires an index')) {
+              dispatch(setTransferTransactionsError(
+                'Database index is being created. Please try again in a few minutes.'
+              ));
+            } else {
+              dispatch(setTransferTransactionsError('Failed to fetch incoming transfers'));
+            }
           }
         );
+
+        // Listen to outgoing transfers
+        outgoingUnsubscribe = onSnapshot(
+          outgoingQuery,
+          (snapshot) => {
+            outgoingTransactions = snapshot.docs.map(doc => {
+              const data = doc.data();
+              console.log('Raw outgoing transaction data:', data);
+              if (!data.senderId || !data.recipientId) {
+                console.warn('Transaction missing senderId or recipientId:', data);
+              }
+              return {
+                id: doc.id,
+                ...data
+              } as TransferTransaction;
+            });
+            processTransactions();
+          },
+          (error) => {
+            console.error('Error fetching outgoing transfers:', error);
+            if (error.message.includes('requires an index')) {
+              dispatch(setTransferTransactionsError(
+                'Database index is being created. Please try again in a few minutes.'
+              ));
+            } else {
+              dispatch(setTransferTransactionsError('Failed to fetch outgoing transfers'));
+            }
+          }
+        );
+
+        // Store unsubscribe functions
+        (window as any).transferTransactionsUnsubscribe = () => {
+          if (incomingUnsubscribe) incomingUnsubscribe();
+          if (outgoingUnsubscribe) outgoingUnsubscribe();
+        };
+
         resolve();
       });
     } catch (error) {
-      return rejectWithValue('Failed to setup transaction listener');
+      console.error('Error in fetchTransferTransactions:', error);
+      throw error;
     }
   }
 );
 
 export const stopListeningToTransferTransactions = createAsyncThunk(
   'transferTransactions/stopListening',
-  async (_, { dispatch }) => {
-    if (transferTransactionsUnsubscribe) {
-      transferTransactionsUnsubscribe();
-      transferTransactionsUnsubscribe = null;
+  async () => {
+    const unsubscribe = (window as any).transferTransactionsUnsubscribe;
+    if (unsubscribe) {
+      unsubscribe();
+      (window as any).transferTransactionsUnsubscribe = null;
     }
-    dispatch(clearTransferTransactions());
   }
 );
 

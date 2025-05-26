@@ -41,7 +41,7 @@ const DepositTransactions = () => {
     const isIndexError = error.includes("The query requires an index");
     
     return (
-      <div className="flex flex-col items-center justify-center h-64 p-4 text-center">
+      <div className="flex flex-col items-center justify-center h-64 py-4 text-center">
         <AlertCircle className="text-red-500 w-8 h-8 mb-2" />
         <p className="text-red-500 mb-2">
           {isIndexError ? "Database configuration needed" : error}
