@@ -369,12 +369,12 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-blue"
             }`}
-            aria-label="Get payment details"
+            aria-label="Get deposit details"
           >
             {loading ? (
               <Loader2 className="animate-spin mr-2 inline-block" />
             ) : (
-              "Get Payment Detail"
+              "Get Deposit Details"
             )}
           </button>
         </div>

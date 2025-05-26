@@ -127,6 +127,11 @@ const FiatWalletTab = () => {
             <div>
               <p className="text-gray-300">Your Balance</p>
               <h1 className="text-3xl font-bold">{realBalance.toFixed(2)} USDC</h1>
+              {realBalance === 0 && (
+                <p className="text-sm text-gray-400 mt-1">
+                  Your balance will be updated when you receive deposits or transfers
+                </p>
+              )}
             </div>
             <div className="inline-block rounded-md">
               <p className="font-bold"></p>
@@ -200,6 +205,11 @@ const FiatWalletTab = () => {
               <div>
                 <p className="text-gray-300">Your Balance</p>
                 <h1 className="text-3xl font-bold">{realBalance.toFixed(2)} USDC</h1>
+                {realBalance === 0 && (
+                  <p className="text-sm text-gray-400 mt-1">
+                    Your balance will be updated when you receive deposits or transfers
+                  </p>
+                )}
               </div>
               <div className="inline-block rounded-md">
                 <p className="font-bold"></p>

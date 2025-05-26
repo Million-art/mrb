@@ -127,6 +127,7 @@ useEffect(() => {
             referrals: [],
             referredBy: null,
             balance: 0,
+            realBalance: 0,
             daily: { claimedTime: null, claimedDay: 0 },
             walletAddress: null,
             isPremium: false,
