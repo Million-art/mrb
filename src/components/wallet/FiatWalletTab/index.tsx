@@ -229,7 +229,7 @@ const FiatWalletTab = () => {
           </Tabs>
 
           {/* Connected Wallet Section */}
-          <div className="mb-4">
+          <div className="mb-32">
             <h2 className="text-xl font-semibold">Connected USDC Wallet Address</h2>
           </div>
           <Card className="p-4">
