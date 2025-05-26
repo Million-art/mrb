@@ -3,12 +3,15 @@ import { useTranslation } from "react-i18next";
 import { db } from "@/libs/firebase";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { telegramId, firstName, profilePicture } from "@/libs/telegram";
+import { Copy, Check } from "lucide-react";
+import { Button } from "@/components/stonfi/ui/button";
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();  
   const id = String(telegramId);  
   const [user, setUser] = useState<any>(null);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -28,7 +31,6 @@ const Profile: React.FC = () => {
             lastName: data.lastName,
             userImage: data.userImage,
           });
-          
         });
 
         // Sort users based on balance in descending order
@@ -64,6 +66,16 @@ const Profile: React.FC = () => {
     fetchUserData();
   }, [id, t]);
 
+  const handleCopyId = async () => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy ID:', err);
+    }
+  };
+
   return (
     <div className="bg-gray-dark rounded-lg shadow-lg w-full h-[100px] flex items-center px-4">
       {/* User Image */}
@@ -83,8 +95,21 @@ const Profile: React.FC = () => {
 
       {/* User Name and Details */}
       <div className="ml-4 flex-1">
-        <p className="text-white text-xs">{t("profile.greeting")}</p>
         <h2 className="text-white text-lg font-semibold">{firstName || t("profile.defaultName")}</h2>
+        <p className="text-sm">ID: {id}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyId}
+            className="h-6 w-6 p-0 hover:bg-gray-700"
+          >
+            {copied ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Copy className="h-4 w-4 text-gray-400" />
+            )}
+          </Button>
+          </p>
       </div>
 
       {/* Rank and Balance */}
@@ -96,6 +121,7 @@ const Profile: React.FC = () => {
           </span>
         </p>
         <p className="font-semibold">{user?.balance || 0} Points</p>
+          
       </div>
     </div>
   );
