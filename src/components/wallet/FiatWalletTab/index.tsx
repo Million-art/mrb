@@ -14,32 +14,49 @@ import LinkWallet from "./LinkWallet";
 import { doc, getDoc, updateDoc, deleteField, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/libs/firebase';
 
+
+
 const FiatWalletTab = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { realBalance, loading, error } = useSelector((state: RootState) => state.fiatBalance);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const { loading, error } = useSelector((state: RootState) => state.fiatBalance);
+  const [externalwalletAddress, setexternalWalletAddress] = useState<string | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
   const [isStaff, setIsStaff] = useState<boolean | null>(null);
   const [isCheckingStaff, setIsCheckingStaff] = useState(true);
+  const [userBalance, setUserBalance] = useState<number>(0);
 
   useEffect(() => {
+    console.log('FiatWalletTab mounted with telegramId:', telegramId);
     checkStaffStatus();
-    if (walletAddress) {
+    if (externalwalletAddress) {
+      console.log('Fetching real balance for telegramId:', telegramId);
       dispatch(fetchRealBalance(String(telegramId)));
     }
-    fetchWalletAddress();
-  }, [dispatch, walletAddress]);
+    fetchexternalWalletAddress();
+  }, [dispatch, externalwalletAddress]);
+
+  useEffect(() => {
+    console.log('Balance state updated:', {
+      userBalance,
+      loading,
+      error,
+      telegramId,
+      externalwalletAddress
+    });
+  }, [userBalance, loading, error, externalwalletAddress]);
 
   const checkStaffStatus = async () => {
     try {
       setIsCheckingStaff(true);
       if (!userName) {
+        console.log('No username available for staff check');
         setIsStaff(false);
         return;
       }
 
       // Remove @ if present for comparison
       const cleanUsername = userName.startsWith('@') ? userName.slice(1) : userName;
+      console.log('Checking staff status for username:', cleanUsername);
       
       const staffsRef = collection(db, 'staffs');
       const q = query(
@@ -48,7 +65,9 @@ const FiatWalletTab = () => {
       );
       
       const querySnapshot = await getDocs(q);
-      setIsStaff(!querySnapshot.empty);
+      const isStaffUser = !querySnapshot.empty;
+      console.log('Staff status check result:', isStaffUser);
+      setIsStaff(isStaffUser);
     } catch (error) {
       console.error('Error checking staff status:', error);
       setIsStaff(false);
@@ -57,32 +76,37 @@ const FiatWalletTab = () => {
     }
   };
 
-  const fetchWalletAddress = async () => {
+  const fetchexternalWalletAddress = async () => {
     try {
       if (!telegramId) {
-        console.error('No telegram ID available');
+        console.error('No telegram ID available for wallet address fetch');
         return;
       }
 
+      console.log('Fetching wallet address for telegramId:', telegramId);
       const userRef = doc(db, 'users', String(telegramId));
       const userDoc = await getDoc(userRef);
       
       if (userDoc.exists()) {
-        const walletAddress = userDoc.data().usdcWalletAddress;
-        if (walletAddress) {
-          console.log('Wallet address found:', walletAddress);
-          setWalletAddress(walletAddress);
+        const userData = userDoc.data();
+        console.log('User document data:', userData);
+        const externalwalletAddress = userData.usdcexternalWalletAddress;
+        // Set the real balance from Firestore
+        setUserBalance(userData.realBalance || 0);
+        if (externalwalletAddress) {
+          console.log('Wallet address found:', externalwalletAddress);
+          setexternalWalletAddress(externalwalletAddress);
         } else {
           console.log('No wallet address found for user');
-          setWalletAddress(null);
+          setexternalWalletAddress(null);
         }
       } else {
-        console.log('User document not found');
-        setWalletAddress(null);
+        console.log('User document not found in Firestore');
+        setexternalWalletAddress(null);
       }
     } catch (error) {
       console.error('Error fetching wallet address:', error);
-      setWalletAddress(null);
+      setexternalWalletAddress(null);
     }
   };
 
@@ -91,9 +115,9 @@ const FiatWalletTab = () => {
       setIsUnlinking(true);
       const userRef = doc(db, 'users', String(telegramId));
       await updateDoc(userRef, {
-        usdcWalletAddress: deleteField()
+        usdcexternalWalletAddress: deleteField()
       });
-      setWalletAddress(null);
+      setexternalWalletAddress(null);
     } catch (error) {
       console.error('Error unlinking wallet:', error);
     } finally {
@@ -126,8 +150,8 @@ const FiatWalletTab = () => {
           <div className="mb-2">
             <div>
               <p className="text-gray-300">Your Balance</p>
-              <h1 className="text-3xl font-bold">{realBalance.toFixed(2)} USDC</h1>
-              {realBalance === 0 && (
+              <h1 className="text-3xl font-bold">{userBalance.toFixed(2)} USDC</h1>
+              {userBalance === 0 && (
                 <p className="text-sm text-gray-400 mt-1">
                   Your balance will be updated when you receive deposits or transfers
                 </p>
@@ -183,7 +207,7 @@ const FiatWalletTab = () => {
   // For regular users, show conditional UI based on wallet connection
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
-      {!walletAddress ? (
+      {!externalwalletAddress ? (
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50 mb-4">
             <Wallet className="w-8 h-8 text-gray-400" />
@@ -193,8 +217,8 @@ const FiatWalletTab = () => {
             Connect your external USDC wallet to get referral commission and access fiat wallet
           </p>
           <LinkWallet 
-            walletAddress={walletAddress}
-            onWalletUpdate={setWalletAddress}
+            walletAddress={externalwalletAddress}
+            onWalletUpdate={setexternalWalletAddress}
           />
         </div>
       ) : (
@@ -204,8 +228,8 @@ const FiatWalletTab = () => {
             <div className="mb-2">
               <div>
                 <p className="text-gray-300">Your Balance</p>
-                <h1 className="text-3xl font-bold">{realBalance.toFixed(2)} USDC</h1>
-                {realBalance === 0 && (
+                <h1 className="text-3xl font-bold">{userBalance.toFixed(2)} USDC</h1>
+                {userBalance === 0 && (
                   <p className="text-sm text-gray-400 mt-1">
                     Your balance will be updated when you receive deposits or transfers
                   </p>
@@ -263,9 +287,9 @@ const FiatWalletTab = () => {
                 <div className="flex items-center gap-2 flex-1">
                   <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
                   <div className="flex-1">
-                    {walletAddress ? (
+                    {externalwalletAddress ? (
                       <p className="text-sm break-all bg-gray-800/50 p-2 rounded-lg text-left" dir="ltr">
-                        {walletAddress}
+                        {externalwalletAddress}
                       </p>
                     ) : (
                       <p className="text-sm text-gray-400">No wallet address found</p>
@@ -273,11 +297,11 @@ const FiatWalletTab = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
-                  {walletAddress && (
+                  {externalwalletAddress && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigator.clipboard.writeText(walletAddress)}
+                      onClick={() => navigator.clipboard.writeText(externalwalletAddress)}
                       className="text-blue hover:text-blue/90"
                     >
                       Copy
