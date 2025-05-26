@@ -6,7 +6,6 @@ import { ScrollArea } from "@/components/stonfi/ui/scroll-area";
 
 interface ExchangeRate {
   id: string;
-  countryCode: string;
   currencyCode: string;
   rate: number;
   countryName: string;
@@ -72,7 +71,7 @@ const ExchangeRates = () => {
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
                 <img
-                  src={`https://flagcdn.com/${rate.countryCode.toLowerCase()}.svg`}
+                  src={`https://flagcdn.com/${rate.countryName.toLowerCase().replace(/\s+/g, '-')}.svg`}
                   alt={rate.countryName}
                   className="w-7 h-5 object-cover rounded"
                 />
