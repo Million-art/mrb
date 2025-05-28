@@ -44,6 +44,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCountryOpen, setIsCountryOpen] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     legal_name: "",
@@ -86,10 +87,96 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
     checkExistingCustomer();
   }, []);
 
+  useEffect(() => {
+    if (formData.phone_number && formData.country) {
+      const isValid = validatePhoneNumber(formData.phone_number, formData.country);
+      setPhoneError(isValid ? null : getPhoneNumberError(formData.country));
+    }
+  }, [formData.country, formData.phone_number]);
+
+  const validatePhoneNumber = (phone: string, country: string) => {
+    if (!phone) return false;
+    
+    // Remove any non-digit characters for validation
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    switch (country) {
+      case 'Venezuela':
+        // Venezuela: +58 followed by 9-10 digits (different providers)
+        return /^58\d{9,10}$/.test(cleanPhone);
+      case 'Colombia':
+        // Colombia: +57 followed by 10 digits (different providers)
+        return /^57\d{10}$/.test(cleanPhone);
+      case 'Argentina':
+        // Argentina: +54 followed by 10-11 digits (different providers)
+        return /^54\d{10,11}$/.test(cleanPhone);
+      case 'Mexico':
+        // Mexico: +52 followed by 10 digits (different providers)
+        return /^52\d{10}$/.test(cleanPhone);
+      case 'Brazil':
+        // Brazil: +55 followed by 10-11 digits (different providers)
+        return /^55\d{10,11}$/.test(cleanPhone);
+      case 'Chile':
+        // Chile: +56 followed by 9 digits (different providers)
+        return /^56\d{9}$/.test(cleanPhone);
+      case 'Guatemala':
+        // Guatemala: +502 followed by 8 digits (different providers)
+        return /^502\d{8}$/.test(cleanPhone);
+      case 'European Union':
+        // EU: Various formats, but typically 10-12 digits
+        return cleanPhone.length >= 10 && cleanPhone.length <= 12;
+      case 'Panama':
+        // Panama: +507 followed by 7-8 digits (different providers)
+        return /^507\d{7,8}$/.test(cleanPhone);
+      case 'United Kingdom':
+        // UK: +44 followed by 10 digits (different providers)
+        return /^44\d{10}$/.test(cleanPhone);
+      default:
+        return false;
+    }
+  };
+
+  const getPhoneNumberError = (country: string) => {
+    switch (country) {
+      case 'Venezuela':
+        return "Venezuelan numbers must be +58 followed by 9-10 digits";
+      case 'Colombia':
+        return "Colombian numbers must be +57 followed by 10 digits";
+      case 'Argentina':
+        return "Argentine numbers must be +54 followed by 10-11 digits";
+      case 'Mexico':
+        return "Mexican numbers must be +52 followed by 10 digits";
+      case 'Brazil':
+        return "Brazilian numbers must be +55 followed by 10-11 digits";
+      case 'Chile':
+        return "Chilean numbers must be +56 followed by 9 digits";
+      case 'Guatemala':
+        return "Guatemalan numbers must be +502 followed by 8 digits";
+      case 'European Union':
+        return "EU numbers must be 10-12 digits";
+      case 'Panama':
+        return "Panamanian numbers must be +507 followed by 7-8 digits";
+      case 'United Kingdom':
+        return "UK numbers must be +44 followed by 10 digits";
+      default:
+        return "Please enter a valid phone number";
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.legal_name || !formData.email || !formData.phone_number || !formData.type || !formData.country) {
       dispatch(setShowMessage({
         message: "All fields are required",
+        color: "red"
+      }));
+      return;
+    }
+
+    const isValidPhone = validatePhoneNumber(formData.phone_number, formData.country);
+    if (!isValidPhone) {
+      const errorMessage = getPhoneNumberError(formData.country);
+      dispatch(setShowMessage({
+        message: errorMessage,
         color: "red"
       }));
       return;
@@ -105,13 +192,11 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
 
       const newCustomerData = response.data;
 
-      // Show success message
       dispatch(setShowMessage({
         message: "Customer account created successfully!",
         color: "green"
       }));
 
-      // Call onComplete with the new customer data
       if (onComplete) {
         onComplete(newCustomerData);
       }
@@ -159,15 +244,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50 mb-4">
-          <UserPlus className="w-8 h-8 text-gray-400" />
-        </div>
-        <p className="text-gray-400 mb-8">
-          To use our fiat wallet services, you need to create a customer account first.
-        </p>
-      </div>
+    <div className="space-y-2 mb-24">
 
       <div className="space-y-4">
         <div className="space-y-2">
@@ -199,12 +276,23 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
           <Label htmlFor="phone">Phone Number *</Label>
           <PhoneInput
             international
-            defaultCountry="VE"
+            defaultCountry="BR"
             value={formData.phone_number}
-            onChange={(value) => setFormData(prev => ({ ...prev, phone_number: value || "" }))}
-            className="bg-black border border-gray-600 rounded-md h-10 text-white"
+            onChange={(value) => {
+              setFormData(prev => ({ ...prev, phone_number: value || "" }));
+              if (value && formData.country) {
+                const isValid = validatePhoneNumber(value, formData.country);
+                setPhoneError(isValid ? null : getPhoneNumberError(formData.country));
+              }
+            }}
+            className={`bg-black border ${phoneError ? 'border-red-500' : 'border-gray-600'} rounded-md h-10 text-white`}
             required
           />
+          {phoneError && (
+            <p className="text-sm text-red-500">
+              {phoneError}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

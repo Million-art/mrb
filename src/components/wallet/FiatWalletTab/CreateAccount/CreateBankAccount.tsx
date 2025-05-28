@@ -97,7 +97,7 @@ const FormField = ({
 );
 
 const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading }) => (
-  <div className="space-y-4">
+  <div className="space-y-4 mb-12">
     <div className="mb-4 p-3 rounded-lg bg-gray-dark">
       <div className="flex items-center justify-between">
         <div>
@@ -329,40 +329,40 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     <div className="space-y-4">
       <FormField
         label="Bank Code"
-        name="bank_code"
-        value={formData.bank_code}
-        onChange={handleChange}
+          name="bank_code"
+          value={formData.bank_code}
+          onChange={handleChange}
         placeholder="Enter bank code (e.g., 0138)"
-        required
-      />
+          required
+        />
 
       <FormField
         label="Beneficiary Name"
-        name="beneficiary_name"
+          name="beneficiary_name"
         value={formData.beneficiary_name}
-        onChange={handleChange}
+          onChange={handleChange}
         placeholder="Enter beneficiary name (e.g., John Doe)"
       />
 
       <FormField
         label="Account Number"
-        name="account_number"
+          name="account_number"
         value={formData.account_number}
-        onChange={handleChange}
+          onChange={handleChange}
         placeholder="Enter account number (e.g., 21281309821)"
       />
 
       <FormField
         label="ID Document Number"
-        name="id_doc_number"
-        value={formData.id_doc_number}
-        onChange={handleChange}
+          name="id_doc_number"
+          value={formData.id_doc_number}
+          onChange={handleChange}
         placeholder="Enter ID document number (e.g., V12345678)"
-        required
-        pattern="[Vv]\d{7,}"
-        title="ID must start with 'V' followed by at least 7 digits"
-        maxLength={20}
-      />
+          required
+          pattern="[Vv]\d{7,}"
+          title="ID must start with 'V' followed by at least 7 digits"
+          maxLength={20}
+        />
 
       <Button
         onClick={handleSubmit}

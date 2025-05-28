@@ -52,9 +52,7 @@ const Buttons = () => {
     navigate("/remittance"); 
   };
 
-  const handleCreateAccountClick = () => {
-    navigate("/create-customer"); 
-  };
+ 
  
   const handleTransferClick = () => {
     navigate("/balance-transfer"); 
@@ -64,7 +62,7 @@ const Buttons = () => {
   return (
     <div className="w-full scrollbar-hidden">
       <div className="w-full">
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-6">
           {/* Deposit Icon */}
           <div onClick={handleDepositClick} className="flex flex-col items-center cursor-pointer">
             <ArrowDown size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
@@ -81,10 +79,7 @@ const Buttons = () => {
             <ArrowRight  size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" /> 
             <span className="text-xs mt-2">Transfer</span>
           </div>
-          <div onClick={handleCreateAccountClick} className="flex flex-col items-center cursor-pointer">
-            <Landmark  size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" /> 
-            <span className="text-xs mt-2">Account</span>
-          </div>
+
         </div>
 
         {/* Promotional Banner */}
