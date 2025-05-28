@@ -5,11 +5,11 @@ import { Label } from "@/components/stonfi/ui/label";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
-import './phone-input-dark.css';
 import { Copy, Check, X, Loader2 } from "lucide-react";
 import { getBankAccountsUrl, getBankAccountUrl } from "@/config/api";
+import { API_CONFIG } from "@/config/api";
+import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
+import { db } from '@/libs/firebase';
 
 interface BankAccountFormData {
   bank_code: string;

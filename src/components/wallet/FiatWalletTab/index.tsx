@@ -31,18 +31,6 @@ interface ValidationError {
   message: string;
 }
 
-interface BankAccount {
-  account_number: string;
-  account_type: 'bankaccount';
-  bank_code: string;
-  beneficiary_name: string;
-  country_code: string;
-  createdAt: string;
-  customer_id: string;
-  id_doc_number: string;
-  kontigoBankAccountId: string;
-}
-
 // New component for customer account creation
 const CreateCustomerAccount = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(false);
