@@ -261,7 +261,8 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
 
       {currentStep === 2 && customerData && (
         <CreateBankAccount 
-          customerData={customerData} 
+          customerId={customerData.id}
+          customerPhone={customerData.phone_number}
           onComplete={handleBankAccountComplete}
         />
       )}
