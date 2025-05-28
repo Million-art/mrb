@@ -13,8 +13,8 @@ import { Button } from "@/components/stonfi/ui/button";
 import LinkWallet from "./LinkWallet";
 import { doc, getDoc, updateDoc, deleteField, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/libs/firebase';
-import CreateAccount from "./CreateAccount/CreateAccount";
 import CreateBankAccount from "./CreateAccount/CreateBankAccount";
+import Onboarding from "./CreateAccount/Onboarding";
 
 const FiatWalletTab = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -266,7 +266,7 @@ const FiatWalletTab = () => {
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
       {!hasCustomerAccount ? (
-        <CreateAccount onComplete={() => {
+        <Onboarding onComplete={() => {
           setHasCustomerAccount(true);
           checkCustomerAccount();
         }} />
