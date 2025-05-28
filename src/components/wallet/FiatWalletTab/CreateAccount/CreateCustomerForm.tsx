@@ -104,7 +104,7 @@ export default function CreateCustomerForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-black rounded-lg text-white">
+    <div className="w-full max-w-md mb-32 mx-auto p-6 bg-black rounded-lg text-white">
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="legal_name">Legal Name *</Label>
@@ -199,10 +199,10 @@ export default function CreateCustomerForm() {
           </select>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 ">
           <Button 
             onClick={handleSubmit} 
-            className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
+            className="w-full bg-blue  text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
             disabled={loading}
           >
             {loading ? (
