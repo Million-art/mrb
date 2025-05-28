@@ -35,13 +35,6 @@ interface FormData {
   country: string;
 }
 
-const DOCUMENT_TYPES = [
-  { value: "passport", label: "Passport" },
-  { value: "national_id", label: "National ID" },
-  { value: "drivers_license", label: "Driver's License" },
-  { value: "residence_permit", label: "Residence Permit" }
-];
-
 interface CreateAccountProps {
   onComplete?: () => void;
 }
