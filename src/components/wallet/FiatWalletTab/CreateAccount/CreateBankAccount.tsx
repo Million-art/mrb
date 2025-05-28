@@ -27,9 +27,10 @@ interface BankAccount extends BankAccountFormData {
 interface CreateBankAccountProps {
   customerId: string;
   showLoader?: boolean;
+  customerPhone: string;
 }
 
-export default function CreateBankAccount({ customerId, showLoader = true }: CreateBankAccountProps) {
+export default function CreateBankAccount({ customerId, showLoader = true, customerPhone }: CreateBankAccountProps) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
@@ -44,7 +45,7 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
     beneficiary_name: null,
     account_number: null,
     id_doc_number: "",
-    phone_number: null,
+    phone_number: customerPhone,
   });
 
   useEffect(() => {
@@ -324,39 +325,20 @@ export default function CreateBankAccount({ customerId, showLoader = true }: Cre
         </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="phone_number">Phone Number</Label>
-        <PhoneInput
-          international
-          defaultCountry="VE"
-          placeholder="Enter phone number (e.g., +584123456787)"
-          value={formData.phone_number || ""}
-          onChange={(value) => {
-            setFormData(prev => ({
-              ...prev,
-              phone_number: value || null
-            }))
-          }}
-          className="bg-black border border-gray-600 rounded-md h-10 text-white"
-        />
-      </div>
-
-      <div className="pt-4">
-        <Button
-          onClick={handleSubmit}
-          className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            "Create Bank Account"
-          )}
-        </Button>
-      </div>
+      <Button
+        onClick={handleSubmit}
+        className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating...
+          </>
+        ) : (
+          "Create Bank Account"
+        )}
+      </Button>
     </div>
   );
 } 

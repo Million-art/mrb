@@ -1,12 +1,36 @@
   // API Configuration
   export const API_CONFIG = {
     BASE_URL2: "https://dashboard-backend.mrbeas.net",
-    BASE_URL: "https://api.glofica.com",
+    BASE_URL: process.env.NODE_ENV === 'development' ? "http://localhost:3000" : "https://api.glofica.com",
+    FALLBACK_URL: "https://api.glofica.com",
     ENDPOINTS: {
       CUSTOMERS: "/customers",
       BANK_ACCOUNTS: "/bank-accounts",
       QUOTES: "/quotes",
       EXCHANGE_RATE: "/exchange-rates"
+    }
+  };
+
+  // Helper function to handle API calls with fallback
+  export const fetchWithFallback = async (url: string, options?: RequestInit) => {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      // If the request fails and we're using localhost, try the fallback URL
+      if (url.includes('localhost:3000')) {
+        const fallbackUrl = url.replace(API_CONFIG.BASE_URL, API_CONFIG.FALLBACK_URL);
+        console.log('Falling back to production URL:', fallbackUrl);
+        const fallbackResponse = await fetch(fallbackUrl, options);
+        if (!fallbackResponse.ok) {
+          throw new Error(`Fallback HTTP error! status: ${fallbackResponse.status}`);
+        }
+        return await fallbackResponse.json();
+      }
+      throw error;
     }
   };
 
@@ -42,21 +66,13 @@
  
   export const dmDepositDetails = async (depositDetails) => {
     try {
-      const response = await fetch(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details
-`, {
+      return await fetchWithFallback(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(depositDetails),
       });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to send deposit details');
-      }
-  
-      return await response.json();
     } catch (error) {
       console.error('Error sending deposit details:', error);
       throw error;
