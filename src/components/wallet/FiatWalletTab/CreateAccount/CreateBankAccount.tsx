@@ -7,9 +7,6 @@ import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { Copy, Check, X, Loader2 } from "lucide-react";
 import { getBankAccountsUrl, getBankAccountUrl } from "@/config/api";
-import { API_CONFIG } from "@/config/api";
-import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
-import { db } from '@/libs/firebase';
 
 interface BankAccountFormData {
   bank_code: string;
