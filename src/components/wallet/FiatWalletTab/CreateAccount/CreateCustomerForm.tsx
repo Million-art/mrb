@@ -13,6 +13,7 @@ import { telegramId } from "@/libs/telegram"
 import { useNavigate } from "react-router-dom"
 import { getCustomerUrl } from "@/config/api"
 import { Loader2 } from "lucide-react"
+import { countries } from "./countries"
 
 interface FormData {
   legal_name: string;
@@ -29,18 +30,6 @@ const DOCUMENT_TYPES = [
   { value: "national_id", label: "National ID" },
   { value: "drivers_license", label: "Driver's License" },
   { value: "residence_permit", label: "Residence Permit" }
-];
-
-const COUNTRIES = [
-  { value: "MX", label: "Mexico" },
-  { value: "GT", label: "Guatemala" },
-  { value: "SV", label: "El Salvador" },
-  { value: "PA", label: "Panama" },
-  { value: "CO", label: "Colombia" },
-  { value: "PE", label: "Peru" },
-  { value: "CL", label: "Chile" },
-  { value: "AR", label: "Argentina" },
-  { value: "GB", label: "United Kingdom" }
 ];
 
 export default function CreateCustomerForm() {
@@ -184,9 +173,9 @@ export default function CreateCustomerForm() {
             className="w-full h-10 px-3 py-2 bg-black border border-gray-600 rounded-md text-white text-left [&:not(:placeholder-shown)]:bg-black"
             required
           >
-            {COUNTRIES.map(country => (
-              <option key={country.value} value={country.value}>
-                {country.label}
+            {countries.map(country => (
+              <option key={country.code} value={country.code}>
+                {country.name}
               </option>
             ))}
           </select>
