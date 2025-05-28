@@ -25,6 +25,7 @@ interface CreateBankAccountProps {
   customerId: string;
   showLoader?: boolean;
   customerPhone: string;
+  onComplete?: () => void;
 }
 
 // Utility functions
@@ -153,7 +154,7 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading }) 
   </div>
 );
 
-export default function CreateBankAccount({ customerId, showLoader = true, customerPhone }: CreateBankAccountProps) {
+export default function CreateBankAccount({ customerId, showLoader = true, customerPhone, onComplete }: CreateBankAccountProps) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
@@ -260,6 +261,11 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         message: "Bank account created successfully!",
         color: "green"
       }));
+      
+      // Call onComplete if provided
+      if (onComplete) {
+        onComplete();
+      }
     } catch (err) {
       handleApiError(err, dispatch, 'Failed to create bank account');
     } finally {
