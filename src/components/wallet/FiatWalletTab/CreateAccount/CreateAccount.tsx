@@ -74,7 +74,10 @@ const CreateAccount = () => {
             <div className="w-6" />
           </div>
 
-          <CreateBankAccount customerId={customerData.kontigoCustomerId} />
+          <CreateBankAccount 
+            customerId={customerData.kontigoCustomerId}
+            customerPhone={customerData.phone_number}
+          />
         </div>
       </div>
     );

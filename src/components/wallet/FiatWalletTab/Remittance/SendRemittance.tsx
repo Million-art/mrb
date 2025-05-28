@@ -130,14 +130,13 @@ const SendRemittance = () => {
 
   const payTransferQuote = async () => {
     if (!quote?.id || !customerId || !amount) return; 
-    console.log('aaaaaaaaaa',amount) 
     setIsPayingQuote(true);
     console.log(quote.id)
     try {
       const response = await axios.post(getQuotePayUrl(customerId, quote.id,amount));
  
       dispatch(setShowMessage({
-        message: "Transfer payment initiated successfully!",
+        message: "Transfer  success",
         color: "green"
       }));
       setQuote(response.data); 
@@ -148,7 +147,7 @@ const SendRemittance = () => {
 
     } catch (err: any) {
       dispatch(setShowMessage({
-        message: err.response?.data?.error || "Failed to pay transfer quote",
+        message: err.response?.data?.error || "Failed to  transfer quote",
         color: "red"
       }));
       console.error("Payment error:", err);
