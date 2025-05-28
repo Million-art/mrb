@@ -27,6 +27,132 @@ interface CreateBankAccountProps {
   customerPhone: string;
 }
 
+// Utility functions
+const validateIdDocument = (idDocNumber: string): { isValid: boolean; message?: string } => {
+  const trimmed = idDocNumber.trim();
+  if (trimmed.length < 8) {
+    return { isValid: false, message: "ID document number must be at least 8 characters long" };
+  }
+  if (!trimmed.match(/^[Vv]\d{7,}$/)) {
+    return { isValid: false, message: "ID document number must start with 'V' followed by at least 7 digits" };
+  }
+  return { isValid: true };
+};
+
+const handleApiError = (err: any, dispatch: any, defaultMessage: string) => {
+  console.error('Error:', err);
+  const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || defaultMessage;
+  dispatch(setShowMessage({
+    message: errorMessage,
+    color: "red"
+  }));
+};
+
+// Reusable components
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <Loader2 className="h-8 w-8 animate-spin text-blue" />
+  </div>
+);
+
+const FormField = ({ 
+  label, 
+  name, 
+  value, 
+  onChange, 
+  placeholder, 
+  required, 
+  pattern, 
+  title, 
+  maxLength, 
+  type = "text" 
+}: {
+  label: string;
+  name: string;
+  value: string | null;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  placeholder: string;
+  required?: boolean;
+  pattern?: string;
+  title?: string;
+  maxLength?: number;
+  type?: string;
+}) => (
+  <div className="space-y-2">
+    <Label htmlFor={name}>{label} {required && "*"}</Label>
+    <Input
+      placeholder={placeholder}
+      name={name}
+      value={value || ""}
+      onChange={onChange}
+      className="bg-black border border-gray-600 text-white text-left [&:not(:placeholder-shown)]:bg-black"
+      required={required}
+      pattern={pattern}
+      title={title}
+      maxLength={maxLength}
+      type={type}
+    />
+  </div>
+);
+
+const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading }) => (
+  <div className="space-y-4">
+    <div className="mb-4 p-3 rounded-lg bg-gray-dark">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-400">Bank Account ID</p>
+          <p className="text-lg font-medium">{bankAccount.kontigoBankAccountId}</p>
+        </div>
+        <button
+          onClick={onCopy}
+          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-3">
+      <div className="p-3 rounded-lg bg-gray-dark">
+        <p className="text-sm text-gray-400">Bank Code</p>
+        <p className="text-base font-medium">{bankAccount.bank_code}</p>
+      </div>
+      
+      <div className="p-3 rounded-lg bg-gray-dark">
+        <p className="text-sm text-gray-400">ID Document</p>
+        <p className="text-base font-medium">{bankAccount.id_doc_number}</p>
+      </div>
+      
+      {bankAccount.beneficiary_name && (
+        <div className="p-3 rounded-lg bg-gray-dark">
+          <p className="text-sm text-gray-400">Beneficiary</p>
+          <p className="text-base font-medium">{bankAccount.beneficiary_name}</p>
+        </div>
+      )}
+      
+      {bankAccount.account_number && (
+        <div className="p-3 rounded-lg bg-gray-dark">
+          <p className="text-sm text-gray-400">Account Number</p>
+          <p className="text-base font-medium">{bankAccount.account_number}</p>
+        </div>
+      )}
+      
+      <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
+        <p className="text-sm text-gray-400">Phone Number</p>
+        <p className="text-base font-medium">{bankAccount.phone_number}</p>
+      </div>
+    </div>
+
+    <Button
+      onClick={onDelete}
+      className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
+      disabled={loading}
+    >
+      {loading ? "Deleting..." : "Delete Bank Account"}
+    </Button>
+  </div>
+);
+
 export default function CreateBankAccount({ customerId, showLoader = true, customerPhone }: CreateBankAccountProps) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -88,13 +214,8 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         message: "Bank account deleted successfully!",
         color: "green"
       }));
-    } catch (err: any) {
-      console.error('Error:', err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to delete bank account';
-      dispatch(setShowMessage({
-        message: errorMessage,
-        color: "red"
-      }));
+    } catch (err) {
+      handleApiError(err, dispatch, 'Failed to delete bank account');
     } finally {
       setLoading(false);
     }
@@ -117,19 +238,10 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
       return;
     }
 
-    // Enhanced ID document number validation
-    const idDocNumber = formData.id_doc_number.trim();
-    if (idDocNumber.length < 8) {
+    const validation = validateIdDocument(formData.id_doc_number);
+    if (!validation.isValid) {
       dispatch(setShowMessage({
-        message: "ID document number must be at least 8 characters long",
-        color: "red"
-      }));
-      return;
-    }
-
-    if (!idDocNumber.match(/^[Vv]\d{7,}$/)) {
-      dispatch(setShowMessage({
-        message: "ID document number must start with 'V' followed by at least 7 digits",
+        message: validation.message || "Invalid ID document number",
         color: "red"
       }));
       return;
@@ -140,7 +252,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     try {
       const response = await axios.post(getBankAccountsUrl(customerId), {
         ...formData,
-        id_doc_number: idDocNumber.toUpperCase() // Normalize to uppercase
+        id_doc_number: formData.id_doc_number.toUpperCase()
       });
       setBankAccount(response.data);
       setDisplayMode('details');
@@ -148,88 +260,28 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         message: "Bank account created successfully!",
         color: "green"
       }));
-    } catch (err: any) {
-      console.error('Error:', err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to create bank account';
-      dispatch(setShowMessage({
-        message: errorMessage,
-        color: "red"
-      }));
+    } catch (err) {
+      handleApiError(err, dispatch, 'Failed to create bank account');
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading state until data is fetched
   if (isLoading || !dataFetched) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-blue" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
-  // Bank account details view
   if (displayMode === 'details' && bankAccount) {
     return (
-      <div className="space-y-4">
-        <div className="mb-4 p-3 rounded-lg bg-gray-dark">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">Bank Account ID</p>
-              <p className="text-lg font-medium">{bankAccount.kontigoBankAccountId}</p>
-            </div>
-            <button
-              onClick={handleCopy}
-              className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
+      <>
+        <BankAccountDetails
+          bankAccount={bankAccount}
+          onCopy={handleCopy}
+          copied={copied}
+          onDelete={() => setShowDeleteConfirm(true)}
+          loading={loading}
+        />
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-lg bg-gray-dark">
-            <p className="text-sm text-gray-400">Bank Code</p>
-            <p className="text-base font-medium">{bankAccount.bank_code}</p>
-          </div>
-          
-          <div className="p-3 rounded-lg bg-gray-dark">
-            <p className="text-sm text-gray-400">ID Document</p>
-            <p className="text-base font-medium">{bankAccount.id_doc_number}</p>
-          </div>
-          
-          {bankAccount.beneficiary_name && (
-            <div className="p-3 rounded-lg bg-gray-dark">
-              <p className="text-sm text-gray-400">Beneficiary</p>
-              <p className="text-base font-medium">{bankAccount.beneficiary_name}</p>
-            </div>
-          )}
-          
-          {bankAccount.account_number && (
-            <div className="p-3 rounded-lg bg-gray-dark">
-              <p className="text-sm text-gray-400">Account Number</p>
-              <p className="text-base font-medium">{bankAccount.account_number}</p>
-            </div>
-          )}
-          
-          {bankAccount.phone_number && (
-            <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
-              <p className="text-sm text-gray-400">Phone Number</p>
-              <p className="text-base font-medium">{bankAccount.phone_number}</p>
-            </div>
-          )}
-        </div>
-
-        <Button
-          onClick={() => setShowDeleteConfirm(true)}
-          className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
-          disabled={loading}
-        >
-          {loading ? "Deleting..." : "Delete Bank Account"}
-        </Button>
-
-        {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
             <div className="bg-gray-dark p-6 rounded-lg max-w-md w-full mx-4">
@@ -245,7 +297,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
               <p className="text-gray-300 mb-6">
                 Are you sure you want to delete this bank account? This action cannot be undone.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <Button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="flex-1 bg-gray-700 hover:bg-gray-600 text-white"
@@ -263,64 +315,48 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
             </div>
           </div>
         )}
-      </div>
+      </>
     );
   }
 
-  // Create bank account form
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="bank_code">Bank Code *</Label>
-        <Input
-          placeholder="Enter bank code (e.g., 0138)"
-          name="bank_code"
-          value={formData.bank_code}
-          onChange={handleChange}
-          className="bg-black border border-gray-600 text-white text-left [&:not(:placeholder-shown)]:bg-black"
-          required
-        />
-      </div>
+      <FormField
+        label="Bank Code"
+        name="bank_code"
+        value={formData.bank_code}
+        onChange={handleChange}
+        placeholder="Enter bank code (e.g., 0138)"
+        required
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="beneficiary_name">Beneficiary Name</Label>
-        <Input
-          placeholder="Enter beneficiary name (e.g., John Doe)"
-          name="beneficiary_name"
-          value={formData.beneficiary_name || ""}
-          onChange={handleChange}
-          className="bg-black border border-gray-600 text-white text-left [&:not(:placeholder-shown)]:bg-black"
-        />
-      </div>
+      <FormField
+        label="Beneficiary Name"
+        name="beneficiary_name"
+        value={formData.beneficiary_name}
+        onChange={handleChange}
+        placeholder="Enter beneficiary name (e.g., John Doe)"
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="account_number">Account Number</Label>
-        <Input
-          placeholder="Enter account number (e.g., 21281309821)"
-          name="account_number"
-          value={formData.account_number || ""}
-          onChange={handleChange}
-          className="bg-black border border-gray-600 text-white text-left [&:not(:placeholder-shown)]:bg-black"
-        />
-      </div>
+      <FormField
+        label="Account Number"
+        name="account_number"
+        value={formData.account_number}
+        onChange={handleChange}
+        placeholder="Enter account number (e.g., 21281309821)"
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="id_doc_number">ID Document Number *</Label>
-        <Input
-          placeholder="Enter ID document number (e.g., V12345678)"
-          name="id_doc_number"
-          value={formData.id_doc_number}
-          onChange={handleChange}
-          className="bg-black border border-gray-600 text-white text-left [&:not(:placeholder-shown)]:bg-black"
-          required
-          pattern="[Vv]\d{7,}"
-          title="ID must start with 'V' followed by at least 7 digits"
-          maxLength={20}
-        />
-        <p className="text-xs text-gray-400 mt-1">
-          Must start with 'V' followed by at least 7 digits (e.g., V12345678)
-        </p>
-      </div>
+      <FormField
+        label="ID Document Number"
+        name="id_doc_number"
+        value={formData.id_doc_number}
+        onChange={handleChange}
+        placeholder="Enter ID document number (e.g., V12345678)"
+        required
+        pattern="[Vv]\d{7,}"
+        title="ID must start with 'V' followed by at least 7 digits"
+        maxLength={20}
+      />
 
       <Button
         onClick={handleSubmit}
