@@ -63,7 +63,26 @@
   export const getQuotePayUrl = (customerId: string, quoteId: string, amount:number) => {
     return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay/${amount}`;
   }
- 
+
+  export const updateCustomerUrl = (customerId: string) => {
+    return `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CUSTOMERS}/${customerId}`;
+  };
+
+  export const updateCustomer = async (customerId: string, customerData: any) => {
+    try {
+      return await fetchWithFallback(updateCustomerUrl(customerId), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(customerData),
+      });
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      throw error;
+    }
+  };
+
   export const dmDepositDetails = async (depositDetails) => {
     try {
       return await fetchWithFallback(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details`, {
@@ -79,5 +98,4 @@
     }
   };
 
- 
 
