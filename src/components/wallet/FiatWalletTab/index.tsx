@@ -33,7 +33,6 @@ const FiatWalletTab = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [bankAccountData, setBankAccountData] = useState<any>(null);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -123,31 +122,25 @@ const FiatWalletTab = () => {
           const bankAccountSnapshot = await getDocs(bankAccountQuery);
           
           if (!bankAccountSnapshot.empty) {
-            const bankAccountData = bankAccountSnapshot.docs[0].data();
-            console.log('Bank account found:', bankAccountData);
+            console.log('Bank account found for Venezuelan customer');
             setHasBankAccount(true);
-            setBankAccountData(bankAccountData);
           } else {
             console.log('No bank account found for Venezuelan customer');
             setHasBankAccount(false);
-            setBankAccountData(null);
           }
         } else {
           console.log('Customer is not from Venezuela, bank account not required');
           setHasBankAccount(true);
-          setBankAccountData(null);
         }
       } else {
         console.log('No customer found with telegram_id:', telegramId);
         setHasCustomerAccount(false);
         setHasBankAccount(null);
-        setBankAccountData(null);
       }
     } catch (error) {
       console.error('Error checking customer account:', error);
       setHasCustomerAccount(false);
       setHasBankAccount(null);
-      setBankAccountData(null);
     } finally {
       setIsCheckingCustomer(false);
     }
@@ -273,7 +266,6 @@ const FiatWalletTab = () => {
 
   const handleBankAccountDelete = () => {
     setHasBankAccount(false);
-    setBankAccountData(null);
     checkCustomerAccount();
   };
 
