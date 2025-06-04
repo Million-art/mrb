@@ -33,6 +33,7 @@ const FiatWalletTab = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [bankAccountData, setBankAccountData] = useState<any>(null);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -125,23 +126,28 @@ const FiatWalletTab = () => {
             const bankAccountData = bankAccountSnapshot.docs[0].data();
             console.log('Bank account found:', bankAccountData);
             setHasBankAccount(true);
+            setBankAccountData(bankAccountData);
           } else {
             console.log('No bank account found for Venezuelan customer');
             setHasBankAccount(false);
+            setBankAccountData(null);
           }
         } else {
           console.log('Customer is not from Venezuela, bank account not required');
           setHasBankAccount(true);
+          setBankAccountData(null);
         }
       } else {
         console.log('No customer found with telegram_id:', telegramId);
         setHasCustomerAccount(false);
         setHasBankAccount(null);
+        setBankAccountData(null);
       }
     } catch (error) {
       console.error('Error checking customer account:', error);
       setHasCustomerAccount(false);
       setHasBankAccount(null);
+      setBankAccountData(null);
     } finally {
       setIsCheckingCustomer(false);
     }
@@ -263,6 +269,12 @@ const FiatWalletTab = () => {
   const handleCancel = () => {
     setIsEditing(false);
     setEditedData(null);
+  };
+
+  const handleBankAccountDelete = () => {
+    setHasBankAccount(false);
+    setBankAccountData(null);
+    checkCustomerAccount();
   };
 
   if (loading || isCheckingStaff || isCheckingCustomer) {
@@ -579,24 +591,15 @@ const FiatWalletTab = () => {
                           <Wallet className="w-5 h-5 text-gray-400" />
                           <h3 className="text-lg font-medium">Bank Account Information</h3>
                         </div>
-                        {hasBankAccount ? (
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-400">
-                              Your bank account is connected and ready to use.
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            <p className="text-sm text-gray-400">
-                              You need to create a bank account to use our fiat wallet services.
-                            </p>
-                            <CreateBankAccount 
-                              customerId={customerData.kontigoCustomerId}
-                              showLoader={false}
-                              customerPhone={customerData.phone_number}
-                            />
-                          </div>
-                        )}
+                        <CreateBankAccount 
+                          customerId={customerData.kontigoCustomerId}
+                          showLoader={false}
+                          customerPhone={customerData.phone_number}
+                          onComplete={() => {
+                            setHasBankAccount(true);
+                            checkCustomerAccount();
+                          }}
+                        />
                       </div>
                     </CardContent>
                   </Card>
