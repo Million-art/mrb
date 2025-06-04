@@ -264,11 +264,6 @@ const FiatWalletTab = () => {
     setEditedData(null);
   };
 
-  const handleBankAccountDelete = () => {
-    setHasBankAccount(false);
-    checkCustomerAccount();
-  };
-
   if (loading || isCheckingStaff || isCheckingCustomer) {
     return (
       <div className="flex justify-center items-center h-screen">
