@@ -10,6 +10,7 @@ import { telegramId } from "@/libs/telegram";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 
+const MIN_AMOUNT = 10;
 
 const SendRemittance = () => {
   // Form state
@@ -100,7 +101,15 @@ const SendRemittance = () => {
       }));
       return;
     }
-  
+
+    if (amount < MIN_AMOUNT) {
+      dispatch(setShowMessage({
+        message: `Minimum transfer amount is ${MIN_AMOUNT} USDC`,
+        color: "red"
+      }));
+      return;
+    }
+
     setIsCreatingQuote(true);
     
     try {
@@ -219,16 +228,23 @@ const SendRemittance = () => {
 
         {/* Amount Input */}
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Amount to Send(USDC)</label>
+          <label className="block text-sm font-medium mb-2">Amount to Send (USDC)</label>
           <input
             type="number"
             value={amount || ''}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="w-full px-4 py-2 border bg-transparent border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue"
+            className={`w-full px-4 py-2 border bg-transparent rounded-lg focus:ring-2 focus:ring-blue focus:border-blue ${
+              amount > 0 && amount < MIN_AMOUNT ? 'border-red-500' : 'border-gray-300'
+            }`}
             placeholder="0.00"
-            min="0"
+            min={MIN_AMOUNT}
             step="0.01"
           />
+          {amount > 0 && amount < MIN_AMOUNT && (
+            <p className="mt-1 text-sm text-red-500">
+              Minimum transfer amount is {MIN_AMOUNT} USDC
+            </p>
+          )}
         </div>
 
         {/* Exchange Rate Display */}
@@ -296,11 +312,43 @@ const SendRemittance = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Commission Distribution Info */}
+              <div className="pt-2 border-t border-gray-700">
+                <h4 className="text-sm font-medium mb-2">Commission Distribution (Total 14% Spread):</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">First Leg (USDC Purchase):</span>
+                    <span className="text-gray-400">7% of total spread</span>
+                  </div>
+                  <div className="flex justify-between pl-4">
+                    <span className="text-gray-400">• Ambassador Commission:</span>
+                    <span className="text-gray-400">3.5% (25% of total)</span>
+                  </div>
+                  <div className="flex justify-between pl-4">
+                    <span className="text-gray-400">• Platform Commission:</span>
+                    <span className="text-gray-400">3.5% (25% of total)</span>
+                  </div>
+                  
+                  <div className="flex justify-between mt-2">
+                    <span className="text-gray-400">Second Leg (Remittance):</span>
+                    <span className="text-gray-400">7% of total spread</span>
+                  </div>
+                  <div className="flex justify-between pl-4">
+                    <span className="text-gray-400">• Referrer Commission:</span>
+                    <span className="text-gray-400">1.4% (10% of total)</span>
+                  </div>
+                  <div className="flex justify-between pl-4">
+                    <span className="text-gray-400">• Platform Commission:</span>
+                    <span className="text-gray-400">5.6% (40% of total)</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div className="pt-2 border-t border-gray-700 text-xs text-gray-400 space-y-1">
-               <div>Expires: {new Date(quote.expires_at).toLocaleString()}</div>
-             </div>
+              <div>Expires: {new Date(quote.expires_at).toLocaleString()}</div>
+            </div>
           </div>
         )}
 

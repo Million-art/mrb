@@ -82,7 +82,7 @@
       throw error;
     }
   };
-
+ 
   export const dmDepositDetails = async (depositDetails) => {
     try {
       return await fetchWithFallback(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details`, {
@@ -97,5 +97,5 @@
       throw error;
     }
   };
-
+ 
 

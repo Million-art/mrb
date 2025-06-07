@@ -22,41 +22,25 @@ const ReferredUsers = () => {
   useEffect(() => {
     const fetchReferrals = async () => {
       setStatus("loading");
-      const cachedReferrals = localStorage.getItem(`referrals_${id}`);
-      
-      if (cachedReferrals) {
-        // Use cached data if available
-        const cachedData = JSON.parse(cachedReferrals);
-        setReferrals(cachedData.referrals);
-        setReferralCount(cachedData.referralCount);
-        setStatus("success");
-      } else {
-        try {
-          const q = query(collection(db, "users"), where("referredBy", "==", id));
-          const querySnapshot = await getDocs(q);
+      try {
+        const q = query(collection(db, "users"), where("referredBy", "==", id));
+        const querySnapshot = await getDocs(q);
 
-          if (querySnapshot.empty) {
-            setReferrals([]);
-            setReferralCount(0);  
-          } else {
-            const referredUsers: User[] = [];
-            querySnapshot.forEach((doc) => {
-              referredUsers.push({ ...doc.data(), id: doc.id } as User);
-            });
-            setReferrals(referredUsers);
-            setReferralCount(referredUsers.length);
-
-            // Cache the fetched referrals in localStorage
-            localStorage.setItem(`referrals_${id}`, JSON.stringify({
-              referrals: referredUsers,
-              referralCount: referredUsers.length,
-            }));
-          }
-          setStatus("success"); 
-        } catch (error) {
-          console.error("Error fetching referrals: ", error);
-          setStatus("error"); 
+        if (querySnapshot.empty) {
+          setReferrals([]);
+          setReferralCount(0);  
+        } else {
+          const referredUsers: User[] = [];
+          querySnapshot.forEach((doc) => {
+            referredUsers.push({ ...doc.data(), id: doc.id } as User);
+          });
+          setReferrals(referredUsers);
+          setReferralCount(referredUsers.length);
         }
+        setStatus("success"); 
+      } catch (error) {
+        console.error("Error fetching referrals: ", error);
+        setStatus("error"); 
       }
     };
 
