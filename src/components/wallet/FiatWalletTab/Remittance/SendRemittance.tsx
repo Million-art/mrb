@@ -230,7 +230,7 @@ const SendRemittance = () => {
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">Amount to Send (USDC)</label>
           <input
-            type="number"
+            type="text"
             value={amount || ''}
             onChange={(e) => setAmount(Number(e.target.value))}
             className={`w-full px-4 py-2 border bg-transparent rounded-lg focus:ring-2 focus:ring-blue focus:border-blue ${
@@ -276,21 +276,19 @@ const SendRemittance = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-300">Amount to Send:</span>
-                <span>{quote.source_amount + ' '+ quote.source.currency}</span>
+                <span>{quote.source_amount + ' USDC'}</span>
               </div>
               
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Fees:</span>
-                <span className="text-gray-400">{quote.total_fees +' '+ quote.source.currency}</span>
+                <span className="text-gray-400">{quote.total_fees + ' USDC'}</span>
               </div>
               
               <div className="pt-2 border-t border-gray-700">
                 <div className="flex justify-between font-medium">
                   <span>Total Cost:</span>
                   <span>
-                    {
-                      quote.source_amount +  quote.total_fees + ' ' + quote.source.currency
-                    }
+                    {(quote.source_amount + quote.total_fees).toFixed(2) + ' USDC'}
                   </span>
                 </div>
               </div>
@@ -299,7 +297,7 @@ const SendRemittance = () => {
                 <div className="flex justify-between text-green-400">
                   <span>Recipient Gets:</span>
                   <span>
-                    {quote.quoted_amount + ' ' + quote.destination.currency}
+                    {quote.quoted_amount + ' VES'}
                   </span>
                 </div>
               </div>
@@ -308,46 +306,14 @@ const SendRemittance = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Exchange Rate:</span>
                   <span className="text-gray-400">
-                    1 {quote.source.currency} = {quote.exchange_rate.toFixed(2)} {quote.destination.currency}
+                    1 USDC = {(quote.quoted_amount / quote.source_amount).toFixed(2)} VES
                   </span>
                 </div>
               </div>
 
-              {/* Commission Distribution Info */}
-              <div className="pt-2 border-t border-gray-700">
-                <h4 className="text-sm font-medium mb-2">Commission Distribution (Total 14% Spread):</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">First Leg (USDC Purchase):</span>
-                    <span className="text-gray-400">7% of total spread</span>
-                  </div>
-                  <div className="flex justify-between pl-4">
-                    <span className="text-gray-400">• Ambassador Commission:</span>
-                    <span className="text-gray-400">3.5% (25% of total)</span>
-                  </div>
-                  <div className="flex justify-between pl-4">
-                    <span className="text-gray-400">• Platform Commission:</span>
-                    <span className="text-gray-400">3.5% (25% of total)</span>
-                  </div>
-                  
-                  <div className="flex justify-between mt-2">
-                    <span className="text-gray-400">Second Leg (Remittance):</span>
-                    <span className="text-gray-400">7% of total spread</span>
-                  </div>
-                  <div className="flex justify-between pl-4">
-                    <span className="text-gray-400">• Referrer Commission:</span>
-                    <span className="text-gray-400">1.4% (10% of total)</span>
-                  </div>
-                  <div className="flex justify-between pl-4">
-                    <span className="text-gray-400">• Platform Commission:</span>
-                    <span className="text-gray-400">5.6% (40% of total)</span>
-                  </div>
-                </div>
+              <div className="pt-2 border-t border-gray-700 text-xs text-gray-400 space-y-1">
+                <div>Expires: {new Date(quote.expires_at).toLocaleString()}</div>
               </div>
-            </div>
-            
-            <div className="pt-2 border-t border-gray-700 text-xs text-gray-400 space-y-1">
-              <div>Expires: {new Date(quote.expires_at).toLocaleString()}</div>
             </div>
           </div>
         )}
@@ -438,17 +404,17 @@ const SendRemittance = () => {
               
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-300">Amount Sent:</span>
-                <span>{quote.source_amount + ' ' + quote.source.currency}</span>
+                <span>{quote.source_amount + ' USDC'}</span>
               </div>
               
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-300">Recipient Received:</span>
-                <span>{quote.quoted_amount + ' ' + quote.destination.currency}</span>
+                <span>{quote.quoted_amount + ' VES'}</span>
               </div>
               
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-300">Fees:</span>
-                <span>{quote.total_fees + ' '+  quote.source.currency}</span>
+                <span>{quote.total_fees + ' USDC'}</span>
               </div>
               
               <div className="flex justify-between">
