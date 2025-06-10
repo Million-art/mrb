@@ -19,7 +19,7 @@ const Wallet = () => {
               value="wallet"
               className="rounded-full py-2 data-[state=active]:bg-[#1A1B1E] data-[state=active]:text-white text-gray-400"
             >
-              Fiat Wallet
+              USDC Wallet
             </TabsTrigger>
           </TabsList>
 

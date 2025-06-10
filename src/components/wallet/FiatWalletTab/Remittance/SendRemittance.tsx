@@ -138,11 +138,11 @@ const SendRemittance = () => {
   };
 
   const payTransferQuote = async () => {
-    if (!quote?.id || !customerId || !amount) return; 
+    if (!quote?.id || !customerId) return; 
     setIsPayingQuote(true);
     console.log(quote.id)
     try {
-      const response = await axios.post(getQuotePayUrl(customerId, quote.id,amount));
+      const response = await axios.post(getQuotePayUrl(customerId, quote.id));
  
       dispatch(setShowMessage({
         message: "Transfer  success",

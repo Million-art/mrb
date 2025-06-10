@@ -78,7 +78,7 @@ const DepositTransactions = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl">Deposit History</h2>
+        <h2 className="text-xl">Recharge History</h2>
         <button
           onClick={handleRefresh}
           className="flex items-center text-sm text-blue hover:text-blue-light"
@@ -95,8 +95,8 @@ const DepositTransactions = () => {
 
       {depositTransactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
-          <p>No deposit transactions found</p>
-          <p className="text-sm mt-2">Your deposit history will appear here</p>
+          <p>No recharge transactions found</p>
+          <p className="text-sm mt-2">Your recharge history will appear here</p>
         </div>
       ) : (
         <div className="overflow-x-auto">

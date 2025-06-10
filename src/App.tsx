@@ -35,6 +35,7 @@ import { initializeReceiptData, setError } from "./store/slice/depositReceiptSli
 import CreateCustomerPage from "./screens/CreateCustomerPage";
 import CreateBankAccountPage from "./screens/CreateBankAccountPage";
 import TrasferBalancePage from "./screens/TrasferBalancePage";
+import AccountSettings from "./screens/AccountSettings";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -250,7 +251,7 @@ useEffect(() => {
         <Route path="/create-customer" element={<CreateCustomerPage />} />
         <Route path="/create-bank-account" element={<CreateBankAccountPage />} />
         <Route path="/balance-transfer" element={<TrasferBalancePage />} />
-
+        <Route path="/account-settings" element={<AccountSettings />} />
       </Routes>
     </>
   );

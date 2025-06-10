@@ -219,7 +219,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       console.log('Response from cloud function:', response.data);
       
       dispatch(setShowMessage({
-        message: "Details sent successfully! Please check the bot for deposit details.",
+        message: "Details sent successfully! Please check the bot for recharge details.",
         color: "green"
       }));
       
@@ -353,7 +353,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                 </div>
               ) : (
                 <div className="mt-4 text-center text-gray-400 py-6 rounded-lg">
-                  There is no Deposit option available for now.
+                  There is no Recharge option available for now.
                 </div>
               )}
             </div>
@@ -374,7 +374,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
             {loading ? (
               <Loader2 className="animate-spin mr-2 inline-block" />
             ) : (
-              "Get Deposit Details"
+              "Get Recharge Details"
             )}
           </button>
         </div>
