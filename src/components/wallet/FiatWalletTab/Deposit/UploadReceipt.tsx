@@ -84,7 +84,7 @@ const UploadReceipt: React.FC = () => {
 
     if (!amount) {
       dispatch(setShowMessage({
-        message: "Please enter the deposit amount",
+        message: "Please enter the REcharge amount",
         color: "red"
       }));
       return;

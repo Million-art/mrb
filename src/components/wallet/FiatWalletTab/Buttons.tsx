@@ -66,7 +66,7 @@ const Buttons = () => {
           {/* Deposit Icon */}
           <div onClick={handleDepositClick} className="flex flex-col items-center cursor-pointer">
             <ArrowDown size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
-            <span className="text-xs mt-2">Deposit</span>
+            <span className="text-xs mt-2">Recharge</span>
           </div>
 
           {/* Remittance Icon */}

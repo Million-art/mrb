@@ -54,12 +54,12 @@ export default function FiatDeposit() {
         >
           <ArrowLeft size={24} />
         </button>
-        <h2 className="text-xl font-semibold mb-4 text-white text-center">Deposit Fiat Currency</h2>
+        <h2 className="text-xl font-semibold mb-4 text-white text-center">Recharge Fiat Currency</h2>
         <div className="w-6"></div> 
       </div>
 
       <Card className="p-6 shadow-lg border-gray-800">
-        <p className="text-gray-400 mb-4 text-center">Select your country to see available deposit methods.</p>
+        <p className="text-gray-400 mb-4 text-center">Select your country to see available Recharge methods.</p>
 
         <div className="relative w-full mb-4">
           <Input

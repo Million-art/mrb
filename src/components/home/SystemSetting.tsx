@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "../stonfi/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../stonfi/ui/select";
 import { Label } from "../stonfi/ui/label";
+import { useNavigate } from "react-router-dom";
 // import { Moon, Sun } from "lucide-react";
 
 interface SettingsProps {
@@ -14,6 +15,7 @@ interface SettingsProps {
 const SystemSettings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
   const { i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "auto";
@@ -42,12 +44,11 @@ const SystemSettings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
     i18n.changeLanguage(lang);
   };
 
-  // const toggleTheme = () => {
-  //   const newTheme = !isDarkMode ? "dark" : "light";
-  //   setIsDarkMode(!isDarkMode);
-  //   document.documentElement.classList.toggle("dark", !isDarkMode);
-  //   localStorage.setItem("theme", newTheme);
-  // };
+  const navigateToAccountSettings = () => {
+    navigate("/account-settings");
+    onClose();
+  };
+ 
 
   return (
     <motion.div
@@ -74,27 +75,17 @@ const SystemSettings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
               </SelectContent>
             </Select>
           </div>
-          {/* <div className="flex items-center justify-between">
-            <Label htmlFor="dark-mode">Dark Mode</Label>
-            <div
-              className={`relative inline-flex items-center h-8 w-16 rounded-full cursor-pointer transition-all duration-300 ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-300"
-              }`}
-              onClick={toggleTheme}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="account-settings">Account Settings</Label>
+            <Button
+              variant="outline"
+              onClick={navigateToAccountSettings}
+              className="px-4"
             >
-              <span
-                className={`absolute left-1 top-1 h-6 w-6 rounded-full shadow-md transform transition-transform duration-300 ${
-                  isDarkMode ? "translate-x-8 bg-black" : "translate-x-0 bg-white"
-                }`}
-              >
-                {isDarkMode ? (
-                  <Moon className="w-4 h-4 text-white" />
-                ) : (
-                  <Sun className="w-4 h-4 text-yellow-500" />
-                )}
-              </span>
-            </div>
-          </div> */}
+              Open
+            </Button>
+          </div>
+ 
           <div>
             <a href="/privacy-policy" className="hover:underline">
               Privacy Policy

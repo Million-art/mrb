@@ -60,8 +60,8 @@
   };
 
 
-  export const getQuotePayUrl = (customerId: string, quoteId: string, amount:number) => {
-    return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay/${amount}`;
+  export const getQuotePayUrl = (customerId: string, quoteId: string) => {
+    return `${API_CONFIG.BASE_URL}/quote/${customerId}/${quoteId}/pay`;
   }
 
   export const updateCustomerUrl = (customerId: string) => {
