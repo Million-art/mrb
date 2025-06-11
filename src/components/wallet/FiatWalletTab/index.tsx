@@ -266,7 +266,7 @@ const FiatWalletTab = () => {
                 value="Recharge"
                 className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
               >
-                Deposit
+                Recharge
               </TabsTrigger>
               <TabsTrigger
                 value="transfer"
