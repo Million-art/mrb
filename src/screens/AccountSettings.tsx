@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { Settings, Wallet, Edit2, Check, X, Loader2, Copy } from "lucide-react";
+import { Settings, Wallet, Edit2, Check, X, Loader2, Copy, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/stonfi/ui/button";
 import {  collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '@/libs/firebase';
@@ -26,6 +27,7 @@ const AccountSettings: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     checkCustomerAccount();
@@ -213,9 +215,19 @@ const AccountSettings: React.FC = () => {
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
       <div className="max-w-4xl mx-auto p-4">
-        <div className="flex items-center gap-2 mb-6">
-          <Settings className="w-6 h-6 text-gray-400" />
-          <h1 className="text-2xl font-semibold">Account Settings</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="text-gray-400 hover:text-white"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <Settings className="w-6 h-6 text-gray-400" />
+            <h1 className="text-2xl font-semibold">Account Settings</h1>
+          </div>
         </div>
 
         <Tabs defaultValue="customer" className="w-full">

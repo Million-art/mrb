@@ -36,6 +36,8 @@ import CreateCustomerPage from "./screens/CreateCustomerPage";
 import CreateBankAccountPage from "./screens/CreateBankAccountPage";
 import TrasferBalancePage from "./screens/TrasferBalancePage";
 import AccountSettings from "./screens/AccountSettings";
+import SettingsPage from "./screens/Settings";
+import PrivacyPolicy from "./screens/PrivacyPolicy";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -252,6 +254,8 @@ useEffect(() => {
         <Route path="/create-bank-account" element={<CreateBankAccountPage />} />
         <Route path="/balance-transfer" element={<TrasferBalancePage />} />
         <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
     </>
   );
