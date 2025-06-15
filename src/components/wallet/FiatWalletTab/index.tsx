@@ -1,27 +1,21 @@
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { Loader2, Wallet, ExternalLink, Unlink } from "lucide-react";
+import { Loader2, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import SendReciveFiat from "./Buttons";
 import { telegramId, userName } from "@/libs/telegram";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/store/store";
-import { fetchRealBalance } from "@/store/slice/fiatBalanceSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import DepositTransactions from "./Transactions/DepositTransactions";
 import TransferTransactions from "./Transactions/TransferTransactions";
-import { Button } from "@/components/stonfi/ui/button";
-import LinkWallet from "./LinkWallet";
-import { doc, getDoc, updateDoc, deleteField, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, query, where, getDocs, collection } from 'firebase/firestore';
 import { db } from '@/libs/firebase';
 import CreateBankAccount from "./CreateAccount/CreateBankAccount";
 import Onboarding from "./CreateAccount/Onboarding";
 
 
 const FiatWalletTab = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.fiatBalance);
-  const [externalwalletAddress, setexternalWalletAddress] = useState<string | null>(null);
-  const [isUnlinking, setIsUnlinking] = useState(false);
   const [isCheckingStaff, setIsCheckingStaff] = useState(true);
   const [userBalance, setUserBalance] = useState<number>(0);
   const [hasCustomerAccount, setHasCustomerAccount] = useState<boolean | null>(null);
@@ -35,19 +29,15 @@ const FiatWalletTab = () => {
       await Promise.all([
         checkStaffStatus(),
         checkCustomerAccount(),
-        fetchexternalWalletAddress()
-      ]);
+       ]);
     };
 
     initializeData();
   }, []);
 
   useEffect(() => {
-    if (externalwalletAddress) {
-      console.log('Fetching real balance for telegramId:', telegramId);
-      dispatch(fetchRealBalance(String(telegramId)));
-    }
-  }, [dispatch, externalwalletAddress]);
+    fetchRealBalance();
+  }, []);
 
   const checkStaffStatus = async () => {
     try {
@@ -137,53 +127,30 @@ const FiatWalletTab = () => {
     }
   };
 
-  const fetchexternalWalletAddress = async () => {
+  const fetchRealBalance = async () => {
     try {
       if (!telegramId) {
         console.error('No telegram ID available for wallet address fetch');
         return;
       }
 
-      console.log('Fetching wallet address for telegramId:', telegramId);
-      const userRef = doc(db, 'users', String(telegramId));
+       const userRef = doc(db, 'users', String(telegramId));
       const userDoc = await getDoc(userRef);
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
         console.log('User document data:', userData);
-        const externalwalletAddress = userData.usdcexternalWalletAddress;
         setUserBalance(userData.realBalance || 0);
-        if (externalwalletAddress) {
-          console.log('Wallet address found:', externalwalletAddress);
-          setexternalWalletAddress(externalwalletAddress);
-        } else {
-          console.log('No wallet address found for user');
-          setexternalWalletAddress(null);
-        }
+        
       } else {
         console.log('User document not found in Firestore');
-        setexternalWalletAddress(null);
-      }
+       }
     } catch (error) {
       console.error('Error fetching wallet address:', error);
-      setexternalWalletAddress(null);
-    }
+     }
   };
 
-  const handleUnlinkWallet = async () => {
-    try {
-      setIsUnlinking(true);
-      const userRef = doc(db, 'users', String(telegramId));
-      await updateDoc(userRef, {
-        usdcexternalWalletAddress: deleteField()
-      });
-      setexternalWalletAddress(null);
-    } catch (error) {
-      console.error('Error unlinking wallet:', error);
-    } finally {
-      setIsUnlinking(false);
-    }
-  };
+ 
 
   if (loading || isCheckingStaff || isCheckingCustomer) {
     return (
@@ -223,20 +190,6 @@ const FiatWalletTab = () => {
             customerId={customerData.kontigoCustomerId}
             showLoader={false}
             customerPhone={customerData.phone_number}
-          />
-        </div>
-      ) : !externalwalletAddress ? (
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50 mb-4">
-            <Wallet className="w-8 h-8 text-gray-400" />
-          </div>
-          <h2 className="text-xl font-semibold mb-2">Connect Your USDC Wallet</h2>
-          <p className="text-gray-400 max-w-md mx-auto mb-8">
-            Connect your external USDC wallet to get referral commission and access USDC wallet
-          </p>
-          <LinkWallet 
-            walletAddress={externalwalletAddress}
-            onWalletUpdate={setexternalWalletAddress}
           />
         </div>
       ) : (
@@ -292,50 +245,6 @@ const FiatWalletTab = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-8 mb-24">
-            <h2 className="text-lg font-semibold mb-2">Connected USDC Wallet Address</h2>
-            <Card className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-1">
-                  <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    {externalwalletAddress ? (
-                      <p className="text-sm break-all bg-gray-800/50 p-2 rounded-lg text-left" dir="ltr">
-                        {externalwalletAddress}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-gray-400">No wallet address found</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 ml-4">
-                  {externalwalletAddress && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigator.clipboard.writeText(externalwalletAddress)}
-                      className="text-blue hover:text-blue/90"
-                    >
-                      Copy
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleUnlinkWallet}
-                    disabled={isUnlinking}
-                    className="text-red-500 hover:text-red-400"
-                  >
-                    {isUnlinking ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Unlink className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
         </>
       )}
     </div>

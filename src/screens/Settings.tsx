@@ -6,13 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/stonfi/ui/label";
 import { Button } from "@/components/stonfi/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
+import Profile from "@/components/wallet/FiatWalletTab/settings/Profile";
 
 const SettingsPage: React.FC = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  
+
   const changeLanguage = (lang: string) => {
-    console.log(`Changing language to: ${lang}`);
     i18n.changeLanguage(lang);
   };
 
@@ -22,6 +22,10 @@ const SettingsPage: React.FC = () => {
 
   const navigateToPrivacyPolicy = () => {
     navigate("/privacy-policy");
+  };
+
+  const navigateToExternalUsdcAddress = () => {
+    navigate("/external-usdc-address");
   };
 
   const navigateBack = () => {
@@ -46,23 +50,32 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-6">
+        {/* Profile Component */}
+        <div className="mb-6">
+          <Profile />
+        </div>
+
+        {/* Settings Cards */}
+        <div className="space-y-6 mb-[100px]">
           <Card>
             <CardContent className="p-6">
               <div className="space-y-6">
-                <div>
-                  <Label htmlFor="language" className="text-lg font-medium mb-2 block">Language</Label>
-                  <Select onValueChange={changeLanguage} defaultValue={i18n.language}>
-                    <SelectTrigger id="language" className="w-full bg-gray-800/50 border-gray-700">
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="zh">中文</SelectItem>
-                      <SelectItem value="es">Español</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {/* External USDC Address Section */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="external-usdc" className="text-lg font-medium">External USDC Address</Label>
+                    <p className="text-sm text-gray-400 mt-1">Link USDC to receive referral commission</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={navigateToExternalUsdcAddress}
+                    className="px-6 bg-gray-800/50 border-gray-700 hover:bg-gray-700"
+                  >
+                    Open
+                  </Button>
                 </div>
+
+                
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-800">
                   <div>
@@ -78,6 +91,20 @@ const SettingsPage: React.FC = () => {
                   </Button>
                 </div>
 
+                <div className="pt-4 border-t border-gray-800">
+                  <Label htmlFor="language" className="text-lg font-medium mb-2 block">Language</Label>
+                  <Select onValueChange={changeLanguage} defaultValue={i18n.language}>
+                    <SelectTrigger id="language" className="w-full bg-gray-800/50 border-gray-700">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="zh">中文</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 <div className="flex items-center justify-between pt-4 border-t border-gray-800">
                   <div>
                     <Label htmlFor="privacy-policy" className="text-lg font-medium">Privacy Policy</Label>

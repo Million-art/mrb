@@ -32,12 +32,13 @@ import Remittance from "./components/wallet/FiatWalletTab/Remittance";
 import FiatDeposit from "./components/wallet/FiatWalletTab/Deposit/FiatDeposit";
 import UploadReceipt from "./components/wallet/FiatWalletTab/Deposit/UploadReceipt";
 import { initializeReceiptData, setError } from "./store/slice/depositReceiptSlice";
-import CreateCustomerPage from "./screens/CreateCustomerPage";
-import CreateBankAccountPage from "./screens/CreateBankAccountPage";
+import CreateCustomerPage from "./components/wallet/FiatWalletTab/settings/CreateCustomerPage";
+import CreateBankAccountPage from "./components/wallet/FiatWalletTab/settings/CreateBankAccountPage";
 import TrasferBalancePage from "./screens/TrasferBalancePage";
-import AccountSettings from "./screens/AccountSettings";
+import AccountSettings from "./components/wallet/FiatWalletTab/settings/AccountSettings";
 import SettingsPage from "./screens/Settings";
-import PrivacyPolicy from "./screens/PrivacyPolicy";
+import PrivacyPolicy from "./components/wallet/FiatWalletTab/settings/PrivacyPolicy";
+import ExternalUsdcAddress from "./screens/ExternalUsdcAddress";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -238,7 +239,6 @@ useEffect(() => {
       />
 
       <Routes>
-        <Route path="*" element={<Loading />} />
         <Route path="/" element={<Homes />} />
         <Route path="/referrals" element={<Referrals />} />
         <Route path="/earn" element={<Earn />} />
@@ -256,6 +256,8 @@ useEffect(() => {
         <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/external-usdc-address" element={<ExternalUsdcAddress />} />
+        <Route path="*" element={<Loading />} />
       </Routes>
     </>
   );
