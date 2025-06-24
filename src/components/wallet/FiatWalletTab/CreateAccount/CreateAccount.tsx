@@ -88,41 +88,6 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
     checkExistingCustomer();
   }, []);
 
-  const validatePhoneNumber = (phone: string, country: string) => {
-    if (!phone) return false;
-    
-    if (!isValidPhoneNumber(phone)) {
-      return false;
-    }
-
-    const cleanPhone = phone.replace(/\D/g, '');
-    
-    switch (country) {
-      case 'Venezuela':
-        return /^58\d{9,10}$/.test(cleanPhone);
-      case 'Colombia':
-        return /^57\d{10}$/.test(cleanPhone);
-      case 'Argentina':
-        return /^54\d{10,11}$/.test(cleanPhone);
-      case 'Mexico':
-        return /^52\d{10}$/.test(cleanPhone);
-      case 'Brazil':
-        return /^55\d{10,11}$/.test(cleanPhone);
-      case 'Chile':
-        return /^56\d{9}$/.test(cleanPhone);
-      case 'Guatemala':
-        return /^502\d{8}$/.test(cleanPhone);
-      case 'European Union':
-        return cleanPhone.length >= 10 && cleanPhone.length <= 12;
-      case 'Panama':
-        return /^507\d{7,8}$/.test(cleanPhone);
-      case 'United Kingdom':
-        return /^44\d{10}$/.test(cleanPhone);
-      default:
-        return isValidPhoneNumber(phone);
-    }
-  };
-
   const getPhoneNumberError = (phone: string, country: string) => {
     if (!phone) {
       return "Phone number is required";
