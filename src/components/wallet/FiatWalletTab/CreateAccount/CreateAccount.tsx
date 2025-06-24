@@ -6,7 +6,7 @@ import { Loader2, UserPlus, ChevronDown } from "lucide-react";
 import { Button } from "@/components/stonfi/ui/button";
 import { Input } from "@/components/stonfi/ui/input";
 import { Label } from "@/components/stonfi/ui/label";
-import PhoneInput from 'react-phone-number-input';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import './phone-input-dark.css';
 import { countries } from "./countries";
@@ -45,6 +45,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [hasInteractedWithPhone, setHasInteractedWithPhone] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     legal_name: "",
@@ -87,81 +88,124 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
     checkExistingCustomer();
   }, []);
 
-  useEffect(() => {
-    if (formData.phone_number && formData.country) {
-      const isValid = validatePhoneNumber(formData.phone_number, formData.country);
-      setPhoneError(isValid ? null : getPhoneNumberError(formData.country));
-    }
-  }, [formData.country, formData.phone_number]);
-
   const validatePhoneNumber = (phone: string, country: string) => {
     if (!phone) return false;
     
-    // Remove any non-digit characters for validation
+    if (!isValidPhoneNumber(phone)) {
+      return false;
+    }
+
     const cleanPhone = phone.replace(/\D/g, '');
     
     switch (country) {
       case 'Venezuela':
-        // Venezuela: +58 followed by 9-10 digits (different providers)
         return /^58\d{9,10}$/.test(cleanPhone);
       case 'Colombia':
-        // Colombia: +57 followed by 10 digits (different providers)
         return /^57\d{10}$/.test(cleanPhone);
       case 'Argentina':
-        // Argentina: +54 followed by 10-11 digits (different providers)
         return /^54\d{10,11}$/.test(cleanPhone);
       case 'Mexico':
-        // Mexico: +52 followed by 10 digits (different providers)
         return /^52\d{10}$/.test(cleanPhone);
       case 'Brazil':
-        // Brazil: +55 followed by 10-11 digits (different providers)
         return /^55\d{10,11}$/.test(cleanPhone);
       case 'Chile':
-        // Chile: +56 followed by 9 digits (different providers)
         return /^56\d{9}$/.test(cleanPhone);
       case 'Guatemala':
-        // Guatemala: +502 followed by 8 digits (different providers)
         return /^502\d{8}$/.test(cleanPhone);
       case 'European Union':
-        // EU: Various formats, but typically 10-12 digits
         return cleanPhone.length >= 10 && cleanPhone.length <= 12;
       case 'Panama':
-        // Panama: +507 followed by 7-8 digits (different providers)
         return /^507\d{7,8}$/.test(cleanPhone);
       case 'United Kingdom':
-        // UK: +44 followed by 10 digits (different providers)
         return /^44\d{10}$/.test(cleanPhone);
       default:
-        return false;
+        return isValidPhoneNumber(phone);
     }
   };
 
-  const getPhoneNumberError = (country: string) => {
+  const getPhoneNumberError = (phone: string, country: string) => {
+    if (!phone) {
+      return "Phone number is required";
+    }
+
+    if (!isValidPhoneNumber(phone)) {
+      return "Please enter a valid phone number";
+    }
+
+    const cleanPhone = phone.replace(/\D/g, '');
+    
     switch (country) {
       case 'Venezuela':
-        return "Venezuelan numbers must be +58 followed by 9-10 digits";
+        if (!/^58\d{9,10}$/.test(cleanPhone)) {
+          return "Venezuelan numbers must be +58 followed by 9-10 digits";
+        }
+        break;
       case 'Colombia':
-        return "Colombian numbers must be +57 followed by 10 digits";
+        if (!/^57\d{10}$/.test(cleanPhone)) {
+          return "Colombian numbers must be +57 followed by 10 digits";
+        }
+        break;
       case 'Argentina':
-        return "Argentine numbers must be +54 followed by 10-11 digits";
+        if (!/^54\d{10,11}$/.test(cleanPhone)) {
+          return "Argentine numbers must be +54 followed by 10-11 digits";
+        }
+        break;
       case 'Mexico':
-        return "Mexican numbers must be +52 followed by 10 digits";
+        if (!/^52\d{10}$/.test(cleanPhone)) {
+          return "Mexican numbers must be +52 followed by 10 digits";
+        }
+        break;
       case 'Brazil':
-        return "Brazilian numbers must be +55 followed by 10-11 digits";
+        if (!/^55\d{10,11}$/.test(cleanPhone)) {
+          return "Brazilian numbers must be +55 followed by 10-11 digits";
+        }
+        break;
       case 'Chile':
-        return "Chilean numbers must be +56 followed by 9 digits";
+        if (!/^56\d{9}$/.test(cleanPhone)) {
+          return "Chilean numbers must be +56 followed by 9 digits";
+        }
+        break;
       case 'Guatemala':
-        return "Guatemalan numbers must be +502 followed by 8 digits";
+        if (!/^502\d{8}$/.test(cleanPhone)) {
+          return "Guatemalan numbers must be +502 followed by 8 digits";
+        }
+        break;
       case 'European Union':
-        return "EU numbers must be 10-12 digits";
+        if (cleanPhone.length < 10 || cleanPhone.length > 12) {
+          return "EU numbers must be 10-12 digits";
+        }
+        break;
       case 'Panama':
-        return "Panamanian numbers must be +507 followed by 7-8 digits";
+        if (!/^507\d{7,8}$/.test(cleanPhone)) {
+          return "Panamanian numbers must be +507 followed by 7-8 digits";
+        }
+        break;
       case 'United Kingdom':
-        return "UK numbers must be +44 followed by 10 digits";
-      default:
-        return "Please enter a valid phone number";
+        if (!/^44\d{10}$/.test(cleanPhone)) {
+          return "UK numbers must be +44 followed by 10 digits";
+        }
+        break;
     }
+
+    return null;
   };
+
+  useEffect(() => {
+    if (!hasInteractedWithPhone) return;
+
+    const timeoutId = setTimeout(() => {
+      if (formData.phone_number && formData.country) {
+        const error = getPhoneNumberError(formData.phone_number, formData.country);
+        setPhoneError(error);
+      } else if (formData.phone_number && !formData.country) {
+        setPhoneError(isValidPhoneNumber(formData.phone_number) ? null : "Please enter a valid phone number");
+      } else {
+        setPhoneError(null);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.country, formData.phone_number, hasInteractedWithPhone]);
 
   const handleSubmit = async () => {
     if (!formData.legal_name || !formData.email || !formData.phone_number || !formData.type || !formData.country) {
@@ -172,11 +216,10 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
       return;
     }
 
-    const isValidPhone = validatePhoneNumber(formData.phone_number, formData.country);
-    if (!isValidPhone) {
-      const errorMessage = getPhoneNumberError(formData.country);
+    const phoneError = getPhoneNumberError(formData.phone_number, formData.country);
+    if (phoneError) {
       dispatch(setShowMessage({
-        message: errorMessage,
+        message: phoneError,
         color: "red"
       }));
       return;
@@ -280,11 +323,9 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
             value={formData.phone_number}
             onChange={(value) => {
               setFormData(prev => ({ ...prev, phone_number: value || "" }));
-              if (value && formData.country) {
-                const isValid = validatePhoneNumber(value, formData.country);
-                setPhoneError(isValid ? null : getPhoneNumberError(formData.country));
-              }
+              setHasInteractedWithPhone(true);
             }}
+            onBlur={() => setHasInteractedWithPhone(true)}
             className={`bg-black border ${phoneError ? 'border-red-500' : 'border-gray-600'} rounded-md h-10 text-white`}
             required
           />
