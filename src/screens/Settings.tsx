@@ -8,7 +8,7 @@ import { Button } from "@/components/stonfi/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
 import Profile from "@/components/wallet/FiatWalletTab/settings/Profile";
 
-const SettingsPage: React.FC = () => {
+const MyAccount: React.FC = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -127,4 +127,4 @@ const SettingsPage: React.FC = () => {
   );
 };
 
-export default SettingsPage; 
+export default MyAccount; 
