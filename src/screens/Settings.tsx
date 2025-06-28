@@ -75,8 +75,6 @@ const MyAccount: React.FC = () => {
                   </Button>
                 </div>
 
-                
-
                 <div className="flex items-center justify-between pt-4 border-t border-gray-800">
                   <div>
                     <Label htmlFor="account-settings" className="text-lg font-medium">Account Settings</Label>
