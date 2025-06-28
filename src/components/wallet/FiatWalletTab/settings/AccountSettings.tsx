@@ -12,6 +12,7 @@ import { AppDispatch } from "@/store/store";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { updateCustomer } from "@/config/api";
 import CreateBankAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateBankAccount";
+import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
 import axios from "axios";
 import { getBankAccountUrl } from "@/config/api";
 
@@ -27,6 +28,8 @@ const AccountSettings: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(true);
+  const [showBankAccountCreation, setShowBankAccountCreation] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +40,7 @@ const AccountSettings: React.FC = () => {
     try {
       if (!telegramId) {
         console.log('No telegram ID available for customer check');
+        setIsLoadingCustomer(false);
         return;
       }
 
@@ -64,11 +68,16 @@ const AccountSettings: React.FC = () => {
           setHasBankAccount(true);
           setIsLoadingBankAccount(false);
         }
+      } else {
+        console.log('No customer found, will show create customer form');
+        setCustomerData(null);
       }
     } catch (error) {
       console.error('Error checking customer account:', error);
       setHasBankAccount(false);
       setIsLoadingBankAccount(false);
+    } finally {
+      setIsLoadingCustomer(false);
     }
   };
 
@@ -88,15 +97,18 @@ const AccountSettings: React.FC = () => {
         const bankAccountData = bankAccountSnapshot.docs[0].data();
         setBankAccountData(bankAccountData);
         setHasBankAccount(true);
+        setShowBankAccountCreation(false);
       } else {
         console.log('No bank account found for Venezuelan customer');
         setHasBankAccount(false);
         setBankAccountData(null);
+        setShowBankAccountCreation(true);
       }
     } catch (error) {
       console.error('Error fetching bank account:', error);
       setHasBankAccount(false);
       setBankAccountData(null);
+      setShowBankAccountCreation(true);
     } finally {
       setIsLoadingBankAccount(false);
     }
@@ -204,10 +216,96 @@ const AccountSettings: React.FC = () => {
     }
   };
 
-  if (!customerData) {
+  if (isLoadingCustomer) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="animate-spin text-white w-6 h-6" />
+      </div>
+    );
+  }
+
+  if (!customerData) {
+    return (
+      <div className="min-h-screen w-full text-white scrollbar-hidden">
+        <div className="max-w-4xl mx-auto p-4">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="text-gray-400 hover:text-white"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <Settings className="w-6 h-6 text-gray-400" />
+              <h1 className="text-2xl font-semibold">Account Settings</h1>
+            </div>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold mb-2">Create Customer Account</h2>
+                <p className="text-gray-400">
+                  You need to create a customer account before you can access account settings.
+                </p>
+              </div>
+              
+              <CreateAccount 
+                onComplete={(newCustomerData) => {
+                  setCustomerData(newCustomerData);
+                  checkCustomerAccount();
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Show bank account creation for Venezuelan customers without bank account
+  if (customerData?.country === 'VENEZUELA' && showBankAccountCreation && !isLoadingBankAccount) {
+    return (
+      <div className="min-h-screen w-full text-white scrollbar-hidden">
+        <div className="max-w-4xl mx-auto p-4">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="text-gray-400 hover:text-white"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <Wallet className="w-6 h-6 text-gray-400" />
+              <h1 className="text-2xl font-semibold">Create Bank Account</h1>
+            </div>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold mb-2">Bank Account Required</h2>
+                <p className="text-gray-400">
+                  Venezuelan customers are required to create a bank account to continue.
+                </p>
+              </div>
+              
+              <CreateBankAccount 
+                customerId={customerData.kontigoCustomerId}
+                showLoader={false}
+                customerPhone={customerData.phone_number}
+                onComplete={() => {
+                  setShowBankAccountCreation(false);
+                  checkCustomerAccount();
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
