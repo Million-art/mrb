@@ -61,15 +61,11 @@ const FiatWalletTab = () => {
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
       <Card className="rounded-lg shadow-md min-w-full scrollbar-hidden">
-        <div className="mb-2">
+        <div className="mb-10">
           <div>
             <p className="text-gray-300">Your Balance</p>
             <h1 className="text-3xl font-bold">{userBalance.toFixed(2)} USDC</h1>
-            {userBalance === 0 && (
-              <p className="text-sm text-gray-400 mt-1">
-                Your balance will be updated when you receive Recharge or transfers
-              </p>
-            )}
+
           </div>
         </div>
         <SendReciveFiat />

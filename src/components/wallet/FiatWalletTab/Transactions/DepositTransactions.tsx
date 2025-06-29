@@ -5,7 +5,7 @@ import {
   fetchDepositTransactions, 
   stopListeningToDepositTransactions 
 } from "@/store/slice/depositTransactionsSlice";
-import { Loader2, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle, ExternalLink, Frown } from "lucide-react";
 import { telegramId } from "@/libs/telegram";
 
 const DepositTransactions = () => {
@@ -95,8 +95,8 @@ const DepositTransactions = () => {
 
       {depositTransactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
-          <p>No recharge transactions found</p>
-          <p className="text-sm mt-2">Your recharge history will appear here</p>
+          <Frown className="w-8 h-8 mb-3 text-gray-400" />
+          <p className="text-sm">No recharge transactions found</p>
         </div>
       ) : (
         <div className="overflow-x-auto">

@@ -5,7 +5,7 @@ import {
   fetchTransferTransactions, 
   stopListeningToTransferTransactions 
 } from "@/store/slice/transferTransactionSlice";
-import { Loader2, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle, ExternalLink, Frown } from "lucide-react";
 import { telegramId } from "@/libs/telegram";
 
 interface TransactionParty {
@@ -127,8 +127,8 @@ const TransferTransactions = () => {
 
       {transferTransactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
-          <p>No transfer transactions found</p>
-          <p className="text-sm mt-2">Your transfer history will appear here</p>
+          <Frown className="w-8 h-8 mb-3 text-gray-400" />
+          <p className="text-sm">No transfer transactions found</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
