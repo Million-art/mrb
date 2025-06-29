@@ -72,17 +72,11 @@ const SendRemittance = () => {
       const id = await getCustomerIdByTelegramId(tgId);
       if (id) {
         setCustomerId(id);
-      } else {
-        dispatch(setShowMessage({
-          message: "Please create a customer account first.",
-          color: "red",
-        }));
-        navigate("/create-customer");
       }
     };
   
     fetchCustomerId();
-  }, [dispatch, navigate]);
+  }, []);
 
   // Fetch exchange rate when amount or currencies change
   useEffect(() => {
@@ -94,9 +88,17 @@ const SendRemittance = () => {
   }, [amount, fromCurrency, toCurrency, fetchExchangeRate]);
 
   const createTransferQuote = async () => {
-    if (!amount || !fromCurrency || !toCurrency || !customerId || !destinationAccountId.trim()) {
+    if (!amount || !fromCurrency || !toCurrency || !destinationAccountId.trim()) {
       dispatch(setShowMessage({
         message: "Please fill all required fields",
+        color: "red"
+      }));
+      return;
+    }
+
+    if (!customerId) {
+      dispatch(setShowMessage({
+        message: "Customer account not found. Please contact support.",
         color: "red"
       }));
       return;
@@ -320,12 +322,26 @@ const SendRemittance = () => {
 
         {/* Action Buttons */}
         <div className="space-y-3">
+          {!customerId && (
+            <div className="p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+              <p className="text-sm text-yellow-400">
+                Customer account required for transfers.{" "}
+                <button 
+                  onClick={() => navigate("/create-customer")}
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
+                  Create your account
+                </button>
+              </p>
+            </div>
+          )}
+          
           {!quote && (
             <button
               onClick={createTransferQuote}
-              disabled={!exchangeRate || !amount || isCreatingQuote || !customerId || !destinationAccountId.trim()}
+              disabled={!exchangeRate || !amount || isCreatingQuote || !destinationAccountId.trim()}
               className={`w-full py-3 px-4 rounded-lg font-medium transition-colors
-                ${!exchangeRate || !amount || isCreatingQuote || !customerId || !destinationAccountId.trim()
+                ${!exchangeRate || !amount || isCreatingQuote || !destinationAccountId.trim()
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-blue hover:bg-blue-light'
                 }`}
@@ -335,6 +351,8 @@ const SendRemittance = () => {
                   <Loader2 className="animate-spin mr-2" />
                   Creating Quote...
                 </div>
+              ) : !customerId ? (
+                'Customer Account Required'
               ) : (
                 'Create Transfer Quote'
               )}
@@ -356,6 +374,8 @@ const SendRemittance = () => {
                   <Loader2 className="animate-spin mr-2" />
                   Paying Transfer...
                 </div>
+              ) : !customerId ? (
+                'Customer Account Required'
               ) : (
                 'Pay Transfer Quote'
               )}
@@ -377,6 +397,8 @@ const SendRemittance = () => {
                   <Loader2 className="animate-spin mr-2" />
                   Confirming...
                 </div>
+              ) : !customerId ? (
+                'Customer Account Required'
               ) : (
                 'Confirm Transfer'
               )}
