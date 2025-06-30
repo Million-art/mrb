@@ -1,4 +1,3 @@
-
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 
 import { useCallback, useEffect, useState } from "react";
@@ -13,10 +12,11 @@ import MyTonWallet from "@/components/wallet/SimulationWallet";
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import SendReceive from "@/components/wallet/SendReceive";
 import AssetTab from "@/components/wallet/CryptoAssetTab";
-import ActivityTab from "@/components/wallet/ActivityTab";
 import { Loader2 } from "lucide-react";  
+import { useTranslation } from "react-i18next";
 
 const TonWalletTab = () => {
+  const { t } = useTranslation();
   const [tonConnectUI] = useTonConnectUI();
   const [jettons, setJettons] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,10 +39,10 @@ const TonWalletTab = () => {
           walletAddress: address,
         });
       } catch (error) {
-        console.error("Error updating wallet address in Firebase:", error);
+        console.error(t("tonWallet.errorUpdatingWallet"), error);
       }
     },
-    [tid]
+    [tid, t]
   );
 
   const handleWalletDisconnect = useCallback(async () => {
@@ -57,9 +57,9 @@ const TonWalletTab = () => {
         walletAddress: null,
       });
     } catch (error) {
-      console.error("Error resetting wallet address in Firebase:", error);
+      console.error(t("tonWallet.errorResettingWallet"), error);
     }
-  }, [tid]);
+  }, [tid, t]);
 
  
 
@@ -88,11 +88,11 @@ const TonWalletTab = () => {
           setJettons(parsedJettons);
           setIsLoading(false)
         } else {
-          console.error("Failed to fetch jettons");
+          console.error(t("tonWallet.errorFetchingJettons"));
           setIsLoading(false)
         }
       } catch (error) {
-        console.error("Error fetching jettons:", error);
+        console.error(t("tonWallet.errorFetchingJettons"), error);
       }
     };
 
@@ -117,7 +117,7 @@ const TonWalletTab = () => {
     });
 
     return () => unsubscribe();
-  }, [tonConnectUI, handleWalletConnection, handleWalletDisconnect]);
+  }, [tonConnectUI, handleWalletConnection, handleWalletDisconnect, t]);
 
  
 
@@ -132,13 +132,13 @@ const TonWalletTab = () => {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error("Failed to fetch balance");
+        throw new Error(t("tonWallet.errorFetchingBalance"));
       }
       const res = await response.json();
       console.log(res.result.balance);
       setWalletBalance(parseFloat(res.result.balance) / 1e9);
     } catch (error) {
-      console.error("Error fetching balance:", error);
+      console.error(t("tonWallet.errorFetchingBalance"), error);
       setWalletBalance(0);
     }
   };
@@ -148,6 +148,7 @@ const TonWalletTab = () => {
     return (
       <div className="flex justify-center items-center h-screen py-6">
         <Loader2 className="animate-spin text-white w-6 h-6" />
+        <span className="ml-2 text-white">{t("tonWallet.loading")}</span>
       </div>
     );
   }
@@ -165,7 +166,7 @@ const TonWalletTab = () => {
               <div className="mb-6 flex justify-between items-center">
                 <div className="text-3xl font-bold w-[60%]">
                   {walletBalance.toFixed(2)} TON <br/>
-                  <small className="text-sm font-thin text-gray-300"> Your Balance</small>
+                  <small className="text-sm font-thin text-gray-300"> {t("tonWallet.balanceTitle")}</small>
                 </div>
                 <TonConnectButton className="p-2  rounded-lg shadow-md" />
               </div>
@@ -181,13 +182,13 @@ const TonWalletTab = () => {
                   value="assets"
                   className="text-gray data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
                 >
-                  Assets
+                  {t("tonWallet.assetsTab")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="activity"
                   className="text-gray data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
                 >
-                  Activity
+                  {t("tonWallet.activityTab")}
                 </TabsTrigger>
  
               </TabsList>
@@ -196,14 +197,6 @@ const TonWalletTab = () => {
                 <Card>
                   <CardContent className="rounded-lg shadow-md p-4">
                    <AssetTab loading={isLoading} jettons={jettons} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-  
-              <TabsContent value="activity">
-                <Card>
-                  <CardContent className="text-center text-gray-400 py-8">
-                    <ActivityTab  />
                   </CardContent>
                 </Card>
               </TabsContent>

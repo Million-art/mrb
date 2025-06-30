@@ -15,9 +15,11 @@ import CreateBankAccount from "@/components/wallet/FiatWalletTab/CreateAccount/C
 import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
 import axios from "axios";
 import { getBankAccountUrl } from "@/config/api";
+import { useTranslation } from "react-i18next";
 
 const AccountSettings: React.FC = () => {
-   const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
   const [customerData, setCustomerData] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>(null);
@@ -123,7 +125,7 @@ const AccountSettings: React.FC = () => {
     try {
       if (!telegramId || !customerData?.kontigoCustomerId) {
         dispatch(setShowMessage({
-          message: 'Unable to update customer information. Please try again.',
+          message: t('accountSettings.messages.unableToUpdate'),
           color: 'red'
         }));
         return;
@@ -163,7 +165,7 @@ const AccountSettings: React.FC = () => {
           setCustomerData(editedData);
           setIsEditing(false);
           dispatch(setShowMessage({
-            message: 'Customer information updated successfully',
+            message: t('accountSettings.messages.updateSuccess'),
             color: 'green'
           }));
         }
@@ -171,7 +173,7 @@ const AccountSettings: React.FC = () => {
     } catch (error) {
       console.error('Error updating customer data:', error);
       dispatch(setShowMessage({
-        message: 'Failed to update customer information. Please try again.',
+        message: t('accountSettings.messages.updateFailed'),
         color: 'red'
       }));
     } finally {
@@ -202,13 +204,13 @@ const AccountSettings: React.FC = () => {
       setShowDeleteConfirm(false);
       setHasBankAccount(false);
       dispatch(setShowMessage({
-        message: "Bank account deleted successfully!",
+        message: t('accountSettings.messages.deleteSuccess'),
         color: "green"
       }));
     } catch (error) {
       console.error('Error deleting bank account:', error);
       dispatch(setShowMessage({
-        message: "Failed to delete bank account. Please try again.",
+        message: t('accountSettings.messages.deleteFailed'),
         color: "red"
       }));
     } finally {
@@ -234,21 +236,22 @@ const AccountSettings: React.FC = () => {
               size="icon"
               onClick={() => navigate(-1)}
               className="text-gray-400 hover:text-white"
+              aria-label={t('accountSettings.backButton')}
             >
               <ArrowLeft className="w-6 h-6" />
             </Button>
             <div className="flex items-center gap-2">
               <Settings className="w-6 h-6 text-gray-400" />
-              <h1 className="text-2xl font-semibold">Account Settings</h1>
+              <h1 className="text-2xl font-semibold">{t('accountSettings.title')}</h1>
             </div>
           </div>
 
           <Card>
             <CardContent className="p-6">
               <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold mb-2">Create Customer Account</h2>
+                <h2 className="text-xl font-semibold mb-2">{t('accountSettings.createCustomerTitle')}</h2>
                 <p className="text-gray-400">
-                  You need to create a customer account before you can access account settings.
+                  {t('accountSettings.createCustomerMessage')}
                 </p>
               </div>
               
@@ -276,21 +279,22 @@ const AccountSettings: React.FC = () => {
               size="icon"
               onClick={() => navigate(-1)}
               className="text-gray-400 hover:text-white"
+              aria-label={t('accountSettings.backButton')}
             >
               <ArrowLeft className="w-6 h-6" />
             </Button>
             <div className="flex items-center gap-2">
               <Wallet className="w-6 h-6 text-gray-400" />
-              <h1 className="text-2xl font-semibold">Create Bank Account</h1>
+              <h1 className="text-2xl font-semibold">{t('accountSettings.createBankAccountTitle')}</h1>
             </div>
           </div>
 
           <Card>
             <CardContent className="p-6">
               <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold mb-2">Bank Account Required</h2>
+                <h2 className="text-xl font-semibold mb-2">{t('accountSettings.bankAccountRequiredTitle')}</h2>
                 <p className="text-gray-400">
-                  Venezuelan customers are required to create a bank account to continue.
+                  {t('accountSettings.bankAccountRequiredMessage')}
                 </p>
               </div>
               
@@ -319,12 +323,13 @@ const AccountSettings: React.FC = () => {
             size="icon"
             onClick={() => navigate(-1)}
             className="text-gray-400 hover:text-white"
+            aria-label={t('accountSettings.backButton')}
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div className="flex items-center gap-2">
             <Settings className="w-6 h-6 text-gray-400" />
-            <h1 className="text-2xl font-semibold">Account Settings</h1>
+            <h1 className="text-2xl font-semibold">{t('accountSettings.title')}</h1>
           </div>
         </div>
 
@@ -334,14 +339,14 @@ const AccountSettings: React.FC = () => {
               value="customer"
               className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
             >
-              Customer Account
+              {t('accountSettings.customerAccountTab')}
             </TabsTrigger>
             {customerData?.country === 'VENEZUELA' && (
               <TabsTrigger
                 value="bank"
                 className="text-gray-400 data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
               >
-                Bank Account
+                {t('accountSettings.bankAccountTab')}
               </TabsTrigger>
             )}
           </TabsList>
@@ -353,7 +358,7 @@ const AccountSettings: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Settings className="w-5 h-5 text-gray-400" />
-                      <h3 className="text-lg font-medium">Customer Information</h3>
+                      <h3 className="text-lg font-medium">{t('accountSettings.customerInformationTitle')}</h3>
                     </div>
                     {!isEditing && (
                       <Button
@@ -363,14 +368,14 @@ const AccountSettings: React.FC = () => {
                         className="text-blue hover:text-blue/90"
                       >
                         <Edit2 className="w-4 h-4 mr-2" />
-                        Edit
+                        {t('accountSettings.editButton')}
                       </Button>
                     )}
                   </div>
                   {customerData && (
                     <div className="space-y-3">
                       <div>
-                        <p className="text-sm text-gray-400">Legal Name</p>
+                        <p className="text-sm text-gray-400">{t('accountSettings.formFields.legalName')}</p>
                         {isEditing ? (
                           <input
                             type="text"
@@ -383,7 +388,7 @@ const AccountSettings: React.FC = () => {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400">Email</p>
+                        <p className="text-sm text-gray-400">{t('accountSettings.formFields.email')}</p>
                         {isEditing ? (
                           <input
                             type="email"
@@ -396,7 +401,7 @@ const AccountSettings: React.FC = () => {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400">Phone Number</p>
+                        <p className="text-sm text-gray-400">{t('accountSettings.formFields.phoneNumber')}</p>
                         {isEditing ? (
                           <input
                             type="tel"
@@ -409,22 +414,22 @@ const AccountSettings: React.FC = () => {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400">Type</p>
+                        <p className="text-sm text-gray-400">{t('accountSettings.formFields.type')}</p>
                         {isEditing ? (
                           <select
                             value={editedData.type}
                             onChange={(e) => setEditedData({ ...editedData, type: e.target.value })}
                             className="w-full bg-gray-800/50 rounded-lg p-2 text-white mt-1"
                           >
-                            <option value="individual">Individual</option>
-                            <option value="business">Business</option>
+                            <option value="individual">{t('accountSettings.accountTypes.individual')}</option>
+                            <option value="business">{t('accountSettings.accountTypes.business')}</option>
                           </select>
                         ) : (
                           <p className="text-white capitalize">{customerData.type}</p>
                         )}
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400">Country</p>
+                        <p className="text-sm text-gray-400">{t('accountSettings.formFields.country')}</p>
                         <p className="text-white">{customerData.country}</p>
                       </div>
                       {isEditing && (
@@ -437,7 +442,7 @@ const AccountSettings: React.FC = () => {
                             disabled={isSaving}
                           >
                             <X className="w-4 h-4 mr-2" />
-                            Cancel
+                            {t('accountSettings.cancelButton')}
                           </Button>
                           <Button
                             variant="ghost"
@@ -449,12 +454,12 @@ const AccountSettings: React.FC = () => {
                             {isSaving ? (
                               <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Saving...
+                                {t('accountSettings.saving')}
                               </>
                             ) : (
                               <>
                                 <Check className="w-4 h-4 mr-2" />
-                                Save
+                                {t('accountSettings.saveButton')}
                               </>
                             )}
                           </Button>
@@ -474,7 +479,7 @@ const AccountSettings: React.FC = () => {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <Wallet className="w-5 h-5 text-gray-400" />
-                      <h3 className="text-lg font-medium">Bank Account Information</h3>
+                      <h3 className="text-lg font-medium">{t('accountSettings.bankAccountInformationTitle')}</h3>
                     </div>
                     
                     {isLoadingBankAccount ? (
@@ -486,43 +491,44 @@ const AccountSettings: React.FC = () => {
                         <div className="bg-gray-800/50 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-4">
                             <div>
-                              <p className="text-sm text-gray-400">Bank Account ID</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.bankAccountId')}</p>
                               <p className="text-lg font-medium">{bankAccountData?.kontigoBankAccountId}</p>
                             </div>
                             <button
                               onClick={handleCopy}
                               className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                              aria-label={t('accountSettings.copyButton')}
                             >
                               {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
                             </button>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <p className="text-sm text-gray-400">Bank Code</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.bankCode')}</p>
                               <p className="font-medium">{bankAccountData?.bank_code}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-400">Account Number</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.accountNumber')}</p>
                               <p className="font-medium">{bankAccountData?.account_number}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-400">Account Type</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.accountType')}</p>
                               <p className="font-medium">{bankAccountData?.account_type}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-400">Beneficiary Name</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.beneficiaryName')}</p>
                               <p className="font-medium">{bankAccountData?.beneficiary_name}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-400">ID Document</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.idDocument')}</p>
                               <p className="font-medium">{bankAccountData?.id_doc_number}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-400">Phone Number</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.phoneNumber')}</p>
                               <p className="font-medium">{bankAccountData?.phone_number}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-400">Created At</p>
+                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.createdAt')}</p>
                               <p className="font-medium">{new Date(bankAccountData?.createdAt).toLocaleDateString()}</p>
                             </div>
                           </div>
@@ -531,13 +537,13 @@ const AccountSettings: React.FC = () => {
                             className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
                             disabled={isDeleting}
                           >
-                            {isDeleting ? "Deleting..." : "Delete Bank Account"}
+                            {isDeleting ? t('accountSettings.deleting') : t('accountSettings.deleteBankAccountButton')}
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <p className="text-gray-400 mb-4">No bank account found. Please create one to continue.</p>
+                        <p className="text-gray-400 mb-4">{t('accountSettings.noBankAccountMessage')}</p>
                         <CreateBankAccount 
                           customerId={customerData.kontigoCustomerId}
                           showLoader={false}
@@ -560,30 +566,31 @@ const AccountSettings: React.FC = () => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="bg-gray-dark p-6 rounded-lg max-w-md w-full mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Delete Bank Account</h3>
+              <h3 className="text-lg font-semibold">{t('accountSettings.deleteConfirmTitle')}</h3>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                aria-label={t('accountSettings.cancelButton')}
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <p className="text-gray-300 mb-6">
-              Are you sure you want to delete this bank account? This action cannot be undone.
+              {t('accountSettings.deleteConfirmMessage')}
             </p>
             <div className="flex gap-4">
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white"
               >
-                Cancel
+                {t('accountSettings.cancelButton')}
               </Button>
               <Button
                 onClick={handleDelete}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                 disabled={isDeleting}
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? t('accountSettings.deleting') : t('accountSettings.deleteButton')}
               </Button>
             </div>
           </div>

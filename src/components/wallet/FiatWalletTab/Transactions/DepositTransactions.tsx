@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { RootState, AppDispatch } from "@/store/store";
 import { 
   fetchDepositTransactions, 
@@ -9,6 +10,7 @@ import { Loader2, RefreshCw, AlertCircle, ExternalLink, Frown } from "lucide-rea
 import { telegramId } from "@/libs/telegram";
 
 const DepositTransactions = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { 
     depositTransactions, 
@@ -44,13 +46,13 @@ const DepositTransactions = () => {
       <div className="flex flex-col items-center justify-center h-64 py-4 text-center">
         <AlertCircle className="text-red-500 w-8 h-8 mb-2" />
         <p className="text-red-500 mb-2">
-          {isIndexError ? "Database configuration needed" : error}
+          {isIndexError ? t('depositTransactions.databaseConfigNeeded') : error}
         </p>
         
         {isIndexError && (
           <div className="mb-4">
             <p className="text-gray-300 text-sm mb-2">
-              This feature requires a database index to be created.
+              {t('depositTransactions.databaseIndexRequired')}
             </p>
             <a
               href={error.match(/https:\/\/[^\s]+/)?.[0] || "#"}
@@ -58,7 +60,7 @@ const DepositTransactions = () => {
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline flex items-center justify-center gap-1"
             >
-              <span>Click here to create it</span>
+              <span>{t('depositTransactions.clickToCreate')}</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
@@ -69,7 +71,7 @@ const DepositTransactions = () => {
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
-          Retry
+          {t('depositTransactions.retry')}
         </button>
       </div>
     );
@@ -78,7 +80,7 @@ const DepositTransactions = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl">Recharge History</h2>
+        <h2 className="text-xl">{t('depositTransactions.title')}</h2>
         <button
           onClick={handleRefresh}
           className="flex items-center text-sm text-blue hover:text-blue-light"
@@ -89,14 +91,14 @@ const DepositTransactions = () => {
           ) : (
             <RefreshCw className="mr-1" size={16} />
           )}
-          Refresh
+          {t('depositTransactions.refresh')}
         </button>
       </div>
 
       {depositTransactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
           <Frown className="w-8 h-8 mb-3 text-gray-400" />
-          <p className="text-sm">No recharge transactions found</p>
+          <p className="text-sm">{t('depositTransactions.noTransactions')}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -104,16 +106,16 @@ const DepositTransactions = () => {
             <thead className="bg-gray-5 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium  uppercase tracking-wider">
-                  Ambassador
+                  {t('depositTransactions.tableHeaders.ambassador')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium  uppercase tracking-wider">
-                  Amount (local currency)
+                  {t('depositTransactions.tableHeaders.amount')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium  uppercase tracking-wider">
-                  Status
+                  {t('depositTransactions.tableHeaders.status')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium  uppercase tracking-wider">
-                  Date
+                  {t('depositTransactions.tableHeaders.date')}
                 </th>
               </tr>
             </thead>
@@ -134,7 +136,7 @@ const DepositTransactions = () => {
                           ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                           : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     }`}>
-                      {transaction.status}
+                      {t(`depositTransactions.statuses.${transaction.status}`)}
                     </span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm ">
@@ -149,7 +151,7 @@ const DepositTransactions = () => {
 
       {lastUpdated && (
         <p className="text-xs text-gray-500 text-right">
-          Last updated: {new Date(lastUpdated).toLocaleTimeString()}
+          {t('depositTransactions.lastUpdated')} {new Date(lastUpdated).toLocaleTimeString()}
         </p>
       )}
     </div>

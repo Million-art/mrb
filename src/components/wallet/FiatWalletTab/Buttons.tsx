@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { sethasMRBToken, setLoading } from "@/store/slice/PremiumSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 const Buttons = () => {
   const [isBannerVisible, setIsBannerVisible] = useState(true);
   const [userHasToken, setUserHasToken] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -66,18 +68,18 @@ const Buttons = () => {
           {/* Deposit Icon */}
           <div onClick={handleDepositClick} className="flex flex-col items-center cursor-pointer">
             <ArrowDown size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
-            <span className="text-xs mt-2">Recharge</span>
+            <span className="text-xs mt-2">{t('fiatWallet.rechargeButton')}</span>
           </div>
 
           {/* Remittance Icon */}
           <div onClick={handleRemittanceClick} className="flex flex-col items-center cursor-pointer">
             <ArrowUp size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" />
-            <span className="text-xs mt-2">Remittance</span>
+            <span className="text-xs mt-2">{t('fiatWallet.remittanceButton')}</span>
           </div>
 
            <div onClick={handleTransferClick} className="flex flex-col items-center cursor-pointer">
             <ArrowRight  size={25} strokeWidth={2} className="outline hover:text-blue  rounded-full p-1" /> 
-            <span className="text-xs mt-2">Transfer</span>
+            <span className="text-xs mt-2">{t('fiatWallet.transferButton')}</span>
           </div>
 
         </div>
@@ -87,27 +89,27 @@ const Buttons = () => {
           <div className="w-full bg-gradient-to-r from-green-500 to-blue p-4 mb-6 rounded-lg">
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-bold text-white">MRB with zero fee — only in Fiat Wallet!</p>
+                <p className="font-bold text-white">{t('fiatWallet.promotionalBanner.title')}</p>
                 <a
                   href="https://t.me/blum/app?startapp=memepadjetton_MRB_3UKTM-ref_jM0CnzEvER"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white flex items-center mt-1 underline hover:text-blue-200 transition-colors"
                 >
-                  Buy <ArrowRight size={16} strokeWidth={2} className="ml-1" />
+                  {t('fiatWallet.promotionalBanner.buyButton')} <ArrowRight size={16} strokeWidth={2} className="ml-1" />
                 </a>
               </div>
               <div className="flex items-center">
                 <div className="relative">
                   <div className="absolute -top-2 -right-2 text-white text-2xl">✨</div>
                   <div className="h-12 w-12 rounded-full bg-blue-300 bg-opacity-50 flex items-center justify-center">
-                    <span className="text-white text-xl font-bold">0%</span>
+                    <span className="text-white text-xl font-bold">{t('fiatWallet.promotionalBanner.zeroFee')}</span>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsBannerVisible(false)} 
                   className="ml-4 text-white hover:text-blue-200 transition-colors"
-                  aria-label="Close banner"
+                  aria-label={t('fiatWallet.promotionalBanner.closeButton')}
                 >
                   <X size={20} strokeWidth={2} />
                 </button>

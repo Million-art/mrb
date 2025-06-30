@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { getCustomerUrl } from "@/config/api";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 interface CustomerData {
   id: string;
@@ -38,6 +39,7 @@ interface CreateAccountProps {
 }
 
 const CreateAccount = ({ onComplete }: CreateAccountProps) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [isExistingCustomer, setIsExistingCustomer] = useState(false);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
@@ -90,11 +92,11 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
 
   const getPhoneNumberError = (phone: string, country: string) => {
     if (!phone) {
-      return "Phone number is required";
+      return t("createAccount.phoneRequired");
     }
 
     if (!isValidPhoneNumber(phone)) {
-      return "Please enter a valid phone number";
+      return t("createAccount.phoneInvalid");
     }
 
     const cleanPhone = phone.replace(/\D/g, '');
@@ -102,52 +104,52 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
     switch (country) {
       case 'Venezuela':
         if (!/^58\d{9,10}$/.test(cleanPhone)) {
-          return "Venezuelan numbers must be +58 followed by 9-10 digits";
+          return t("createAccount.phoneValidation.venezuela");
         }
         break;
       case 'Colombia':
         if (!/^57\d{10}$/.test(cleanPhone)) {
-          return "Colombian numbers must be +57 followed by 10 digits";
+          return t("createAccount.phoneValidation.colombia");
         }
         break;
       case 'Argentina':
         if (!/^54\d{10,11}$/.test(cleanPhone)) {
-          return "Argentine numbers must be +54 followed by 10-11 digits";
+          return t("createAccount.phoneValidation.argentina");
         }
         break;
       case 'Mexico':
         if (!/^52\d{10}$/.test(cleanPhone)) {
-          return "Mexican numbers must be +52 followed by 10 digits";
+          return t("createAccount.phoneValidation.mexico");
         }
         break;
       case 'Brazil':
         if (!/^55\d{10,11}$/.test(cleanPhone)) {
-          return "Brazilian numbers must be +55 followed by 10-11 digits";
+          return t("createAccount.phoneValidation.brazil");
         }
         break;
       case 'Chile':
         if (!/^56\d{9}$/.test(cleanPhone)) {
-          return "Chilean numbers must be +56 followed by 9 digits";
+          return t("createAccount.phoneValidation.chile");
         }
         break;
       case 'Guatemala':
         if (!/^502\d{8}$/.test(cleanPhone)) {
-          return "Guatemalan numbers must be +502 followed by 8 digits";
+          return t("createAccount.phoneValidation.guatemala");
         }
         break;
       case 'European Union':
         if (cleanPhone.length < 10 || cleanPhone.length > 12) {
-          return "EU numbers must be 10-12 digits";
+          return t("createAccount.phoneValidation.eu");
         }
         break;
       case 'Panama':
         if (!/^507\d{7,8}$/.test(cleanPhone)) {
-          return "Panamanian numbers must be +507 followed by 7-8 digits";
+          return t("createAccount.phoneValidation.panama");
         }
         break;
       case 'United Kingdom':
         if (!/^44\d{10}$/.test(cleanPhone)) {
-          return "UK numbers must be +44 followed by 10 digits";
+          return t("createAccount.phoneValidation.uk");
         }
         break;
     }
@@ -163,19 +165,19 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         const error = getPhoneNumberError(formData.phone_number, formData.country);
         setPhoneError(error);
       } else if (formData.phone_number && !formData.country) {
-        setPhoneError(isValidPhoneNumber(formData.phone_number) ? null : "Please enter a valid phone number");
+        setPhoneError(isValidPhoneNumber(formData.phone_number) ? null : t("createAccount.phoneInvalid"));
       } else {
         setPhoneError(null);
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [formData.country, formData.phone_number, hasInteractedWithPhone]);
+  }, [formData.country, formData.phone_number, hasInteractedWithPhone, t]);
 
   const handleSubmit = async () => {
     if (!formData.legal_name || !formData.email || !formData.phone_number || !formData.type || !formData.country) {
       dispatch(setShowMessage({
-        message: "All fields are required",
+        message: t("createAccount.allFieldsRequired"),
         color: "red"
       }));
       return;
@@ -201,7 +203,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
       const newCustomerData = response.data;
 
       dispatch(setShowMessage({
-        message: "Customer account created successfully!",
+        message: t("createAccount.accountCreatedSuccess"),
         color: "green"
       }));
 
@@ -211,7 +213,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
 
     } catch (err: any) {
       console.error('Error:', err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || 'Failed to create customer account';
+      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || t("createAccount.failedToCreateAccount");
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"
@@ -225,6 +227,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">{t("createAccount.loading")}</span>
       </div>
     );
   }
@@ -235,16 +238,16 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50 mb-4">
           <UserPlus className="w-8 h-8 text-gray-400" />
         </div>
-        <h2 className="text-xl font-semibold mb-2">Customer Account Already Exists</h2>
+        <h2 className="text-xl font-semibold mb-2">{t("createAccount.existingAccountTitle")}</h2>
         <p className="text-gray-400 mb-6">
-          You already have a customer account set up. You can proceed to create your bank account.
+          {t("createAccount.existingAccountMessage")}
         </p>
         {onComplete && (
           <Button
             onClick={() => onComplete(customerData)}
             className="bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors"
           >
-            Continue to Bank Account
+            {t("createAccount.continueToBankAccount")}
           </Button>
         )}
       </div>
@@ -256,9 +259,9 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="legal_name">Legal Name *</Label>
+          <Label htmlFor="legal_name">{t("createAccount.legalNameLabel")}</Label>
           <Input
-            placeholder="Enter your full legal name"
+            placeholder={t("createAccount.legalNamePlaceholder")}
             name="legal_name"
             value={formData.legal_name}
             onChange={(e) => setFormData(prev => ({ ...prev, legal_name: e.target.value }))}
@@ -268,9 +271,9 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email">{t("createAccount.emailLabel")}</Label>
           <Input
-            placeholder="example@email.com"
+            placeholder={t("createAccount.emailPlaceholder")}
             name="email"
             type="email"
             value={formData.email}
@@ -281,7 +284,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number *</Label>
+          <Label htmlFor="phone">{t("createAccount.phoneLabel")}</Label>
           <PhoneInput
             international
             defaultCountry="BR"
@@ -302,7 +305,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="type">Account Type *</Label>
+          <Label htmlFor="type">{t("createAccount.accountTypeLabel")}</Label>
           <select
             id="type"
             name="type"
@@ -311,13 +314,13 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
             className="w-full h-10 px-3 py-2 bg-black border border-gray-600 rounded-md text-white text-left [&:not(:placeholder-shown)]:bg-black"
             required
           >
-            <option value="individual">Individual</option>
-            <option value="business">Business</option>
+            <option value="individual">{t("createAccount.individual")}</option>
+            <option value="business">{t("createAccount.business")}</option>
           </select>
         </div>
 
         <div className="relative">
-          <Label htmlFor="country">Country *</Label>
+          <Label htmlFor="country">{t("createAccount.countryLabel")}</Label>
           <button
             type="button"
             onClick={() => setIsCountryOpen(!isCountryOpen)}
@@ -333,7 +336,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
                 <span>{formData.country}</span>
               </div>
             ) : (
-              <span className="text-gray-400">Select your country</span>
+              <span className="text-gray-400">{t("createAccount.selectCountry")}</span>
             )}
             <ChevronDown className="w-4 h-4 text-gray-400" />
           </button>
@@ -369,10 +372,10 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
+              {t("createAccount.creating")}
             </>
           ) : (
-            "Create Account"
+            t("createAccount.createAccountButton")
           )}
         </Button>
       </div>

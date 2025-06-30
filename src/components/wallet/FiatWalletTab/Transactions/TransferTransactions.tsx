@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { RootState, AppDispatch } from "@/store/store";
 import { 
   fetchTransferTransactions, 
@@ -14,6 +15,7 @@ interface TransactionParty {
 }
 
 const TransferTransactions = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { 
     transferTransactions, 
@@ -37,7 +39,7 @@ const TransferTransactions = () => {
   const formatUserId = (id: string | undefined) => {
     if (!id) {
       console.warn('Missing user ID in transaction');
-      return 'Unknown';
+      return t('transferTransactions.unknown');
     }
     return id;
   };
@@ -45,18 +47,18 @@ const TransferTransactions = () => {
   const getTransactionParty = (transaction: any): TransactionParty => {
     if (!transaction) {
       console.error('Invalid transaction data');
-      return { label: 'Unknown', id: 'Unknown' };
+      return { label: t('transferTransactions.unknown'), id: t('transferTransactions.unknown') };
     }
 
     if (transaction.type === 'transfer_in') {
       return {
-        label: 'From',
-        id: transaction.senderId || 'Unknown'
+        label: t('transferTransactions.partyLabels.from'),
+        id: transaction.senderId || t('transferTransactions.unknown')
       };
     } else {
       return {
-        label: 'To',
-        id: transaction.recipientId || 'Unknown'
+        label: t('transferTransactions.partyLabels.to'),
+        id: transaction.recipientId || t('transferTransactions.unknown')
       };
     }
   };
@@ -76,13 +78,13 @@ const TransferTransactions = () => {
       <div className="flex flex-col items-center justify-center h-64 py-4 text-center">
         <AlertCircle className="text-red-500 w-8 h-8 mb-2" />
         <p className="text-red-500 mb-2">
-          {isIndexError ? "Database configuration needed" : error}
+          {isIndexError ? t('transferTransactions.databaseConfigNeeded') : error}
         </p>
         
         {isIndexError && (
           <div className="mb-4">
             <p className="text-gray-300 text-sm mb-2">
-              This feature requires a database index to be created.
+              {t('transferTransactions.databaseIndexRequired')}
             </p>
             <a
               href={error.match(/https:\/\/[^\s]+/)?.[0] || "#"}
@@ -90,7 +92,7 @@ const TransferTransactions = () => {
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline flex items-center justify-center gap-1"
             >
-              <span>Click here to create it</span>
+              <span>{t('transferTransactions.clickToCreate')}</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
@@ -101,7 +103,7 @@ const TransferTransactions = () => {
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
-          Retry
+          {t('transferTransactions.retry')}
         </button>
       </div>
     );
@@ -110,7 +112,7 @@ const TransferTransactions = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl">Transfer History</h2>
+        <h2 className="text-xl">{t('transferTransactions.title')}</h2>
         <button
           onClick={handleRefresh}
           className="flex items-center text-sm text-blue hover:text-blue-light"
@@ -121,14 +123,14 @@ const TransferTransactions = () => {
           ) : (
             <RefreshCw className="mr-1" size={16} />
           )}
-          Refresh
+          {t('transferTransactions.refresh')}
         </button>
       </div>
 
       {transferTransactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
           <Frown className="w-8 h-8 mb-3 text-gray-400" />
-          <p className="text-sm">No transfer transactions found</p>
+          <p className="text-sm">{t('transferTransactions.noTransactions')}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -136,42 +138,47 @@ const TransferTransactions = () => {
             <thead className="bg-gray-5 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  Type
+                  {t('transferTransactions.tableHeaders.type')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  Party
+                  {t('transferTransactions.tableHeaders.party')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  Amount
+                  {t('transferTransactions.tableHeaders.amount')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  Balance
+                  {t('transferTransactions.tableHeaders.balance')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  Date
+                  {t('transferTransactions.tableHeaders.date')}
                 </th>
               </tr>
             </thead>
             <tbody>
               {transferTransactions.map((transaction) => {
                 const party = getTransactionParty(transaction);
+                const isReceived = transaction.type === 'transfer_in';
                 return (
                   <tr key={transaction.id} className="hover:bg-gray-800/50 transition-colors">
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        transaction.type === 'transfer_in' 
+                        isReceived
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                           : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       }`}>
-                        {transaction.type === 'transfer_in' ? 'Received' : 'Sent'}
+                        {isReceived
+                          ? t('transferTransactions.transactionTypes.received')
+                          : t('transferTransactions.transactionTypes.sent')}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
                       {`${party.label}: ${formatUserId(party.id)}`}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
-                      <span className={transaction.type === 'transfer_in' ? 'text-green-500' : 'text-red-500'}>
-                        {transaction.type === 'transfer_in' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                      <span className={isReceived ? 'text-green-500' : 'text-red-500'}>
+                        {isReceived
+                          ? t('transferTransactions.amountFormat.positive', { amount: Math.abs(transaction.amount).toFixed(2) })
+                          : t('transferTransactions.amountFormat.negative', { amount: Math.abs(transaction.amount).toFixed(2) })}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
@@ -190,7 +197,7 @@ const TransferTransactions = () => {
 
       {lastUpdated && (
         <p className="text-xs text-gray-500 text-right">
-          Last updated: {new Date(lastUpdated).toLocaleTimeString()}
+          {t('transferTransactions.lastUpdated')} {new Date(lastUpdated).toLocaleTimeString()}
         </p>
       )}
     </div>

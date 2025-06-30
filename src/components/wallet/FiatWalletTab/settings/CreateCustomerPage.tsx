@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 import { telegramId } from "@/libs/telegram";
-import CreateCustomerForm from "@/components/wallet/FiatWalletTab/CreateAccount/CreateCustomerForm";
+import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
+import { useTranslation } from "react-i18next";
 
 const CreateCustomerPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isExistingCustomer, setIsExistingCustomer] = useState(false);
@@ -43,6 +45,7 @@ const CreateCustomerPage = () => {
     return (
       <div className="text-white w-full min-h-screen p-4 flex justify-center items-center">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">{t("createCustomerPage.loading")}</span>
       </div>
     );
   }
@@ -54,13 +57,17 @@ const CreateCustomerPage = () => {
   return (
     <div className="text-white w-full min-h-screen p-4">
       <div className="flex items-center justify-between mb-6">
-        <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-white">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="text-gray-400 hover:text-white"
+          aria-label={t("createCustomerPage.backButton")}
+        >
           <ArrowLeft size={24} />
         </button>
-        <h1 className="text-xl font-bold">Create Customer Account</h1>
+        <h1 className="text-xl font-bold">{t("createCustomerPage.title")}</h1>
         <div className="w-6" />
       </div>
-      <CreateCustomerForm />
+      <CreateAccount onComplete={(data) => navigate("/create-bank-account")} />
     </div>
   );
 };

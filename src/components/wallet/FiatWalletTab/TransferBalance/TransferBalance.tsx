@@ -5,9 +5,10 @@ import { useState } from "react";
 import { telegramId } from "@/libs/telegram";
 import axios from "axios";
 import { API_CONFIG } from "@/config/api";
-
+import { useTranslation } from "react-i18next";
 
 const TransferBalance = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [recipientId, setRecipientId] = useState("");
   const [amount, setAmount] = useState("");
@@ -19,12 +20,12 @@ const TransferBalance = () => {
     
     // Input validation
     if (!recipientId.trim()) {
-      setError("Please enter recipient's Telegram ID");
+      setError(t('transferBalance.errorRecipient'));
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      setError("Please enter a valid amount");
+      setError(t('transferBalance.errorAmount'));
       return;
     }
 
@@ -38,12 +39,12 @@ const TransferBalance = () => {
 
       if (response.data.success) {
         // Show success message
-        alert("Transfer completed successfully");
+        alert(t('transferBalance.success'));
         navigate(-1); // Go back to previous page
       }
     } catch (error: any) {
       console.error('Transfer error:', error);
-      const errorMessage = error.response?.data?.message || "Transfer failed. Please try again.";
+      const errorMessage = error.response?.data?.message || t('transferBalance.errorTransferFailed');
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -63,7 +64,7 @@ const TransferBalance = () => {
           </button>
           
           <h2 className="text-xl font-semibold mb-4 text-white text-center">
-            Transfer Funds in USDC
+            {t('transferBalance.title')}
           </h2>
         </div>
 
@@ -78,28 +79,28 @@ const TransferBalance = () => {
         <div className="space-y-5 mt-15">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Recipient
+              {t('transferBalance.recipientLabel')}
             </label>
             <input
               type="text"
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
               className="w-full bg-transparent border border-gray-700 rounded-md p-3 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              placeholder="Enter recipient Telegram ID"
+              placeholder={t('transferBalance.recipientPlaceholder')}
               disabled={isLoading}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Amount
+              {t('transferBalance.amountLabel')}
             </label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="w-full bg-transparent border border-gray-700 rounded-md p-3 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              placeholder="Enter amount"
+              placeholder={t('transferBalance.amountPlaceholder')}
               disabled={isLoading}
               min="0"
               step="0.01"
@@ -114,10 +115,10 @@ const TransferBalance = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Processing...
+                {t('transferBalance.processing')}
               </>
             ) : (
-              'Transfer'
+              t('transferBalance.transferButton')
             )}
           </button>
         </div>

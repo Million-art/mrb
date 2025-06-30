@@ -6,8 +6,10 @@ import { ArrowLeft, Loader2, Copy, Check, Trash2 } from "lucide-react";
 import { doc, getDoc, updateDoc, deleteField } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 import { telegramId } from "@/libs/telegram";
+import { useTranslation } from "react-i18next";
 
 const ExternalUsdcAddress = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [newAddress, setNewAddress] = useState('');
@@ -28,23 +30,23 @@ const ExternalUsdcAddress = () => {
         }
       } catch (error) {
         console.error('Error fetching wallet address:', error);
-        setError('Failed to fetch wallet address');
+        setError(t('externalUsdcAddress.messages.fetchFailed'));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchWalletAddress();
-  }, []);
+  }, [t]);
 
   const handleSave = async () => {
     if (!newAddress.trim()) {
-      setError('Please enter a valid wallet address');
+      setError(t('externalUsdcAddress.messages.addressRequired'));
       return;
     }
 
     if (!/^0x[a-fA-F0-9]{40}$/.test(newAddress.trim())) {
-      setError('Invalid Base network address format');
+      setError(t('externalUsdcAddress.messages.invalidAddress'));
       return;
     }
 
@@ -57,11 +59,11 @@ const ExternalUsdcAddress = () => {
         usdcexternalWalletAddress: newAddress.trim()
       });
       setWalletAddress(newAddress.trim());
-      setSuccess('Wallet connected successfully');
+      setSuccess(t('externalUsdcAddress.messages.connectSuccess'));
       setNewAddress('');
     } catch (error) {
       console.error('Error connecting wallet:', error);
-      setError('Failed to connect wallet');
+      setError(t('externalUsdcAddress.messages.connectFailed'));
     } finally {
       setIsSaving(false);
     }
@@ -77,10 +79,10 @@ const ExternalUsdcAddress = () => {
         usdcexternalWalletAddress: deleteField()
       });
       setWalletAddress(null);
-      setSuccess('Wallet disconnected successfully');
+      setSuccess(t('externalUsdcAddress.messages.disconnectSuccess'));
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
-      setError('Failed to disconnect wallet');
+      setError(t('externalUsdcAddress.messages.disconnectFailed'));
     } finally {
       setIsDeleting(false);
     }
@@ -119,11 +121,12 @@ const ExternalUsdcAddress = () => {
               size="icon"
               onClick={() => navigate(-1)}
               className="text-gray-400 hover:text-white"
+              aria-label={t('externalUsdcAddress.backButton')}
             >
               <ArrowLeft className="w-6 h-6" />
             </Button>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-semibold"> USDC Address</h1>
+              <h1 className="text-2xl font-semibold">{t('externalUsdcAddress.title')}</h1>
             </div>
           </div>
           <div className="mt-4 border-t border-gray-800" />
@@ -133,9 +136,9 @@ const ExternalUsdcAddress = () => {
           <div className=" rounded-lg p-6">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-white mb-2">Link USDC Wallet</h3>
+                <h3 className="text-lg font-medium text-white mb-2">{t('externalUsdcAddress.linkWalletTitle')}</h3>
                 <p className="text-sm text-gray-400">
-                  Connect your external USDC wallet to receive referral commissions and transfers
+                  {t('externalUsdcAddress.linkWalletMessage')}
                 </p>
               </div>
 
@@ -149,9 +152,9 @@ const ExternalUsdcAddress = () => {
                         className="w-6 h-6 object-contain"
                       />
                       <div className="flex-1">
-                        <p className="text-sm font-medium">Base Network</p>
+                        <p className="text-sm font-medium">{t('externalUsdcAddress.baseNetwork')}</p>
                         <p className="text-xs text-gray-400">
-                          Currently the only supported network for USDC payments
+                          {t('externalUsdcAddress.baseNetworkDescription')}
                         </p>
                       </div>
                     </div>
@@ -159,7 +162,7 @@ const ExternalUsdcAddress = () => {
                     <div className="relative">
                       <Input
                         type="text"
-                        placeholder="Base network USDC address"
+                        placeholder={t('externalUsdcAddress.addressPlaceholder')}
                         value={newAddress}
                         onChange={(e) => {
                           setNewAddress(e.target.value);
@@ -185,10 +188,10 @@ const ExternalUsdcAddress = () => {
                       {isSaving ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Connecting...
+                          {t('externalUsdcAddress.connecting')}
                         </>
                       ) : (
-                        'Connect Wallet'
+                        t('externalUsdcAddress.connectWalletButton')
                       )}
                     </Button>
                   </div>
@@ -196,7 +199,7 @@ const ExternalUsdcAddress = () => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <p className="text-gray-400">Connected USDC Wallet Address</p>
+                        <p className="text-gray-400">{t('externalUsdcAddress.connectedAddressLabel')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
@@ -204,6 +207,7 @@ const ExternalUsdcAddress = () => {
                           size="sm"
                           onClick={handleCopy}
                           className="text-blue hover:text-blue/90"
+                          aria-label={t('externalUsdcAddress.copyButton')}
                         >
                           {copied ? (
                             <Check className="w-4 h-4 text-green-500" />
@@ -217,6 +221,7 @@ const ExternalUsdcAddress = () => {
                           onClick={handleDelete}
                           disabled={isDeleting}
                           className="text-red-500 hover:text-red-400"
+                          aria-label={t('externalUsdcAddress.deleteButton')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

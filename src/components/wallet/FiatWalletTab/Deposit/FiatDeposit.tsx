@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/stonfi/ui/scroll-area";
 import { Card } from "@/components/stonfi/ui/card";
 import { motion } from "framer-motion";
 import { Frown, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Country } from "@/interface/country";
 import SendDepositDetails from "./SendDepositDetails";
 import { ArrowLeft } from "lucide-react";
@@ -27,6 +28,7 @@ export default function FiatDeposit() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
   const [showModal, setShowModal] = useState(false)
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const filteredCountries = countries.filter(
     (country) =>
@@ -54,17 +56,17 @@ export default function FiatDeposit() {
         >
           <ArrowLeft size={24} />
         </button>
-        <h2 className="text-xl font-semibold mb-4 text-white text-center">Recharge Fiat Currency</h2>
+        <h2 className="text-xl font-semibold mb-4 text-white text-center">{t('fiatDeposit.title')}</h2>
         <div className="w-6"></div> 
       </div>
 
       <Card className="p-6 shadow-lg border-gray-800">
-        <p className="text-gray-400 mb-4 text-center">Select your country to see available Recharge methods.</p>
+        <p className="text-gray-400 mb-4 text-center">{t('fiatDeposit.description')}</p>
 
         <div className="relative w-full mb-4">
           <Input
             type="text"
-            placeholder="Search country..."
+            placeholder={t('fiatDeposit.searchPlaceholder')}
             className="w-full p-2 pl-10 rounded-lg text-white  border border-gray-600 focus:ring focus:ring-blue"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -90,7 +92,7 @@ export default function FiatDeposit() {
                   <div className="text-left flex-grow">
                     <p className="font-medium text-white text-lg">{country.name}</p>
                     <p className="text-sm text-gray-400">
-                      {country.currency} ({country.code})
+                      {t('fiatDeposit.currencyFormat', { currency: country.currency, code: country.code })}
                     </p>
                   </div>
                 </motion.button>
@@ -100,8 +102,8 @@ export default function FiatDeposit() {
           ) : (
             <div className="flex flex-col items-center justify-center h-full py-10">
               <Frown className="w-16 h-16 text-gray-500 mb-4" />
-              <p className="text-gray-400 text-lg font-medium">No countries found</p>
-              <p className="text-gray-500 text-sm mt-2 text-center">Try adjusting your search or check for typos</p>
+              <p className="text-gray-400 text-lg font-medium">{t('fiatDeposit.noCountriesFound')}</p>
+              <p className="text-gray-500 text-sm mt-2 text-center">{t('fiatDeposit.noCountriesDescription')}</p>
             </div>
           )}
         </ScrollArea>
