@@ -1,8 +1,8 @@
   // API Configuration
   export const API_CONFIG = {
-    BASE_URL2: "https://dashboard-backend.mrbeas.net",
+    BASE_URL2: import.meta.env.VITE_BASE_URL2, //dashboard-backend
     BASE_URL: process.env.NODE_ENV === 'development' ? "http://localhost:3000" : "https://api.glofica.com",
-    FALLBACK_URL: "https://api.glofica.com",
+    BASE_URL1: import.meta.env.VITE_BASE_URL1, //glofica
     ENDPOINTS: {
       CUSTOMERS: "/customers",
       BANK_ACCOUNTS: "/bank-accounts",
@@ -20,9 +20,8 @@
       }
       return await response.json();
     } catch (error) {
-      // If the request fails and we're using localhost, try the fallback URL
       if (url.includes('localhost:3000')) {
-        const fallbackUrl = url.replace(API_CONFIG.BASE_URL, API_CONFIG.FALLBACK_URL);
+        const fallbackUrl = url.replace(API_CONFIG.BASE_URL, API_CONFIG.BASE_URL1);
         console.log('Falling back to production URL:', fallbackUrl);
         const fallbackResponse = await fetch(fallbackUrl, options);
         if (!fallbackResponse.ok) {
