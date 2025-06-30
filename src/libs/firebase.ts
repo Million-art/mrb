@@ -5,19 +5,18 @@ import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_SECRET_KEY,
-  authDomain: "mrjohn-8ee8b.firebaseapp.com",
-  projectId: "mrjohn-8ee8b",
-  storageBucket: "mrjohn-8ee8b.firebasestorage.app",
-  messagingSenderId: "662877699866",
-  appId: "1:662877699866:web:451ade51fbfafafed236a3",
-  measurementId: "G-BBLWJYWS31",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const functions = getFunctions(app);
-const storage = getStorage(app); // Ensure storage is initialized
+const storage = getStorage(app); 
 
 // Export Firebase instances
 export { app, db, functions, storage };
