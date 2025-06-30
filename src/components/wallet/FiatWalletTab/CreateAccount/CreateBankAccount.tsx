@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { Copy, Check, X, Loader2 } from "lucide-react";
 import { getBankAccountsUrl, getBankAccountUrl } from "@/config/api";
+import { useTranslation } from "react-i18next";
 
 interface BankAccountFormData {
   bank_code: string;
@@ -29,13 +30,13 @@ interface CreateBankAccountProps {
 }
 
 // Utility functions
-const validateIdDocument = (idDocNumber: string): { isValid: boolean; message?: string } => {
+const validateIdDocument = (idDocNumber: string, t: any): { isValid: boolean; message?: string } => {
   const trimmed = idDocNumber.trim();
   if (trimmed.length < 8) {
-    return { isValid: false, message: "ID document number must be at least 8 characters long" };
+    return { isValid: false, message: t("createBankAccount.idDocumentTooShort") };
   }
   if (!trimmed.match(/^[Vv]\d{7,}$/)) {
-    return { isValid: false, message: "ID document number must start with 'V' followed by at least 7 digits" };
+    return { isValid: false, message: t("createBankAccount.idDocumentInvalidFormat") };
   }
   return { isValid: true };
 };
@@ -50,9 +51,10 @@ const handleApiError = (err: any, dispatch: any, defaultMessage: string) => {
 };
 
 // Reusable components
-const LoadingSpinner = () => (
+const LoadingSpinner = ({ t }: { t: any }) => (
   <div className="flex items-center justify-center min-h-[400px]">
     <Loader2 className="h-8 w-8 animate-spin text-blue" />
+    <span className="ml-2">{t("createBankAccount.loading")}</span>
   </div>
 );
 
@@ -96,17 +98,25 @@ const FormField = ({
   </div>
 );
 
-const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading }) => (
+const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading, t }: { 
+  bankAccount: BankAccount; 
+  onCopy: () => void; 
+  copied: boolean; 
+  onDelete: () => void; 
+  loading: boolean;
+  t: any;
+}) => (
   <div className="space-y-4 mb-12">
     <div className="mb-4 p-3 rounded-lg bg-gray-dark">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-400">Bank Account ID</p>
+          <p className="text-sm text-gray-400">{t("createBankAccount.bankAccountId")}</p>
           <p className="text-lg font-medium">{bankAccount.kontigoBankAccountId}</p>
         </div>
         <button
           onClick={onCopy}
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+          aria-label={t("createBankAccount.copyButton")}
         >
           {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
         </button>
@@ -115,31 +125,31 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading }) 
 
     <div className="grid grid-cols-2 gap-3">
       <div className="p-3 rounded-lg bg-gray-dark">
-        <p className="text-sm text-gray-400">Bank Code</p>
+        <p className="text-sm text-gray-400">{t("createBankAccount.bankCode")}</p>
         <p className="text-base font-medium">{bankAccount.bank_code}</p>
       </div>
       
       <div className="p-3 rounded-lg bg-gray-dark">
-        <p className="text-sm text-gray-400">ID Document</p>
+        <p className="text-sm text-gray-400">{t("createBankAccount.idDocument")}</p>
         <p className="text-base font-medium">{bankAccount.id_doc_number}</p>
       </div>
       
       {bankAccount.beneficiary_name && (
         <div className="p-3 rounded-lg bg-gray-dark">
-          <p className="text-sm text-gray-400">Beneficiary</p>
+          <p className="text-sm text-gray-400">{t("createBankAccount.beneficiary")}</p>
           <p className="text-base font-medium">{bankAccount.beneficiary_name}</p>
         </div>
       )}
       
       {bankAccount.account_number && (
         <div className="p-3 rounded-lg bg-gray-dark">
-          <p className="text-sm text-gray-400">Account Number</p>
+          <p className="text-sm text-gray-400">{t("createBankAccount.accountNumber")}</p>
           <p className="text-base font-medium">{bankAccount.account_number}</p>
         </div>
       )}
       
       <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
-        <p className="text-sm text-gray-400">Phone Number</p>
+        <p className="text-sm text-gray-400">{t("createBankAccount.phoneNumber")}</p>
         <p className="text-base font-medium">{bankAccount.phone_number}</p>
       </div>
     </div>
@@ -149,12 +159,13 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading }) 
       className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
       disabled={loading}
     >
-      {loading ? "Deleting..." : "Delete Bank Account"}
+      {loading ? t("createBankAccount.deleting") : t("createBankAccount.deleteBankAccountButton")}
     </Button>
   </div>
 );
 
 export default function CreateBankAccount({ customerId, showLoader = true, customerPhone, onComplete }: CreateBankAccountProps) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
@@ -212,11 +223,11 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
       setShowDeleteConfirm(false);
       setDisplayMode('form');
       dispatch(setShowMessage({
-        message: "Bank account deleted successfully!",
+        message: t("createBankAccount.bankAccountDeletedSuccess"),
         color: "green"
       }));
     } catch (err) {
-      handleApiError(err, dispatch, 'Failed to delete bank account');
+      handleApiError(err, dispatch, t("createBankAccount.failedToDeleteBankAccount"));
     } finally {
       setLoading(false);
     }
@@ -233,16 +244,16 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   const handleSubmit = async () => {
     if (!formData.bank_code || !formData.id_doc_number) {
       dispatch(setShowMessage({
-        message: "Bank code and ID document number are required",
+        message: t("createBankAccount.bankCodeRequired"),
         color: "red"
       }));
       return;
     }
 
-    const validation = validateIdDocument(formData.id_doc_number);
+    const validation = validateIdDocument(formData.id_doc_number, t);
     if (!validation.isValid) {
       dispatch(setShowMessage({
-        message: validation.message || "Invalid ID document number",
+        message: validation.message || t("createBankAccount.invalidIdDocument"),
         color: "red"
       }));
       return;
@@ -258,7 +269,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
       setBankAccount(response.data);
       setDisplayMode('details');
       dispatch(setShowMessage({
-        message: "Bank account created successfully!",
+        message: t("createBankAccount.bankAccountCreatedSuccess"),
         color: "green"
       }));
       
@@ -267,14 +278,14 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         onComplete();
       }
     } catch (err) {
-      handleApiError(err, dispatch, 'Failed to create bank account');
+      handleApiError(err, dispatch, t("createBankAccount.failedToCreateBankAccount"));
     } finally {
       setLoading(false);
     }
   };
 
   if (isLoading || !dataFetched) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner t={t} />;
   }
 
   if (displayMode === 'details' && bankAccount) {
@@ -286,13 +297,14 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
           copied={copied}
           onDelete={() => setShowDeleteConfirm(true)}
           loading={loading}
+          t={t}
         />
 
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
             <div className="bg-gray-dark p-6 rounded-lg max-w-md w-full mx-4">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Delete Bank Account</h3>
+                <h3 className="text-lg font-semibold">{t("createBankAccount.deleteConfirmTitle")}</h3>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
@@ -301,21 +313,21 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
                 </button>
               </div>
               <p className="text-gray-300 mb-6">
-                Are you sure you want to delete this bank account? This action cannot be undone.
+                {t("createBankAccount.deleteConfirmMessage")}
               </p>
               <div className="flex gap-4">
                 <Button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="flex-1 bg-gray-700 hover:bg-gray-600 text-white"
                 >
-                  Cancel
+                  {t("createBankAccount.cancelButton")}
                 </Button>
                 <Button
                   onClick={handleDelete}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                   disabled={loading}
                 >
-                  {loading ? "Deleting..." : "Delete"}
+                  {loading ? t("createBankAccount.deleting") : t("createBankAccount.deleteButton")}
                 </Button>
               </div>
             </div>
@@ -328,41 +340,41 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   return (
     <div className="space-y-4">
       <FormField
-        label="Bank Code"
-          name="bank_code"
-          value={formData.bank_code}
-          onChange={handleChange}
-        placeholder="Enter bank code (e.g., 0138)"
-          required
-        />
+        label={t("createBankAccount.bankCodeLabel")}
+        name="bank_code"
+        value={formData.bank_code}
+        onChange={handleChange}
+        placeholder={t("createBankAccount.bankCodePlaceholder")}
+        required
+      />
 
       <FormField
-        label="Beneficiary Name"
-          name="beneficiary_name"
+        label={t("createBankAccount.beneficiaryNameLabel")}
+        name="beneficiary_name"
         value={formData.beneficiary_name}
-          onChange={handleChange}
-        placeholder="Enter beneficiary name (e.g., John Doe)"
+        onChange={handleChange}
+        placeholder={t("createBankAccount.beneficiaryNamePlaceholder")}
       />
 
       <FormField
-        label="Account Number"
-          name="account_number"
+        label={t("createBankAccount.accountNumberLabel")}
+        name="account_number"
         value={formData.account_number}
-          onChange={handleChange}
-        placeholder="Enter account number (e.g., 21281309821)"
+        onChange={handleChange}
+        placeholder={t("createBankAccount.accountNumberPlaceholder")}
       />
 
       <FormField
-        label="ID Document Number"
-          name="id_doc_number"
-          value={formData.id_doc_number}
-          onChange={handleChange}
-        placeholder="Enter ID document number (e.g., V12345678)"
-          required
-          pattern="[Vv]\d{7,}"
-          title="ID must start with 'V' followed by at least 7 digits"
-          maxLength={20}
-        />
+        label={t("createBankAccount.idDocumentLabel")}
+        name="id_doc_number"
+        value={formData.id_doc_number}
+        onChange={handleChange}
+        placeholder={t("createBankAccount.idDocumentPlaceholder")}
+        required
+        pattern="[Vv]\d{7,}"
+        title={t("createBankAccount.idDocumentTitle")}
+        maxLength={20}
+      />
 
       <Button
         onClick={handleSubmit}
@@ -372,10 +384,10 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Creating...
+            {t("createBankAccount.creating")}
           </>
         ) : (
-          "Create Bank Account"
+          t("createBankAccount.createBankAccountButton")
         )}
       </Button>
     </div>

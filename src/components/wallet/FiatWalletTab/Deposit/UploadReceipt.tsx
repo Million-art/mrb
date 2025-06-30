@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { telegramId } from '@/libs/telegram';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -17,6 +18,7 @@ interface UploadState {
 const UploadReceipt: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const receiptData = useSelector((state: RootState) => state.depositReceipt.data);
   const [file, setFile] = useState<File | null>(null);
   const [amount, setAmount] = useState<string>('');
@@ -43,7 +45,7 @@ const UploadReceipt: React.FC = () => {
 
     if (!allowedTypes.includes(selectedFile.type)) {
       dispatch(setShowMessage({
-        message: "Invalid file type. Please upload PNG, JPG, or PDF.",
+        message: t('uploadReceipt.invalidFileType'),
         color: "red"
       }));
       return;
@@ -51,7 +53,7 @@ const UploadReceipt: React.FC = () => {
 
     if (selectedFile.size > maxSize) {
       dispatch(setShowMessage({
-        message: "File size too large. Max 5MB allowed.",
+        message: t('uploadReceipt.fileTooLarge'),
         color: "red"
       }));
       return;
@@ -63,7 +65,7 @@ const UploadReceipt: React.FC = () => {
   const handleUpload = async () => {
     if (!receiptData) {
       dispatch(setShowMessage({
-        message: "Missing receipt data. Please try again.",
+        message: t('uploadReceipt.missingReceiptData'),
         color: "red"
       }));
       return;
@@ -76,7 +78,7 @@ const UploadReceipt: React.FC = () => {
     // Enhanced validation
     if (!file) {
       dispatch(setShowMessage({
-        message: "Please select a receipt file",
+        message: t('uploadReceipt.selectReceiptFile'),
         color: "red"
       }));
       return;
@@ -84,7 +86,7 @@ const UploadReceipt: React.FC = () => {
 
     if (!amount) {
       dispatch(setShowMessage({
-        message: "Please enter the REcharge amount",
+        message: t('uploadReceipt.enterRechargeAmount'),
         color: "red"
       }));
       return;
@@ -92,7 +94,7 @@ const UploadReceipt: React.FC = () => {
 
     if (!ambassadorId) {
       dispatch(setShowMessage({
-        message: "Invalid ambassador data. Please try again.",
+        message: t('uploadReceipt.invalidAmbassadorData'),
         color: "red"
       }));
       return;
@@ -100,7 +102,7 @@ const UploadReceipt: React.FC = () => {
 
     if (!telegramId) {
       dispatch(setShowMessage({
-        message: "Unable to identify your account. Please try again.",
+        message: t('uploadReceipt.unableToIdentifyAccount'),
         color: "red"
       }));
       return;
@@ -109,7 +111,7 @@ const UploadReceipt: React.FC = () => {
     const parsedAmount = Math.floor(Number(amount));
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       dispatch(setShowMessage({
-        message: "Amount must be a positive number",
+        message: t('uploadReceipt.amountMustBePositive'),
         color: "red"
       }));
       return;
@@ -149,7 +151,7 @@ const UploadReceipt: React.FC = () => {
           });
           
           dispatch(setShowMessage({
-            message: "Receipt uploaded successfully! The ambassador will review it shortly.",
+            message: t('uploadReceipt.uploadSuccess'),
             color: "green"
           }));
           
@@ -175,7 +177,7 @@ const UploadReceipt: React.FC = () => {
           step: 'error',
           progress: 0
         });
-        throw new Error('Network error occurred while uploading. Please check your connection and try again.');
+        throw new Error(t('uploadReceipt.networkErrorUpload'));
       });
       
       xhr.open('POST', `${API_CONFIG.BASE_URL2}/api/receipts/upload`);
@@ -209,16 +211,16 @@ const UploadReceipt: React.FC = () => {
       });
       
       // Enhanced error handling with more specific messages
-      let errorMessage = "An unexpected error occurred. Please try again.";
+      let errorMessage = t('uploadReceipt.unexpectedError');
       if (error.message) {
         if (error.message.includes('Network Error')) {
-          errorMessage = "Network error. Please check your connection and try again.";
+          errorMessage = t('uploadReceipt.networkErrorCheck');
         } else if (error.message.includes('413')) {
-          errorMessage = "File size too large. Please try a smaller file (max 5MB).";
+          errorMessage = t('uploadReceipt.fileSizeTooLarge');
         } else if (error.message.includes('415')) {
-          errorMessage = "Invalid file type. Please upload PNG, JPG, or PDF.";
+          errorMessage = t('uploadReceipt.invalidFileTypeError');
         } else if (error.message.includes('Ambassador not found')) {
-          errorMessage = "Invalid ambassador data. Please try again.";
+          errorMessage = t('uploadReceipt.ambassadorNotFound');
         } else {
           errorMessage = error.message;
         }
@@ -236,7 +238,7 @@ const UploadReceipt: React.FC = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="animate-spin mx-auto mb-4" size={48} />
-          <p className="text-lg">Loading receipt details...</p>
+          <p className="text-lg">{t('uploadReceipt.loadingDetails')}</p>
         </div>
       </div>
     );
@@ -245,28 +247,28 @@ const UploadReceipt: React.FC = () => {
   return (
     <div className="flex flex-col items-center min-h-screen p-4">
       <div className="w-full max-w-md rounded-lg shadow-md overflow-hidden p-6">
-        <h2 className="text-2xl font-bold mb-6 text-center">Upload Receipt</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">{t('uploadReceipt.title')}</h2>
 
         {/* Payment Details */}
         <div className="mb-6 p-4 rounded-lg">
-          <h3 className="font-semibold mb-3">Deposit Details</h3>
+          <h3 className="font-semibold mb-3">{t('uploadReceipt.depositDetails')}</h3>
           <div className="space-y-2">
-            <p><span className="font-medium">Bank:</span> {receiptData.payment.bank}</p>
-            <p><span className="font-medium">Account:</span> {receiptData.payment.account}</p>
-            <p><span className="font-medium">Ambassador:</span> {receiptData.ambassador.name}</p>
+            <p><span className="font-medium">{t('uploadReceipt.bank')}</span> {receiptData.payment.bank}</p>
+            <p><span className="font-medium">{t('uploadReceipt.account')}</span> {receiptData.payment.account}</p>
+            <p><span className="font-medium">{t('uploadReceipt.ambassador')}</span> {receiptData.ambassador.name}</p>
           </div>
         </div>
 
         {/* Amount Input */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            Amount
+            {t('uploadReceipt.amount')}
           </label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount"
+            placeholder={t('uploadReceipt.amountPlaceholder')}
             className="w-full px-4 py-2 border bg-transparent border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue"
             disabled={uploadState.loading}
           />
@@ -275,7 +277,7 @@ const UploadReceipt: React.FC = () => {
         {/* File Upload */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
-            Receipt File
+            {t('uploadReceipt.receiptFile')}
           </label>
           <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors
             ${uploadState.loading ? 'border-gray-300' : 'border-gray-300 hover:border-blue'}`}>
@@ -289,9 +291,9 @@ const UploadReceipt: React.FC = () => {
             ) : (
               <div className="text-center p-4">
                 <ArrowLeft className="mx-auto text-gray-400 mb-2" size={24} />
-                <p className="text-gray-500">Click to upload receipt</p>
+                <p className="text-gray-500">{t('uploadReceipt.clickToUpload')}</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  PNG, JPG, or PDF (max 5MB)
+                  {t('uploadReceipt.fileTypes')}
                 </p>
               </div>
             )}
@@ -310,9 +312,9 @@ const UploadReceipt: React.FC = () => {
           <div className="mb-6">
             <div className="flex justify-between text-sm mb-1">
               <span>
-                {uploadState.step === 'uploading' && 'Uploading...'}
-                {uploadState.step === 'creating' && 'Processing receipt...'}
-                {uploadState.step === 'success' && 'Completed!'}
+                {uploadState.step === 'uploading' && t('uploadReceipt.uploading')}
+                {uploadState.step === 'creating' && t('uploadReceipt.processing')}
+                {uploadState.step === 'success' && t('uploadReceipt.completed')}
               </span>
               <span>{Math.round(uploadState.progress)}%</span>
             </div>
@@ -338,11 +340,11 @@ const UploadReceipt: React.FC = () => {
           {uploadState.loading ? (
             <div className="flex items-center justify-center">
               <Loader2 className="animate-spin mr-2" />
-              {uploadState.step === 'uploading' && 'Uploading...'}
-              {uploadState.step === 'creating' && 'Processing...'}
+              {uploadState.step === 'uploading' && t('uploadReceipt.uploading')}
+              {uploadState.step === 'creating' && t('uploadReceipt.processingButton')}
             </div>
           ) : (
-            'Submit Receipt'
+            t('uploadReceipt.submitReceipt')
           )}
         </button>
       </div>

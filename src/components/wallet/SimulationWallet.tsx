@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import mrb from "@/assets/mrb.jpg"
 import { TonConnectButton } from "@tonconnect/ui-react";
 import PromoMrb from "./PromoMrb";
+import { useTranslation } from "react-i18next";
 interface CryptoData {
   price: string;
   change: string;
@@ -11,6 +12,7 @@ interface CryptoData {
 }
 
 export default function MyTonWallet() {
+  const { t } = useTranslation();
   const [btcData, setBtcData] = useState<CryptoData>({ price: "$0.00", change: "↑ 0%", changePercent: "0%" });
   const [tonData, setTonData] = useState<CryptoData>({ price: "$0.00", change: "↑ 0%", changePercent: "0%" });
 
@@ -80,7 +82,7 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
             <div className={`flex items-center text-sm ${parseFloat(btcData.changePercent) < 0 ? "text-red-400" : "text-green-400"}`}>
               <span className="text-white">{btcData.change}</span>
             </div>
-          <div className="mb-6 text-sm opacity-80">current BTC price</div> 
+          <div className="mb-6 text-sm opacity-80">{t("simulationWallet.btcPriceLabel")}</div> 
           </div>
           <TonConnectButton className='' />
         </Card>
@@ -92,7 +94,7 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
               value="assets"
               className="text-gray data-[state=active]:text-blue data-[state=active]:border-b-2 data-[state=active]:border-blue"
             >
-              Assets
+              {t("simulationWallet.assetsTab")}
             </TabsTrigger>
           </TabsList>
 
@@ -103,11 +105,11 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
                   <div className="flex items-center gap-4">
                     <img
                       src={mrb}
-                      alt="Toncoin"
+                      alt={t("simulationWallet.mrb")}
                       className="h-10 w-10 rounded-full"
                     />
                     <div>
-                      <div className="text-xl font-semibold text-gray-100">MRB</div>
+                      <div className="text-xl font-semibold text-gray-100">{t("simulationWallet.mrb")}</div>
                       <div className="text-sm text-gray-300">
                         $0.00004157
                       </div>
@@ -120,11 +122,11 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
                   <div className="flex items-center gap-4">
                     <img
                       src="https://res.cloudinary.com/dd6sildog/image/upload/v1744210593/R_cpoorc.png"
-                      alt="Bitcoin"
+                      alt={t("simulationWallet.bitcoin")}
                       className="h-10 w-10 rounded-full"
                     />
                     <div>
-                      <div className="text-xl font-semibold text-gray-100">Bitcoin</div>
+                      <div className="text-xl font-semibold text-gray-100">BTC</div>
                       <div className="text-sm text-gray-300">
                        {btcData.price}
                       </div>
@@ -137,11 +139,11 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
                   <div className="flex items-center gap-4">
                     <img
                       src="https://res.cloudinary.com/dd6sildog/image/upload/v1744210472/OIP_2_ny2wlg.jpg"
-                      alt="Toncoin"
+                      alt={t("simulationWallet.toncoin")}
                       className="h-10 w-10 rounded-full"
                     />
                     <div>
-                      <div className="text-xl font-semibold text-gray-100">Toncoin</div>
+                      <div className="text-xl font-semibold text-gray-100">{t("simulationWallet.toncoin")}</div>
                       <div className="text-sm text-gray-300">
                         {tonData.price}
                       </div>
@@ -153,11 +155,6 @@ fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=
             </Card>
           </TabsContent>
 
-          <TabsContent value="activity">
-            <Card>
-              <CardContent className="text-center text-gray-400 py-8">No recent activity</CardContent>
-            </Card>
-          </TabsContent>
 
         </Tabs>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 import { ScrollArea } from "@/components/stonfi/ui/scroll-area";
@@ -14,6 +15,7 @@ interface ExchangeRate {
 }
 
 const ExchangeRates = () => {
+  const { t } = useTranslation();
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +40,7 @@ const ExchangeRates = () => {
       setError(null);
     } catch (err: any) {
       console.error("Error fetching exchange rates:", err);
-      setError(err.message || 'Failed to fetch exchange rates');
+      setError(t('exchangeRates.error'));
     } finally {
       setLoading(false);
     }
@@ -48,6 +50,7 @@ const ExchangeRates = () => {
     return (
       <div className="flex justify-center items-center h-32">
         <Loader2 className="animate-spin text-white w-5 h-5" />
+        <span className="ml-2 text-sm">{t('exchangeRates.loading')}</span>
       </div>
     );
   }
@@ -83,17 +86,17 @@ const ExchangeRates = () => {
             </div>
             <div className="text-right">
               <p className="text-base font-semibold text-white">
-                1 USDC = {rate.rate.toFixed(2)} {rate.currencyCode}
+                {t('exchangeRates.exchangeRateFormat', { rate: rate.rate.toFixed(2), currency: rate.currencyCode })}
               </p>
               <p className="text-xs text-gray-400">
-                Updated {new Date(rate.updatedAt).toLocaleDateString()}
+                {t('exchangeRates.updated', { date: new Date(rate.updatedAt).toLocaleDateString() })}
               </p>
             </div>
           </div>
         ))}
         {exchangeRates.length === 0 && (
           <div className="text-center py-8 text-gray-400 text-sm">
-            No exchange rates available
+            {t('exchangeRates.noRatesAvailable')}
           </div>
         )}
       </div>

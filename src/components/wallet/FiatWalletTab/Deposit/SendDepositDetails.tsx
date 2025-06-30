@@ -4,6 +4,7 @@ import { db } from "@/libs/firebase";
 import { Ambassador, PaymentMethod } from "@/interface/Ambassador";
 import HourglassAnimation from "../AnimateLoader";
 import { ArrowLeft, X, Loader2, Currency } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { telegramId } from "@/libs/telegram";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
@@ -35,39 +36,43 @@ const PaymentMethodItem: React.FC<{
   isSelected: boolean;
   onSelect: () => void;
   maskAccountNumber: (accountNumber?: string) => string;
-}> = ({ method, isSelected, onSelect, maskAccountNumber }) => (
-  <div
-    className={`p-3 rounded-lg border cursor-pointer ${
-      isSelected ? "border-blue bg-gray-700" : "border-gray-700 bg-gray-800"
-    }`}
-    onClick={onSelect}
-    role="button"
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") onSelect();
-    }}
-    aria-label={`Select ${method.details.bankName} payment method`}
-  >
-    <div className="flex justify-between items-start">
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium text-white">{method.details.bankName}</span>
+}> = ({ method, isSelected, onSelect, maskAccountNumber }) => {
+  const { t } = useTranslation();
+  
+  return (
+    <div
+      className={`p-3 rounded-lg border cursor-pointer ${
+        isSelected ? "border-blue bg-gray-700" : "border-gray-700 bg-gray-800"
+      }`}
+      onClick={onSelect}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onSelect();
+      }}
+      aria-label={`Select ${method.details.bankName} payment method`}
+    >
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium text-white">{method.details.bankName}</span>
+          </div>
+          <p className="text-sm text-gray-400">
+             {t('sendDepositDetails.account')} {maskAccountNumber(method.details.accountNumber)} 
+             {/* Account: {method.details.accountNumber}  */}
+          </p>
         </div>
-        <p className="text-sm text-gray-400">
-           Account: {maskAccountNumber(method.details.accountNumber)} 
-           {/* Account: {method.details.accountNumber}  */}
-        </p>
-      </div>
-      <div
-        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-          isSelected ? "bg-blue text-white" : "bg-gray-700 text-gray-300"
-        }`}
-      >
-        {isSelected ? "Selected" : "Select"}
+        <div
+          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            isSelected ? "bg-blue text-white" : "bg-gray-700 text-gray-300"
+          }`}
+        >
+          {isSelected ? t('sendDepositDetails.selected') : t('sendDepositDetails.select')}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) => {
   const [ambassadors, setAmbassadors] = useState<Ambassador[]>([]);
@@ -80,6 +85,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
   const [error, setError] = useState<string | null>(null);
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const maskAccountNumber = useCallback((accountNumber?: string) => {
     if (!accountNumber) return "••••";
@@ -186,7 +192,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
 
   const sendPaymentMethodToBot = useCallback(async () => {
     if (!selectedPayment) {
-      setError("Please select a payment method first");
+      setError(t('sendDepositDetails.selectPaymentFirst'));
       return;
     }
 
@@ -219,7 +225,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       console.log('Response from cloud function:', response.data);
       
       dispatch(setShowMessage({
-        message: "Details sent successfully! Please check the bot for recharge details.",
+        message: t('sendDepositDetails.detailsSentSuccess'),
         color: "green"
       }));
       
@@ -231,13 +237,13 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     } catch (error: any) {
       console.error("Error sending data to bot:", error);
       
-      let errorMessage = "Failed to send data. Please try again.";
+      let errorMessage = t('sendDepositDetails.failedToSend');
       
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-        errorMessage = "Network error: Please check your internet connection and try again.";
+        errorMessage = t('sendDepositDetails.networkError');
       } else if (error.response) {
         // Handle API error responses
-        errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
+        errorMessage = error.response.data?.message || t('sendDepositDetails.serverError', { status: error.response.status });
       } else if (error.message) {
         errorMessage = `Error: ${error.message}`;
       }
@@ -250,7 +256,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
     } finally {
       setLoading(false);
     }
-  }, [selectedPayment, onClose, telegramId, dispatch]);
+  }, [selectedPayment, onClose, telegramId, dispatch, t]);
 
   return (
     <div className="fixed bg-black inset-0 flex items-center justify-center h-[100vh] z-50">
@@ -259,15 +265,15 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
           <button
             onClick={onClose}
             className="hover:text-gray-300"
-            aria-label="Close modal"
+            aria-label={t('sendDepositDetails.closeModal')}
           >
             <ArrowLeft size={24} />
           </button>
-          <h1 className="text-xl font-bold">Fiat Deposit</h1>
+          <h1 className="text-xl font-bold">{t('sendDepositDetails.title')}</h1>
           <button
             onClick={onClose}
             className="hover:text-gray-300"
-            aria-label="Close modal"
+            aria-label={t('sendDepositDetails.closeModal')}
           >
             <X size={24} />
           </button>
@@ -284,13 +290,13 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                     <div>
                       {exchangeRate ? (
                         <>
-                          <p className="text-sm text-gray-400">Exchange Rate</p>
+                          <p className="text-sm text-gray-400">{t('sendDepositDetails.exchangeRate')}</p>
                           <p className="text-base font-medium">
                             1 USDC = {exchangeRate.rate.toFixed(2)} {exchangeRate.currencyCode}
                           </p>
                         </>
                       ) : (
-                        <p className="text-sm text-gray-400">No exchange rate available</p>
+                        <p className="text-sm text-gray-400">{t('sendDepositDetails.noExchangeRate')}</p>
                       )}
                     </div>
                   </div>
@@ -321,7 +327,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                       {ambassador.paymentMethods.length > 0 ? (
                         <div className="space-y-3">
                           <h4 className="text-sm font-medium text-gray-300">
-                            Payment Methods:
+                            {t('sendDepositDetails.paymentMethods')}
                           </h4>
                           {ambassador.paymentMethods.map((method, index) => {
                             const isSelected =
@@ -353,7 +359,7 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                 </div>
               ) : (
                 <div className="mt-4 text-center text-gray-400 py-6 rounded-lg">
-                  There is no Recharge option available for now.
+                  {t('sendDepositDetails.noRechargeOption')}
                 </div>
               )}
             </div>
@@ -369,12 +375,12 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-blue"
             }`}
-            aria-label="Get deposit details"
+            aria-label={t('sendDepositDetails.getDepositDetails')}
           >
             {loading ? (
               <Loader2 className="animate-spin mr-2 inline-block" />
             ) : (
-              "Get Recharge Details"
+              t('sendDepositDetails.getRechargeDetails')
             )}
           </button>
         </div>
