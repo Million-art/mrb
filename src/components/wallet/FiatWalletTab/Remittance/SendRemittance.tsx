@@ -98,7 +98,7 @@ const SendRemittance = () => {
 
     if (!customerId) {
       dispatch(setShowMessage({
-        message: "Customer account not found. Please contact support.",
+        message: "Please create your account first.",
         color: "red"
       }));
       return;
