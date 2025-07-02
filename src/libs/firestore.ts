@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { db } from './firebase';
-import { doc, updateDoc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc} from 'firebase/firestore';
 
 export const convertTimestamps = (obj: any): any => {
     if (obj === null || typeof obj !== 'object') return obj;
