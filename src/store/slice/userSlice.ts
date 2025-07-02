@@ -72,6 +72,12 @@ const userSlice = createSlice({
         }
       }
     },
+    // Action to update user language
+    updateUserLanguage: (state, action: PayloadAction<string>) => {
+      if (state.value) {
+        state.value.languageCode = action.payload;
+      }
+    },
   },
 });
 
@@ -79,5 +85,5 @@ const userSlice = createSlice({
 export const selectUser = (state: RootState): TUser | null => state.user.value;
 
 // Export actions and reducer
-export const { setUser, clearUser, updateUserBalance, addCompletedTask } = userSlice.actions;
+export const { setUser, clearUser, updateUserBalance, addCompletedTask, updateUserLanguage } = userSlice.actions;
 export default userSlice.reducer;

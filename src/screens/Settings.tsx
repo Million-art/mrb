@@ -1,19 +1,41 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/stonfi/ui/select";
 import { Label } from "@/components/stonfi/ui/label";
 import { Button } from "@/components/stonfi/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
 import Profile from "@/components/wallet/FiatWalletTab/settings/Profile";
+import { selectUser, updateUserLanguage } from "@/store/slice/userSlice";
+import { updateUserLanguage as updateUserLanguageInFirestore } from "@/libs/firestore";
+import { toast } from "react-toastify";
 
 const MyAccount: React.FC = () => {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
 
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
+  const changeLanguage = async (lang: string) => {
+    try {
+      // Update Redux store first
+      dispatch(updateUserLanguage(lang));
+      
+      // Update Firestore if user is logged in
+      if (user?.uid) {
+        await updateUserLanguageInFirestore(user.uid, lang);
+        toast.success(t('settings.languageUpdated'));
+      }
+      
+      // Change the i18n language immediately
+      i18n.changeLanguage(lang);
+      
+    } catch (error) {
+      console.error('Error updating language:', error);
+      toast.error(t('settings.languageUpdateError'));
+    }
   };
 
   const navigateToAccountSettings = () => {
@@ -31,6 +53,9 @@ const MyAccount: React.FC = () => {
   const navigateBack = () => {
     navigate(-1);
   };
+
+  // Get current language from user state or i18n
+  const currentLanguage = user?.languageCode || i18n.language;
 
   return (
     <div className="min-h-screen w-full text-white scrollbar-hidden">
@@ -92,7 +117,7 @@ const MyAccount: React.FC = () => {
 
                 <div className="pt-4 border-t border-gray-800">
                   <Label htmlFor="language" className="text-lg font-medium mb-2 block">{t('settings.languageTitle')}</Label>
-                  <Select onValueChange={changeLanguage} defaultValue={i18n.language}>
+                  <Select onValueChange={changeLanguage} value={currentLanguage}>
                     <SelectTrigger id="language" className="w-full bg-gray-800/50 border-gray-700">
                       <SelectValue placeholder={t('settings.languagePlaceholder')} />
                     </SelectTrigger>
