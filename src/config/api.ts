@@ -1,7 +1,7 @@
   // API Configuration
   export const API_CONFIG = {
     BASE_URL2: import.meta.env.VITE_BASE_URL2, //dashboard-backend
-    BASE_URL: process.env.NODE_ENV === 'development' ? "http://localhost:3000" : "https://api.glofica.com",
+    BASE_URL: import.meta.env.MODE === 'development' ? "http://localhost:3000" : "https://api.glofica.com",
     BASE_URL1: import.meta.env.VITE_BASE_URL1, //glofica
     ENDPOINTS: {
       CUSTOMERS: "/customers",

@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 interface BankAccountFormData {
   bank_code: string;
   beneficiary_name: string | null;
-  account_number: string | null;
   id_doc_number: string;
   phone_number: string | null;
 }
@@ -141,12 +140,7 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading, t 
         </div>
       )}
       
-      {bankAccount.account_number && (
-        <div className="p-3 rounded-lg bg-gray-dark">
-          <p className="text-sm text-gray-400">{t("createBankAccount.accountNumber")}</p>
-          <p className="text-base font-medium">{bankAccount.account_number}</p>
-        </div>
-      )}
+
       
       <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
         <p className="text-sm text-gray-400">{t("createBankAccount.phoneNumber")}</p>
@@ -178,7 +172,6 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   const [formData, setFormData] = useState<BankAccountFormData>({
     bank_code: "",
     beneficiary_name: null,
-    account_number: null,
     id_doc_number: "",
     phone_number: customerPhone,
   });
@@ -356,13 +349,6 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         placeholder={t("createBankAccount.beneficiaryNamePlaceholder")}
       />
 
-      <FormField
-        label={t("createBankAccount.accountNumberLabel")}
-        name="account_number"
-        value={formData.account_number}
-        onChange={handleChange}
-        placeholder={t("createBankAccount.accountNumberPlaceholder")}
-      />
 
       <FormField
         label={t("createBankAccount.idDocumentLabel")}
