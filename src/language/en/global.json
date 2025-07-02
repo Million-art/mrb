@@ -535,6 +535,8 @@
     "en": "English",
     "zh": "中文",
     "es": "Español"
-  }
+  },
+  "languageUpdated": "Language updated successfully",
+  "languageUpdateError": "Failed to update language. Please try again."
 }
 }

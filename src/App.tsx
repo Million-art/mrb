@@ -13,6 +13,7 @@ import {
   lastName, languageCode, 
   startParam
 } from "@/libs/telegram";
+import { updateI18nLanguage } from "@/language/i18n";
 import BottomNav from "@/components/BottomNav";
 import Loading from "./screens/Loading";
 import { Homes } from "./screens/Homes";
@@ -46,7 +47,7 @@ function App() {
   const calculate = useSelector((state: RootState) => selectCalculate(state), shallowEqual);
   const message = useSelector((state: RootState) => selectShowMessage(state), shallowEqual);
   const navigate = useNavigate();
-   const isInitialized = useSelector((state: RootState) => state.depositReceipt.isInitialized);
+  const isInitialized = useSelector((state: RootState) => state.depositReceipt.isInitialized);
   // Firebase user data processor
   const processUserData = useCallback((docSnap: DocumentSnapshot<FirestoreUser>): TUser => {
     const data = docSnap.data() || {} as FirestoreUser;
@@ -115,6 +116,10 @@ useEffect(() => {
         const { data, timestamp } = JSON.parse(cachedUser);
         if (Date.now() - timestamp < CONFIG.USER_CACHE_TTL) {
           dispatch(setUser(data));
+          // Update i18n language if user has a language preference
+          if (data?.languageCode) {
+            await updateI18nLanguage();
+          }
         }
       }
 
@@ -146,6 +151,11 @@ useEffect(() => {
           timestamp: Date.now()
         }));
         dispatch(setUser(userData));
+        
+        // Update i18n language when user data is loaded
+        if (userData?.languageCode) {
+          await updateI18nLanguage();
+        }
       });
     } catch (error) {
       console.error("User initialization error:", error);

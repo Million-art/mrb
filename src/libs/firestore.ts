@@ -1,4 +1,6 @@
 import { Timestamp } from "firebase/firestore";
+import { db } from './firebase';
+import { doc, updateDoc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 export const convertTimestamps = (obj: any): any => {
     if (obj === null || typeof obj !== 'object') return obj;
@@ -15,3 +17,18 @@ export const convertTimestamps = (obj: any): any => {
       Object.entries(obj).map(([key, value]) => [key, convertTimestamps(value)])
     );
   };
+
+// Function to update user language in Firestore
+export const updateUserLanguage = async (userId: string, languageCode: string) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      languageCode: languageCode,
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating user language:', error);
+    throw error;
+  }
+};

@@ -527,7 +527,9 @@
     "en": "English",
     "zh": "中文",
     "es": "Español"
-  }
+  },
+  "languageUpdated": "Idioma actualizado exitosamente",
+  "languageUpdateError": "Error al actualizar el idioma. Por favor inténtalo de nuevo."
 }
 }
   

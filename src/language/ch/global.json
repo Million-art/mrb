@@ -537,7 +537,9 @@
     "en": "English",
     "zh": "中文",
     "es": "Español"
-  }
+  },
+  "languageUpdated": "语言更新成功",
+  "languageUpdateError": "更新语言失败。请重试。"
 }
 }
 
