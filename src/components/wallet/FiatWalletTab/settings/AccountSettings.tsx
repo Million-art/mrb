@@ -13,8 +13,6 @@ import { setShowMessage } from "@/store/slice/messageSlice";
 import { updateCustomer } from "@/config/api";
 import CreateBankAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateBankAccount";
 import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
-import axios from "axios";
-import { getBankAccountUrl } from "@/config/api";
 import { useTranslation } from "react-i18next";
 import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
 
@@ -105,7 +103,7 @@ const AccountSettings: React.FC = () => {
         console.log('Bank account data retrieved:', bankAccountData);
         
         // Validate that we have the required fields
-        if (!bankAccountData.kontigoBankAccountId) {
+        if (!(bankAccountData as BankAccountData).kontigoBankAccountId) {
           console.error('Bank account data is missing kontigoBankAccountId:', bankAccountData);
         }
         
@@ -209,7 +207,7 @@ const AccountSettings: React.FC = () => {
   const handleDelete = async () => {
     if (!bankAccountData) return;
     
-    const success = await deleteBankAccount({
+    await deleteBankAccount({
       customerId: customerData.kontigoCustomerId,
       bankAccountData: bankAccountData as BankAccountData,
       setLoading: setIsDeleting,
