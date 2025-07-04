@@ -46,8 +46,8 @@
     return `${getCustomerUrl(customerId)}${API_CONFIG.ENDPOINTS.BANK_ACCOUNTS}`;
   };
 
-  export const getBankAccountUrl = (customerId: string, bankAccountId: string) => {
-    return `${getBankAccountsUrl(customerId)}/${bankAccountId}`;
+  export const getBankAccountUrl = (customerId: string, kontigoBankAccountId: string) => {
+    return `${getBankAccountsUrl(customerId)}/${kontigoBankAccountId}`;
   }; 
 
   export const getQuotesUrl = (customerId: string) => {

@@ -16,6 +16,7 @@ import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/Creat
 import axios from "axios";
 import { getBankAccountUrl } from "@/config/api";
 import { useTranslation } from "react-i18next";
+import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
 
 const AccountSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -96,7 +97,18 @@ const AccountSettings: React.FC = () => {
       
       if (!bankAccountSnapshot.empty) {
         console.log('Bank account found for Venezuelan customer');
-        const bankAccountData = bankAccountSnapshot.docs[0].data();
+        const doc = bankAccountSnapshot.docs[0];
+        const bankAccountData = {
+          id: doc.id,
+          ...doc.data()
+        };
+        console.log('Bank account data retrieved:', bankAccountData);
+        
+        // Validate that we have the required fields
+        if (!bankAccountData.kontigoBankAccountId) {
+          console.error('Bank account data is missing kontigoBankAccountId:', bankAccountData);
+        }
+        
         setBankAccountData(bankAccountData);
         setHasBankAccount(true);
         setShowBankAccountCreation(false);
@@ -197,25 +209,28 @@ const AccountSettings: React.FC = () => {
   const handleDelete = async () => {
     if (!bankAccountData) return;
     
-    setIsDeleting(true);
-    try {
-      await axios.delete(getBankAccountUrl(customerData.kontigoCustomerId, bankAccountData.id));
-      setBankAccountData(null);
-      setShowDeleteConfirm(false);
-      setHasBankAccount(false);
-      dispatch(setShowMessage({
-        message: t('accountSettings.messages.deleteSuccess'),
-        color: "green"
-      }));
-    } catch (error) {
-      console.error('Error deleting bank account:', error);
-      dispatch(setShowMessage({
-        message: t('accountSettings.messages.deleteFailed'),
-        color: "red"
-      }));
-    } finally {
-      setIsDeleting(false);
-    }
+    const success = await deleteBankAccount({
+      customerId: customerData.kontigoCustomerId,
+      bankAccountData: bankAccountData as BankAccountData,
+      setLoading: setIsDeleting,
+      dispatch,
+      t,
+      onSuccess: () => {
+        setBankAccountData(null);
+        setShowDeleteConfirm(false);
+        setHasBankAccount(false);
+        dispatch(setShowMessage({
+          message: t('accountSettings.messages.deleteSuccess'),
+          color: "green"
+        }));
+      },
+      onError: (error) => {
+        dispatch(setShowMessage({
+          message: t('accountSettings.messages.deleteFailed'),
+          color: "red"
+        }));
+      }
+    });
   };
 
   if (isLoadingCustomer) {
