@@ -35,9 +35,7 @@ const validateIdDocument = (idDocNumber: string, t: any): { isValid: boolean; me
   if (trimmed.length < 8) {
     return { isValid: false, message: t("createBankAccount.idDocumentTooShort") };
   }
-  if (!trimmed.match(/^[Vv]\d{7,}$/)) {
-    return { isValid: false, message: t("createBankAccount.idDocumentInvalidFormat") };
-  }
+
   return { isValid: true };
 };
 
