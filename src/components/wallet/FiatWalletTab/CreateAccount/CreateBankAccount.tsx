@@ -6,20 +6,20 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { Copy, Check, X, Loader2 } from "lucide-react";
-import { getBankAccountsUrl, getBankAccountUrl } from "@/config/api";
+import { getBankAccountsUrl } from "@/config/api";
 import { useTranslation } from "react-i18next";
+import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
 
 interface BankAccountFormData {
   bank_code: string;
-  beneficiary_name: string | null;
-  account_number: string | null;
   id_doc_number: string;
   phone_number: string | null;
 }
 
-interface BankAccount extends BankAccountFormData {
-  id: string;
-  kontigoBankAccountId: string;
+interface BankAccount extends BankAccountData {
+  bank_code: string;
+  id_doc_number: string;
+  phone_number: string | null;
 }
 
 interface CreateBankAccountProps {
@@ -133,20 +133,7 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading, t 
         <p className="text-sm text-gray-400">{t("createBankAccount.idDocument")}</p>
         <p className="text-base font-medium">{bankAccount.id_doc_number}</p>
       </div>
-      
-      {bankAccount.beneficiary_name && (
-        <div className="p-3 rounded-lg bg-gray-dark">
-          <p className="text-sm text-gray-400">{t("createBankAccount.beneficiary")}</p>
-          <p className="text-base font-medium">{bankAccount.beneficiary_name}</p>
-        </div>
-      )}
-      
-      {bankAccount.account_number && (
-        <div className="p-3 rounded-lg bg-gray-dark">
-          <p className="text-sm text-gray-400">{t("createBankAccount.accountNumber")}</p>
-          <p className="text-base font-medium">{bankAccount.account_number}</p>
-        </div>
-      )}
+
       
       <div className="col-span-2 p-3 rounded-lg bg-gray-dark">
         <p className="text-sm text-gray-400">{t("createBankAccount.phoneNumber")}</p>
@@ -177,8 +164,6 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
 
   const [formData, setFormData] = useState<BankAccountFormData>({
     bank_code: "",
-    beneficiary_name: null,
-    account_number: null,
     id_doc_number: "",
     phone_number: customerPhone,
   });
@@ -187,8 +172,12 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     const fetchBankAccount = async () => {
       try {
         const response = await axios.get(getBankAccountsUrl(customerId));
+        console.log('Bank accounts response:', response.data);
+        
         if (response.data && response.data.length > 0) {
-          setBankAccount(response.data[0]);
+          const bankAccountData = response.data[0];
+          console.log('Setting bank account:', bankAccountData);
+          setBankAccount(bankAccountData);
           setDisplayMode('details');
         } else {
           setDisplayMode('form');
@@ -216,21 +205,25 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   const handleDelete = async () => {
     if (!bankAccount) return;
     
-    setLoading(true);
-    try {
-      await axios.delete(getBankAccountUrl(customerId, bankAccount.id));
-      setBankAccount(null);
-      setShowDeleteConfirm(false);
-      setDisplayMode('form');
-      dispatch(setShowMessage({
-        message: t("createBankAccount.bankAccountDeletedSuccess"),
-        color: "green"
-      }));
-    } catch (err) {
-      handleApiError(err, dispatch, t("createBankAccount.failedToDeleteBankAccount"));
-    } finally {
-      setLoading(false);
-    }
+    await deleteBankAccount({
+      customerId,
+      bankAccountData: bankAccount,
+      setLoading,
+      dispatch,
+      t,
+      onSuccess: () => {
+        setBankAccount(null);
+        setShowDeleteConfirm(false);
+        setDisplayMode('form');
+        dispatch(setShowMessage({
+          message: t("createBankAccount.bankAccountDeletedSuccess"),
+          color: "green"
+        }));
+      },
+      onError: (err) => {
+        handleApiError(err, dispatch, t("createBankAccount.failedToDeleteBankAccount"));
+      }
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -348,21 +341,6 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         required
       />
 
-      <FormField
-        label={t("createBankAccount.beneficiaryNameLabel")}
-        name="beneficiary_name"
-        value={formData.beneficiary_name}
-        onChange={handleChange}
-        placeholder={t("createBankAccount.beneficiaryNamePlaceholder")}
-      />
-
-      <FormField
-        label={t("createBankAccount.accountNumberLabel")}
-        name="account_number"
-        value={formData.account_number}
-        onChange={handleChange}
-        placeholder={t("createBankAccount.accountNumberPlaceholder")}
-      />
 
       <FormField
         label={t("createBankAccount.idDocumentLabel")}
