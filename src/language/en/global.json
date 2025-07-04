@@ -466,6 +466,10 @@
   "bankAccountInformationTitle": "Bank Account Information",
   "noBankAccountMessage": "No bank account found. Please create one to continue.",
   "deleteBankAccountButton": "Delete Bank Account",
+  "deleteCustomerButton": "Delete Customer Account",
+  "deleteCustomerConfirmTitle": "Delete Customer Account",
+  "deleteCustomerConfirmMessage": "Are you sure you want to delete your customer account? This action cannot be undone and will permanently delete all your data including any associated bank accounts.",
+  "deletingCustomer": "Deleting Customer...",
   "deleteConfirmTitle": "Delete Bank Account",
   "deleteConfirmMessage": "Are you sure you want to delete this bank account? This action cannot be undone.",
   "formFields": {
@@ -492,7 +496,9 @@
     "updateFailed": "Failed to update customer information. Please try again.",
     "unableToUpdate": "Unable to update customer information. Please try again.",
     "deleteSuccess": "Bank account deleted successfully!",
-    "deleteFailed": "Failed to delete bank account. Please try again."
+    "deleteFailed": "Failed to delete bank account. Please try again.",
+    "deleteCustomerSuccess": "Customer account deleted successfully!",
+    "deleteCustomerFailed": "Failed to delete customer account. Please try again."
   }
 },
 "externalUsdcAddress": {

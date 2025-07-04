@@ -15,6 +15,7 @@ import CreateBankAccount from "@/components/wallet/FiatWalletTab/CreateAccount/C
 import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
 import { useTranslation } from "react-i18next";
 import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
+import { deleteCustomer } from "@/lib/customerService";
 
 const AccountSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -31,6 +32,8 @@ const AccountSettings: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(true);
   const [showBankAccountCreation, setShowBankAccountCreation] = useState(false);
+  const [isDeletingCustomer, setIsDeletingCustomer] = useState(false);
+  const [showDeleteCustomerConfirm, setShowDeleteCustomerConfirm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -228,6 +231,32 @@ const AccountSettings: React.FC = () => {
           color: "red"
         }));
       }
+    });
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (!customerData?.kontigoCustomerId) return;
+    await deleteCustomer({
+      customerId: customerData.kontigoCustomerId,
+      setLoading: setIsDeletingCustomer,
+      dispatch,
+      t,
+      onSuccess: () => {
+        setShowDeleteCustomerConfirm(false);
+        dispatch(setShowMessage({
+          message: t('accountSettings.messages.deleteCustomerSuccess') || 'Customer deleted successfully',
+          color: 'green',
+        }));
+        // Navigate back after successful deletion
+        navigate(-1);
+      },
+      onError: (error) => {
+        setShowDeleteCustomerConfirm(false);
+        dispatch(setShowMessage({
+          message: t('accountSettings.messages.deleteCustomerFailed') || 'Failed to delete customer',
+          color: 'red',
+        }));
+      },
     });
   };
 
@@ -478,6 +507,16 @@ const AccountSettings: React.FC = () => {
                           </Button>
                         </div>
                       )}
+                      
+                      {!isEditing && (
+                        <Button
+                          onClick={() => setShowDeleteCustomerConfirm(true)}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
+                          disabled={isDeletingCustomer}
+                        >
+                          {isDeletingCustomer ? t('accountSettings.deletingCustomer') : t('accountSettings.deleteCustomerButton')}
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -609,8 +648,43 @@ const AccountSettings: React.FC = () => {
           </div>
         </div>
       )}
+
+      {showDeleteCustomerConfirm && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-gray-dark p-6 rounded-lg max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">{t('accountSettings.deleteCustomerConfirmTitle') || 'Delete Customer Account'}</h3>
+              <button
+                onClick={() => setShowDeleteCustomerConfirm(false)}
+                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                aria-label={t('accountSettings.cancelButton')}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-gray-300 mb-6">
+              {t('accountSettings.deleteCustomerConfirmMessage') || 'Are you sure you want to delete your customer account? This action cannot be undone and will permanently delete all your data including bank accounts.'}
+            </p>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => setShowDeleteCustomerConfirm(false)}
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white"
+              >
+                {t('accountSettings.cancelButton')}
+              </Button>
+              <Button
+                onClick={handleDeleteCustomer}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                disabled={isDeletingCustomer}
+              >
+                {isDeletingCustomer ? t('accountSettings.deletingCustomer') : t('accountSettings.deleteCustomerButton')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AccountSettings;
+export default AccountSettings
