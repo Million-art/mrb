@@ -458,6 +458,10 @@
   "bankAccountInformationTitle": "Información de Cuenta Bancaria",
   "noBankAccountMessage": "No se encontró cuenta bancaria. Por favor crea una para continuar.",
   "deleteBankAccountButton": "Eliminar Cuenta Bancaria",
+  "deleteCustomerButton": "Eliminar Cuenta de Cliente",
+  "deleteCustomerConfirmTitle": "Eliminar Cuenta de Cliente",
+  "deleteCustomerConfirmMessage": "¿Estás seguro de que quieres eliminar tu cuenta de cliente? Esta acción no se puede deshacer y eliminará permanentemente todos tus datos incluyendo cualquier cuenta bancaria asociada.",
+  "deletingCustomer": "Eliminando Cliente...",
   "deleteConfirmTitle": "Eliminar Cuenta Bancaria",
   "deleteConfirmMessage": "¿Estás seguro de que quieres eliminar esta cuenta bancaria? Esta acción no se puede deshacer.",
   "formFields": {
@@ -484,7 +488,9 @@
     "updateFailed": "Error al actualizar la información del cliente. Por favor inténtalo de nuevo.",
     "unableToUpdate": "No se pudo actualizar la información del cliente. Por favor inténtalo de nuevo.",
     "deleteSuccess": "¡Cuenta bancaria eliminada exitosamente!",
-    "deleteFailed": "Error al eliminar la cuenta bancaria. Por favor inténtalo de nuevo."
+    "deleteFailed": "Error al eliminar la cuenta bancaria. Por favor inténtalo de nuevo.",
+    "deleteCustomerSuccess": "¡Cuenta de cliente eliminada exitosamente!",
+    "deleteCustomerFailed": "Error al eliminar la cuenta de cliente. Por favor inténtalo de nuevo."
   }
 },
 "externalUsdcAddress": {

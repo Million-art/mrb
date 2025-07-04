@@ -468,6 +468,10 @@
   "bankAccountInformationTitle": "银行账户信息",
   "noBankAccountMessage": "未找到银行账户。请创建一个以继续。",
   "deleteBankAccountButton": "删除银行账户",
+  "deleteCustomerButton": "删除客户账户",
+  "deleteCustomerConfirmTitle": "删除客户账户",
+  "deleteCustomerConfirmMessage": "您确定要删除您的客户账户吗？此操作无法撤销，将永久删除您的所有数据，包括任何关联的银行账户。",
+  "deletingCustomer": "删除客户中...",
   "deleteConfirmTitle": "删除银行账户",
   "deleteConfirmMessage": "您确定要删除此银行账户吗？此操作无法撤销。",
   "formFields": {
@@ -494,7 +498,9 @@
     "updateFailed": "更新客户信息失败。请重试。",
     "unableToUpdate": "无法更新客户信息。请重试。",
     "deleteSuccess": "银行账户删除成功！",
-    "deleteFailed": "删除银行账户失败。请重试。"
+    "deleteFailed": "删除银行账户失败。请重试。",
+    "deleteCustomerSuccess": "客户账户删除成功！",
+    "deleteCustomerFailed": "删除客户账户失败。请重试。"
   }
 },
 "externalUsdcAddress": {
