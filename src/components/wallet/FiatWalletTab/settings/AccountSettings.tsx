@@ -15,7 +15,7 @@ import CreateBankAccount from "@/components/wallet/FiatWalletTab/CreateAccount/C
 import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
 import { useTranslation } from "react-i18next";
 import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
-import { deleteCustomer, type CustomerData } from "@/lib/customerService";
+import { deleteCustomer } from "@/lib/customerService";
 
 const AccountSettings: React.FC = () => {
   const { t } = useTranslation();
