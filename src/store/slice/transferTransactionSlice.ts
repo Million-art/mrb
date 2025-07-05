@@ -12,12 +12,13 @@ import { db } from "@/libs/firebase";
 interface TransferTransaction {
   id: string;
   userId: string;
-  type: 'transfer_in' | 'transfer_out';
+  type: 'transfer_in' | 'transfer_out' | 'remittance_out';
   amount: number;
   status: 'completed' | 'pending' | 'failed';
-  relatedTransferId: string;
-  senderId: string;
-  recipientId: string;
+  relatedTransferId?: string;
+  relatedQuoteId?: string;
+  senderId?: string;
+  recipientId?: string;
   balance: number;
   createdAt: string;
   updatedAt: string;
@@ -43,7 +44,7 @@ export const fetchTransferTransactions = createAsyncThunk(
     try {
       const transactionsRef = collection(db, 'transactions');
       
-      // Create two separate queries for transfer_in and transfer_out
+      // Create queries for different transaction types
       const incomingQuery = query(
         transactionsRef,
         where('userId', '==', userId),
@@ -55,7 +56,7 @@ export const fetchTransferTransactions = createAsyncThunk(
       const outgoingQuery = query(
         transactionsRef,
         where('userId', '==', userId),
-        where('type', '==', 'transfer_out'),
+        where('type', 'in', ['transfer_out', 'remittance_out']),
         orderBy('createdAt', 'desc'),
         limit(25)
       );

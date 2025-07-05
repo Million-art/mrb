@@ -312,11 +312,13 @@
   },
   "transactionTypes": {
     "received": "Received",
-    "sent": "Sent"
+    "sent": "Sent",
+    "remittance": "Remittance"
   },
   "partyLabels": {
     "from": "From",
-    "to": "To"
+    "to": "To",
+    "remittance": "Remittance"
   },
   "amountFormat": {
     "positive": "+${{amount}}",

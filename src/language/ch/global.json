@@ -314,11 +314,13 @@
   },
   "transactionTypes": {
     "received": "收到",
-    "sent": "发送"
+    "sent": "发送",
+    "remittance": "汇款"
   },
   "partyLabels": {
     "from": "来自",
-    "to": "发送至"
+    "to": "发送至",
+    "remittance": "汇款"
   },
   "amountFormat": {
     "positive": "+${{amount}}",

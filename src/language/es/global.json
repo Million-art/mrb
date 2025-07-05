@@ -314,11 +314,13 @@
   },
   "transactionTypes": {
     "received": "Recibido",
-    "sent": "Enviado"
+    "sent": "Enviado",
+    "remittance": "Remesa"
   },
   "partyLabels": {
     "from": "De",
-    "to": "A"
+    "to": "A",
+    "remittance": "Remesa"
   },
   "amountFormat": {
     "positive": "+${{amount}}",
