@@ -213,7 +213,7 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
 
     } catch (err: any) {
       console.error('Error:', err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || t("createAccount.failedToCreateAccount");
+      const errorMessage = err.response?.data?.message || t("createAccount.failedToCreateAccount");
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"
