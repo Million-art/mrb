@@ -104,11 +104,10 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
       const q = query(
         collection(db, "staffs"),
         where("role", "==", "ambassador"),
-        where("kycStatus", "==", "approved"),
+        where("kyc", "==", "approved"),
         where("country", "==", country.name),
         limit(20)
       );
-
       const querySnapshot = await getDocs(q);
       const fetchedAmbassadors: Ambassador[] = [];
 
@@ -135,6 +134,8 @@ const SendDepositDetails: React.FC<ReceiveModalProps> = ({ country, onClose }) =
           kyc: data.kyc || "pending",
         });
       });
+
+      console.log('Fetched ambassadors:', fetchedAmbassadors);
 
       setAmbassadors(fetchedAmbassadors);
     } catch (error) {
