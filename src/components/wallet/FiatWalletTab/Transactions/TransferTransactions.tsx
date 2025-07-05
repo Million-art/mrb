@@ -50,6 +50,15 @@ const TransferTransactions = () => {
       return { label: t('transferTransactions.unknown'), id: t('transferTransactions.unknown') };
     }
 
+    // Handle remittance transactions
+    if (transaction.type === 'remittance_out') {
+      return {
+        label: t('transferTransactions.partyLabels.remittance'),
+        id: 'External' // No specific party for remittances
+      };
+    }
+
+    // Handle transfer transactions
     if (transaction.type === 'transfer_in') {
       return {
         label: t('transferTransactions.partyLabels.from'),
@@ -158,21 +167,39 @@ const TransferTransactions = () => {
               {transferTransactions.map((transaction) => {
                 const party = getTransactionParty(transaction);
                 const isReceived = transaction.type === 'transfer_in';
+                const isRemittance = transaction.type === 'remittance_out';
+                
+                const getTransactionTypeLabel = () => {
+                  switch (transaction.type) {
+                    case 'transfer_in':
+                      return t('transferTransactions.transactionTypes.received');
+                    case 'transfer_out':
+                      return t('transferTransactions.transactionTypes.sent');
+                    case 'remittance_out':
+                      return t('transferTransactions.transactionTypes.remittance');
+                    default:
+                      return transaction.type;
+                  }
+                };
+
+                const getTransactionTypeColor = () => {
+                  if (isReceived) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                  if (isRemittance) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+                  return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                };
+
                 return (
                   <tr key={transaction.id} className="hover:bg-gray-800/50 transition-colors">
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        isReceived
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      }`}>
-                        {isReceived
-                          ? t('transferTransactions.transactionTypes.received')
-                          : t('transferTransactions.transactionTypes.sent')}
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getTransactionTypeColor()}`}>
+                        {getTransactionTypeLabel()}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
-                      {`${party.label}: ${formatUserId(party.id)}`}
+                      {transaction.type === 'remittance_out' 
+                        ? t('transferTransactions.partyLabels.remittance')
+                        : `${party.label}: ${formatUserId(party.id)}`
+                      }
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
                       <span className={isReceived ? 'text-green-500' : 'text-red-500'}>
