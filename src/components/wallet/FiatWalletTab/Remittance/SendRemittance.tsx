@@ -130,7 +130,7 @@ const SendRemittance = () => {
         color: "green"
       }));
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || t('sendRemittance.failedToCreateQuote');
+      const errorMessage = err.response?.data?.message || t('sendRemittance.failedToCreateQuote');
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"
@@ -159,7 +159,7 @@ const SendRemittance = () => {
 
     } catch (err: any) {
       dispatch(setShowMessage({
-        message: err.response?.data?.error || t('sendRemittance.failedToTransferQuote'),
+        message: err.response?.data?.message || t('sendRemittance.failedToTransferQuote'),
         color: "red"
       }));
       console.error("Payment error:", err);
@@ -178,7 +178,7 @@ const SendRemittance = () => {
       }));
     } catch (err: any) {
       dispatch(setShowMessage({
-        message: err.response?.data?.error || t('sendRemittance.failedToConfirmTransfer'),
+        message: err.response?.data?.message || t('sendRemittance.failedToConfirmTransfer'),
         color: "red"
       }));
     } finally {

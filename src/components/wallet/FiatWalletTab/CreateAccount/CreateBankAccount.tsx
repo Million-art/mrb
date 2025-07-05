@@ -41,7 +41,7 @@ const validateIdDocument = (idDocNumber: string, t: any): { isValid: boolean; me
 
 const handleApiError = (err: any, dispatch: any, defaultMessage: string) => {
   console.error('Error:', err);
-  const errorMessage = err.response?.data?.message || err.response?.data?.details?.message || defaultMessage;
+  const errorMessage = err.response?.data?.message || defaultMessage;
   dispatch(setShowMessage({
     message: errorMessage,
     color: "red"
