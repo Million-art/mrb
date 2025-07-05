@@ -11,7 +11,6 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
  
 export const countries: Country[] = [
-  { currency: "VES", code: "VES", name: "Venezuela", flag: "https://flagcdn.com/ve.svg" },
   { currency: "MXN", code: "MXN", name: "Mexico", flag: "https://flagcdn.com/mx.svg" },
   { currency: "GTQ", code: "GTQ", name: "Guatemala", flag: "https://flagcdn.com/gt.svg" },
   { currency: "USD", code: "USD", name: "El Salvador", flag: "https://flagcdn.com/sv.svg" },
