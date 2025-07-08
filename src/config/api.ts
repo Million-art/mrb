@@ -3,6 +3,7 @@
     BASE_URL2: import.meta.env.VITE_BASE_URL2, //dashboard-backend
     BASE_URL: import.meta.env.MODE === 'development' ? "http://localhost:3000" : "https://api.glofica.com",
     BASE_URL1: import.meta.env.VITE_BASE_URL1, //glofica
+    API_MAIN_URL: import.meta.env.MODE === 'development' ? "http://localhost:3000" : "https://api.glofica.com",
     ENDPOINTS: {
       CUSTOMERS: "/customers",
       BANK_ACCOUNTS: "/bank-accounts",
@@ -43,7 +44,7 @@
   };
 
   export const getBankAccountsUrl = (customerId: string) => {
-    return `${getCustomerUrl(customerId)}${API_CONFIG.ENDPOINTS.BANK_ACCOUNTS}`;
+    return `${API_CONFIG.API_MAIN_URL}${API_CONFIG.ENDPOINTS.CUSTOMERS}/${customerId}${API_CONFIG.ENDPOINTS.BANK_ACCOUNTS}`;
   };
 
   export const getBankAccountUrl = (customerId: string, kontigoBankAccountId: string) => {

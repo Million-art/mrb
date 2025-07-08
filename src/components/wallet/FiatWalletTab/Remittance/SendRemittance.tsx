@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
 
-const MIN_AMOUNT = 10;
+const MIN_AMOUNT = 1;
 
 const SendRemittance = () => {
   const { t } = useTranslation();

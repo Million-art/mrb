@@ -212,7 +212,7 @@ const TransferTransactions = () => {
                       ${transaction.balance.toFixed(2)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
-                      {new Date(transaction.createdAt).toLocaleDateString()}
+                      {transaction.createdAt ? new Date(transaction.createdAt).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
                 );

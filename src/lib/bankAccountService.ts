@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getBankAccountUrl } from '@/config/api';
+import { getBankAccountUrl, getBankAccountsUrl } from '@/config/api';
 
 export interface BankAccountData {
   id: string;
@@ -10,6 +10,7 @@ export interface BankAccountData {
   account_type?: string;
   account_number?: string;
   phone_number?: string | null;
+  beneficiary_name?: string;
   createdAt?: string;
 }
 
@@ -110,4 +111,24 @@ export const validateBankAccountData = (bankAccountData: BankAccountData): boole
   }
 
   return true;
+}; 
+
+/**
+ * Fetch all bank accounts for a customer
+ */
+export const fetchAllBankAccounts = async (customerId: string): Promise<BankAccountData[]> => {
+  try {
+    console.log('Fetching all bank accounts for customer:', customerId);
+    const url = getBankAccountsUrl(customerId);
+    console.log('API URL:', url);
+    console.log('Using API_MAIN_URL for bank accounts');
+    const response = await axios.get(url);
+    console.log('Bank accounts response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching bank accounts:', error);
+    console.error('Error details:', error.response?.data);
+    console.error('Error status:', error.response?.status);
+    throw error;
+  }
 }; 
