@@ -14,6 +14,7 @@ interface BankAccountFormData {
   bank_code: string;
   id_doc_number: string;
   phone_number: string | null;
+  account_type: 'bankaccount' | 'pagomovil';
 }
 
 interface BankAccount extends BankAccountData {
@@ -27,6 +28,7 @@ interface CreateBankAccountProps {
   showLoader?: boolean;
   customerPhone: string;
   onComplete?: () => void;
+  forceFormDisplay?: boolean;
 }
 
 // Utility functions
@@ -149,7 +151,7 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading, t 
   </div>
 );
 
-export default function CreateBankAccount({ customerId, showLoader = true, customerPhone, onComplete }: CreateBankAccountProps) {
+export default function CreateBankAccount({ customerId, showLoader = true, customerPhone, onComplete, forceFormDisplay = false }: CreateBankAccountProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -164,11 +166,20 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     bank_code: "",
     id_doc_number: "",
     phone_number: customerPhone,
+    account_type: 'bankaccount',
   });
 
   useEffect(() => {
     const fetchBankAccount = async () => {
       try {
+        // If forceFormDisplay is true, skip fetching and go directly to form
+        if (forceFormDisplay) {
+          setDisplayMode('form');
+          setIsLoading(false);
+          setDataFetched(true);
+          return;
+        }
+
         const response = await axios.get(getBankAccountsUrl(customerId));
         console.log('Bank accounts response:', response.data);
         
@@ -190,7 +201,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     };
 
     fetchBankAccount();
-  }, [customerId]);
+  }, [customerId, forceFormDisplay]);
 
   const handleCopy = async () => {
     if (bankAccount) {
@@ -329,7 +340,20 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mb-12">
+      <div className="space-y-2">
+        <Label htmlFor="account_type">Account Type</Label> <br />
+        <select
+          name="account_type"
+          id="account_type"
+          value={formData.account_type}
+          onChange={handleChange}
+          className="bg-black border w-full border-gray-600 text-white rounded-md px-3 py-2"
+        >
+          <option value="bankaccount">Bank Account</option>
+          <option value="pagomovil">Pago Movil</option>
+        </select>
+      </div>
       <FormField
         label={t("createBankAccount.bankCodeLabel")}
         name="bank_code"

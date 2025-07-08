@@ -261,7 +261,7 @@ useEffect(() => {
         <Route path="/fiat-deposit" element={<FiatDeposit />} />
         <Route path="/upload-receipt" element={<UploadReceipt />} />
         <Route path="/create-customer" element={<CreateCustomerPage />} />
-        <Route path="/create-bank-account" element={<CreateBankAccountPage />} />
+        <Route path="/create-bank-account/:customerId/:customerPhone" element={<CreateBankAccountPage />} />
         <Route path="/balance-transfer" element={<TrasferBalancePage />} />
         <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/settings" element={<SettingsPage />} />

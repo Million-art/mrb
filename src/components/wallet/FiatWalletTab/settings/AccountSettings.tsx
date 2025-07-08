@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { Settings, Wallet, Edit2, Check, X, Loader2, Copy, ArrowLeft } from "lucide-react";
+import { Settings, Wallet, Edit2, Check, X, Loader2, Copy, ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/stonfi/ui/button";
 import {  collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '@/libs/firebase';
@@ -11,10 +11,9 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { updateCustomer } from "@/config/api";
-import CreateBankAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateBankAccount";
 import CreateAccount from "@/components/wallet/FiatWalletTab/CreateAccount/CreateAccount";
 import { useTranslation } from "react-i18next";
-import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
+import { deleteBankAccount, fetchAllBankAccounts, type BankAccountData } from "@/lib/bankAccountService";
 import { deleteCustomer } from "@/lib/customerService";
 
 const AccountSettings: React.FC = () => {
@@ -24,14 +23,12 @@ const AccountSettings: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [hasBankAccount, setHasBankAccount] = useState<boolean | null>(null);
-  const [bankAccountData, setBankAccountData] = useState<any>(null);
-  const [isLoadingBankAccount, setIsLoadingBankAccount] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
+  const [isLoadingBankAccount, setIsLoadingBankAccount] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(true);
-  const [showBankAccountCreation, setShowBankAccountCreation] = useState(false);
   const [isDeletingCustomer, setIsDeletingCustomer] = useState(false);
   const [showDeleteCustomerConfirm, setShowDeleteCustomerConfirm] = useState(false);
   const navigate = useNavigate();
@@ -39,6 +36,13 @@ const AccountSettings: React.FC = () => {
   useEffect(() => {
     checkCustomerAccount();
   }, []);
+
+  // Refresh bank accounts when component mounts or returns from create page
+  useEffect(() => {
+    if (customerData?.country === 'VENEZUELA' && customerData?.kontigoCustomerId) {
+      fetchBankAccounts(customerData.kontigoCustomerId);
+    }
+  }, [customerData]);
 
   const checkCustomerAccount = async () => {
     try {
@@ -65,12 +69,8 @@ const AccountSettings: React.FC = () => {
         setCustomerData(customerData);
 
         if (customerData.country === 'VENEZUELA') {
-          console.log('Customer is from Venezuela, checking bank account...');
-          await fetchBankAccount(customerData.kontigoCustomerId);
-        } else {
-          console.log('Customer is not from Venezuela, bank account not required');
-          setHasBankAccount(true);
-          setIsLoadingBankAccount(false);
+          console.log('Customer is from Venezuela, fetching bank accounts...');
+          await fetchBankAccounts(customerData.kontigoCustomerId);
         }
       } else {
         console.log('No customer found, will show create customer form');
@@ -78,52 +78,20 @@ const AccountSettings: React.FC = () => {
       }
     } catch (error) {
       console.error('Error checking customer account:', error);
-      setHasBankAccount(false);
-      setIsLoadingBankAccount(false);
     } finally {
       setIsLoadingCustomer(false);
     }
   };
 
-  const fetchBankAccount = async (customerId: string) => {
+  const fetchBankAccounts = async (customerId: string) => {
     try {
       setIsLoadingBankAccount(true);
-      const bankAccountsRef = collection(db, 'bank_accounts');
-      const bankAccountQuery = query(
-        bankAccountsRef,
-        where('customer_id', '==', customerId)
-      );
-      
-      const bankAccountSnapshot = await getDocs(bankAccountQuery);
-      
-      if (!bankAccountSnapshot.empty) {
-        console.log('Bank account found for Venezuelan customer');
-        const doc = bankAccountSnapshot.docs[0];
-        const bankAccountData = {
-          id: doc.id,
-          ...doc.data()
-        };
-        console.log('Bank account data retrieved:', bankAccountData);
-        
-        // Validate that we have the required fields
-        if (!(bankAccountData as BankAccountData).kontigoBankAccountId) {
-          console.error('Bank account data is missing kontigoBankAccountId:', bankAccountData);
-        }
-        
-        setBankAccountData(bankAccountData);
-        setHasBankAccount(true);
-        setShowBankAccountCreation(false);
-      } else {
-        console.log('No bank account found for Venezuelan customer');
-        setHasBankAccount(false);
-        setBankAccountData(null);
-        setShowBankAccountCreation(true);
-      }
+      const bankAccountsData = await fetchAllBankAccounts(customerId);
+      console.log('Bank accounts fetched:', bankAccountsData);
+      setBankAccounts(bankAccountsData || []);
     } catch (error) {
-      console.error('Error fetching bank account:', error);
-      setHasBankAccount(false);
-      setBankAccountData(null);
-      setShowBankAccountCreation(true);
+      console.error('Error fetching bank accounts:', error);
+      setBankAccounts([]);
     } finally {
       setIsLoadingBankAccount(false);
     }
@@ -199,27 +167,28 @@ const AccountSettings: React.FC = () => {
     setEditedData(null);
   };
 
-  const handleCopy = async () => {
-    if (bankAccountData?.kontigoBankAccountId) {
-      await navigator.clipboard.writeText(bankAccountData.kontigoBankAccountId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async (bankAccountId: string) => {
+    const bankAccount = bankAccounts.find(acc => acc.id === bankAccountId);
+    if (bankAccount?.kontigoBankAccountId) {
+      await navigator.clipboard.writeText(bankAccount.kontigoBankAccountId);
+      setCopied(bankAccountId);
+      setTimeout(() => setCopied(null), 2000);
     }
   };
 
-  const handleDelete = async () => {
-    if (!bankAccountData) return;
+  const handleDelete = async (bankAccountId: string) => {
+    const bankAccount = bankAccounts.find(acc => acc.id === bankAccountId);
+    if (!bankAccount) return;
     
     await deleteBankAccount({
       customerId: customerData.kontigoCustomerId,
-      bankAccountData: bankAccountData as BankAccountData,
+      bankAccountData: bankAccount,
       setLoading: setIsDeleting,
       dispatch,
       t,
       onSuccess: () => {
-        setBankAccountData(null);
-        setShowDeleteConfirm(false);
-        setHasBankAccount(false);
+        setBankAccounts(prev => prev.filter(acc => acc.id !== bankAccountId));
+        setShowDeleteConfirm(null);
         dispatch(setShowMessage({
           message: t('accountSettings.messages.deleteSuccess'),
           color: "green"
@@ -258,6 +227,12 @@ const AccountSettings: React.FC = () => {
         }));
       },
     });
+  };
+
+  const handleAddBankAccount = () => {
+    if (customerData?.kontigoCustomerId) {
+      navigate(`/create-bank-account/${customerData.kontigoCustomerId}/${customerData.phone_number}`);
+    }
   };
 
   if (isLoadingCustomer) {
@@ -300,52 +275,6 @@ const AccountSettings: React.FC = () => {
               <CreateAccount 
                 onComplete={(newCustomerData) => {
                   setCustomerData(newCustomerData);
-                  checkCustomerAccount();
-                }}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // Show bank account creation for Venezuelan customers without bank account
-  if (customerData?.country === 'VENEZUELA' && showBankAccountCreation && !isLoadingBankAccount) {
-    return (
-      <div className="min-h-screen w-full text-white scrollbar-hidden">
-        <div className="max-w-4xl mx-auto p-4">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="text-gray-400 hover:text-white"
-              aria-label={t('accountSettings.backButton')}
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Wallet className="w-6 h-6 text-gray-400" />
-              <h1 className="text-2xl font-semibold">{t('accountSettings.createBankAccountTitle')}</h1>
-            </div>
-          </div>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold mb-2">{t('accountSettings.bankAccountRequiredTitle')}</h2>
-                <p className="text-gray-400">
-                  {t('accountSettings.bankAccountRequiredMessage')}
-                </p>
-              </div>
-              
-              <CreateBankAccount 
-                customerId={customerData.kontigoCustomerId}
-                showLoader={false}
-                customerPhone={customerData.phone_number}
-                onComplete={() => {
-                  setShowBankAccountCreation(false);
                   checkCustomerAccount();
                 }}
               />
@@ -529,81 +458,94 @@ const AccountSettings: React.FC = () => {
               <Card>
                 <CardContent className="p-4">
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Wallet className="w-5 h-5 text-gray-400" />
-                      <h3 className="text-lg font-medium">{t('accountSettings.bankAccountInformationTitle')}</h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Wallet className="w-5 h-5 text-gray-400" />
+                        <h3 className="text-lg font-medium">{t('accountSettings.bankAccountInformationTitle')}</h3>
+                      </div>
+                      {bankAccounts.length > 0 && (
+                        <Button
+                          onClick={handleAddBankAccount}
+                          className="bg-blue-light hover:bg-blue-700 text-white"
+                          size="sm"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t('accountSettings.addBankAccountButton', 'Add Bank Account')}
+                        </Button>
+                      )}
                     </div>
                     
                     {isLoadingBankAccount ? (
                       <div className="flex justify-center items-center py-8">
                         <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
                       </div>
-                    ) : hasBankAccount ? (
+                    ) : bankAccounts.length > 0 ? (
                       <div className="space-y-4">
-                        <div className="bg-gray-800/50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.bankAccountId')}</p>
-                              <p className="text-lg font-medium">{bankAccountData?.kontigoBankAccountId}</p>
+                        {bankAccounts.map((bankAccount) => (
+                          <div key={bankAccount.id} className="bg-gray-800/50 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.bankAccountId')}</p>
+                                <p className="text-lg font-medium">{bankAccount.kontigoBankAccountId}</p>
+                              </div>
+                              <button
+                                onClick={() => handleCopy(bankAccount.id)}
+                                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label={t('accountSettings.copyButton')}
+                              >
+                                {copied === bankAccount.id ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
+                              </button>
                             </div>
-                            <button
-                              onClick={handleCopy}
-                              className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                              aria-label={t('accountSettings.copyButton')}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.bankCode')}</p>
+                                <p className="font-medium">{bankAccount.bank_code}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.accountNumber')}</p>
+                                <p className="font-medium">{bankAccount.account_number}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.accountType')}</p>
+                                <p className="font-medium">{bankAccount.account_type}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.beneficiaryName')}</p>
+                                <p className="font-medium">{bankAccount.beneficiary_name || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.idDocument')}</p>
+                                <p className="font-medium">{bankAccount.id_doc_number}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.phoneNumber')}</p>
+                                <p className="font-medium">{bankAccount.phone_number}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-400">{t('accountSettings.formFields.createdAt')}</p>
+                                <p className="font-medium">{bankAccount.createdAt ? new Date(bankAccount.createdAt).toLocaleDateString() : 'N/A'}</p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={() => setShowDeleteConfirm(bankAccount.id)}
+                              className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
+                              disabled={isDeleting}
                             >
-                              {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
-                            </button>
+                              {isDeleting ? t('accountSettings.deleting') : t('accountSettings.deleteBankAccountButton')}
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.bankCode')}</p>
-                              <p className="font-medium">{bankAccountData?.bank_code}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.accountNumber')}</p>
-                              <p className="font-medium">{bankAccountData?.account_number}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.accountType')}</p>
-                              <p className="font-medium">{bankAccountData?.account_type}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.beneficiaryName')}</p>
-                              <p className="font-medium">{bankAccountData?.beneficiary_name}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.idDocument')}</p>
-                              <p className="font-medium">{bankAccountData?.id_doc_number}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.phoneNumber')}</p>
-                              <p className="font-medium">{bankAccountData?.phone_number}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">{t('accountSettings.formFields.createdAt')}</p>
-                              <p className="font-medium">{new Date(bankAccountData?.createdAt).toLocaleDateString()}</p>
-                            </div>
-                          </div>
-                          <Button
-                            onClick={() => setShowDeleteConfirm(true)}
-                            className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
-                            disabled={isDeleting}
-                          >
-                            {isDeleting ? t('accountSettings.deleting') : t('accountSettings.deleteBankAccountButton')}
-                          </Button>
-                        </div>
+                        ))}
                       </div>
                     ) : (
                       <div className="text-center py-8">
                         <p className="text-gray-400 mb-4">{t('accountSettings.noBankAccountMessage')}</p>
-                        <CreateBankAccount 
-                          customerId={customerData.kontigoCustomerId}
-                          showLoader={false}
-                          customerPhone={customerData.phone_number}
-                          onComplete={() => {
-                            checkCustomerAccount();
-                          }}
-                        />
+                        <Button
+                          onClick={handleAddBankAccount}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t('accountSettings.addBankAccountButton', 'Add Bank Account')}
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -620,7 +562,7 @@ const AccountSettings: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">{t('accountSettings.deleteConfirmTitle')}</h3>
               <button
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => setShowDeleteConfirm(null)}
                 className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label={t('accountSettings.cancelButton')}
               >
@@ -632,13 +574,13 @@ const AccountSettings: React.FC = () => {
             </p>
             <div className="flex gap-4">
               <Button
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => setShowDeleteConfirm(null)}
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white"
               >
                 {t('accountSettings.cancelButton')}
               </Button>
               <Button
-                onClick={handleDelete}
+                onClick={() => handleDelete(showDeleteConfirm)}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                 disabled={isDeleting}
               >

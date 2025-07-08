@@ -95,7 +95,9 @@ export const fetchTransferTransactions = createAsyncThunk(
               }
               return {
                 id: doc.id,
-                ...data
+                ...data,
+                createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt
               } as TransferTransaction;
             });
             processTransactions();
@@ -124,7 +126,9 @@ export const fetchTransferTransactions = createAsyncThunk(
               }
               return {
                 id: doc.id,
-                ...data
+                ...data,
+                createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt
               } as TransferTransaction;
             });
             processTransactions();
