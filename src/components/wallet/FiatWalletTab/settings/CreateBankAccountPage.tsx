@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/stonfi/ui/card";
 import { Button } from "@/components/stonfi/ui/button";

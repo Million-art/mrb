@@ -127,8 +127,8 @@ export const fetchAllBankAccounts = async (customerId: string): Promise<BankAcco
     return response.data;
   } catch (error) {
     console.error('Error fetching bank accounts:', error);
-    console.error('Error details:', error.response?.data);
-    console.error('Error status:', error.response?.status);
+    console.error('Error details:', (error as any).response?.data);
+    console.error('Error status:', (error as any).response?.status);
     throw error;
   }
 }; 
