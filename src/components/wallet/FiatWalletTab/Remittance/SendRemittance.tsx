@@ -436,7 +436,6 @@ const SendRemittance = () => {
             setShowSuccessDialog(true);
           }
         }}
-        quoteId={quote?.id || ''}
         amount={amount}
         currency={fromCurrency}
         status={paymentStatus}
