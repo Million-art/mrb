@@ -180,6 +180,8 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
           return;
         }
 
+
+
         const response = await axios.get(getBankAccountsUrl(customerId));
         console.log('Bank accounts response:', response.data);
         
