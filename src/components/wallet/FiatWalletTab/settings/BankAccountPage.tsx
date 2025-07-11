@@ -279,13 +279,16 @@ const BankAccountPage: React.FC = () => {
                               <Copy className="h-5 w-5" />
                             }
                           </button>
-                          <button
+                          <Button
                             onClick={() => setShowDeleteConfirm(bankAccount.id)}
-                            className="p-2 hover:bg-red-600 rounded-lg transition-colors"
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-600/20"
                             aria-label={t('accountSettings.deleteButton')}
                           >
-                            <Trash2 className="h-5 w-5 text-red-400" />
-                          </button>
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            {t('accountSettings.deleteButton')}
+                          </Button>
                         </div>
                       </div>
                       
