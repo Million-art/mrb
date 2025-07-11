@@ -533,24 +533,39 @@
     "fetchFailed": "Failed to fetch wallet address"
   }
 },
-"settings": {
-  "title": "Settings",
-  "backButton": "Go back",
-  "externalUsdcAddressTitle": "External USDC Address",
-  "externalUsdcAddressDescription": "Link USDC to receive referral commission",
-  "accountSettingsTitle": "Account Settings",
-  "accountSettingsDescription": "Manage your account preferences and information",
-  "languageTitle": "Language",
-  "languagePlaceholder": "Select language",
-  "privacyPolicyTitle": "Privacy Policy",
-  "privacyPolicyDescription": "Read our privacy policy and terms of service",
-  "openButton": "Open",
-  "languages": {
-    "en": "English",
-    "zh": "中文",
-    "es": "Español"
+  "settings": {
+    "title": "Settings",
+    "backButton": "Go back",
+    "externalUsdcAddressTitle": "External USDC Address",
+    "externalUsdcAddressDescription": "Link USDC to receive referral commission",
+    "accountSettingsTitle": "Account Settings",
+    "accountSettingsDescription": "Manage your account preferences and information",
+    "languageTitle": "Language",
+    "languagePlaceholder": "Select language",
+    "privacyPolicyTitle": "Privacy Policy",
+    "privacyPolicyDescription": "Read our privacy policy and terms of service",
+    "openButton": "Open",
+    "languages": {
+      "en": "English",
+      "zh": "中文",
+      "es": "Español"
+    },
+    "languageUpdated": "Language updated successfully",
+    "languageUpdateError": "Failed to update language. Please try again."
   },
-  "languageUpdated": "Language updated successfully",
-  "languageUpdateError": "Failed to update language. Please try again."
-}
+  "notifications": {
+    "title": "Notifications",
+    "markAllAsRead": "Mark all as read",
+    "markAsRead": "Mark as read",
+    "noNotifications": "No notifications",
+    "noNotificationsDesc": "You're all caught up! No new notifications at the moment.",
+    "failedToFetch": "Failed to fetch notifications",
+    "failedToMarkAsRead": "Failed to mark notification as read",
+    "failedToMarkAllAsRead": "Failed to mark all notifications as read",
+    "allMarkedAsRead": "All notifications marked as read",
+    "justNow": "Just now",
+    "minutesAgo": "{{minutes}} minutes ago",
+    "hoursAgo": "{{hours}} hours ago",
+    "daysAgo": "{{days}} days ago"
+  }
 }

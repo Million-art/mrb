@@ -535,26 +535,41 @@
     "fetchFailed": "获取钱包地址失败"
   }
 },
-"settings": {
-  "title": "设置",
-  "backButton": "返回",
-  "externalUsdcAddressTitle": "外部USDC地址",
-  "externalUsdcAddressDescription": "连接USDC以接收推荐佣金",
-  "accountSettingsTitle": "账户设置",
-  "accountSettingsDescription": "管理您的账户偏好和信息",
-  "languageTitle": "语言",
-  "languagePlaceholder": "选择语言",
-  "privacyPolicyTitle": "隐私政策",
-  "privacyPolicyDescription": "阅读我们的隐私政策和服务条款",
-  "openButton": "打开",
-  "languages": {
-    "en": "English",
-    "zh": "中文",
-    "es": "Español"
+  "settings": {
+    "title": "设置",
+    "backButton": "返回",
+    "externalUsdcAddressTitle": "外部USDC地址",
+    "externalUsdcAddressDescription": "连接USDC以接收推荐佣金",
+    "accountSettingsTitle": "账户设置",
+    "accountSettingsDescription": "管理您的账户偏好和信息",
+    "languageTitle": "语言",
+    "languagePlaceholder": "选择语言",
+    "privacyPolicyTitle": "隐私政策",
+    "privacyPolicyDescription": "阅读我们的隐私政策和服务条款",
+    "openButton": "打开",
+    "languages": {
+      "en": "English",
+      "zh": "中文",
+      "es": "Español"
+    },
+    "languageUpdated": "语言更新成功",
+    "languageUpdateError": "更新语言失败。请重试。"
   },
-  "languageUpdated": "语言更新成功",
-  "languageUpdateError": "更新语言失败。请重试。"
-}
+  "notifications": {
+    "title": "通知",
+    "markAllAsRead": "全部标记为已读",
+    "markAsRead": "标记为已读",
+    "noNotifications": "暂无通知",
+    "noNotificationsDesc": "您已经全部查看完毕！目前没有新通知。",
+    "failedToFetch": "获取通知失败",
+    "failedToMarkAsRead": "标记通知为已读失败",
+    "failedToMarkAllAsRead": "标记所有通知为已读失败",
+    "allMarkedAsRead": "所有通知已标记为已读",
+    "justNow": "刚刚",
+    "minutesAgo": "{{minutes}} 分钟前",
+    "hoursAgo": "{{hours}} 小时前",
+    "daysAgo": "{{days}} 天前"
+  }
 }
 
 
