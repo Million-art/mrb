@@ -10,6 +10,7 @@ import { telegramId } from "@/libs/telegram";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
+import PaymentProcessingModal from "./PaymentProcessingModal";
 
 const MIN_AMOUNT = 1;
 
@@ -28,6 +29,8 @@ const SendRemittance = () => {
   const [isConfirmingQuote, setIsConfirmingQuote] = useState(false);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'processing' | 'completed' | 'failed' | 'pending'>('pending');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -143,21 +146,37 @@ const SendRemittance = () => {
 
   const payTransferQuote = async () => {
     if (!quote?.id || !customerId) return; 
+    
+    setShowPaymentModal(true);
+    setPaymentStatus('processing');
     setIsPayingQuote(true);
+    
     try {
       const response = await axios.post(getQuotePayUrl(customerId, quote.id));
  
-      dispatch(setShowMessage({
-        message: t('sendRemittance.transferSuccess'),
-        color: "green"
-      }));
-      setQuote(response.data); 
-      // Show success dialog when payment is completed
+      // Update quote with response data
+      setQuote(response.data);
+      
+      // Check if payment is completed
       if (response.data.status === "completed") {
-        setShowSuccessDialog(true);
+        setPaymentStatus('completed');
+        dispatch(setShowMessage({
+          message: t('sendRemittance.transferSuccess'),
+          color: "green"
+        }));
+      } else if (response.data.status === "failed") {
+        setPaymentStatus('failed');
+        dispatch(setShowMessage({
+          message: t('sendRemittance.transferFailed'),
+          color: "red"
+        }));
+      } else {
+        // If still processing, keep modal open for polling
+        setPaymentStatus('processing');
       }
 
     } catch (err: any) {
+      setPaymentStatus('failed');
       dispatch(setShowMessage({
         message: err.response?.data?.message || t('sendRemittance.failedToTransferQuote'),
         color: "red"
@@ -406,6 +425,24 @@ const SendRemittance = () => {
           )}
         </div>
       </div>
+      
+      {/* Payment Processing Modal */}
+      <PaymentProcessingModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setPaymentStatus('pending');
+          if (paymentStatus === 'completed') {
+            setShowSuccessDialog(true);
+          }
+        }}
+        quoteId={quote?.id || ''}
+        amount={amount}
+        currency={fromCurrency}
+        status={paymentStatus}
+      />
+
+      {/* Success Dialog */}
       {showSuccessDialog && quote && (
         <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-4">
           <div className="  rounded-lg shadow-xl max-w-md w-full p-6 relative">
