@@ -260,6 +260,7 @@
   "quoteCreatedSuccess": "Quote created successfully!",
   "failedToCreateQuote": "Failed to create transfer quote",
   "transferSuccess": "Transfer success",
+  "transferFailed": "Transfer failed",
   "failedToTransferQuote": "Failed to transfer quote",
   "transferConfirmedSuccess": "Transfer confirmed successfully!",
   "failedToConfirmTransfer": "Failed to confirm transfer",
