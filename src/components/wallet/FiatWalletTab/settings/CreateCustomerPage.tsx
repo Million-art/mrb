@@ -28,8 +28,9 @@ const CreateCustomerPage = () => {
 
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
+          const customerData = querySnapshot.docs[0].data();
           setIsExistingCustomer(true);
-          navigate("/create-bank-account");
+          navigate(`/create-bank-account/${customerData.kontigoCustomerId}/${customerData.phone_number}`);
         }
       } catch (err) {
         console.error("Error checking existing customer:", err);
@@ -67,7 +68,7 @@ const CreateCustomerPage = () => {
         <h1 className="text-xl font-bold">{t("createCustomerPage.title")}</h1>
         <div className="w-6" />
       </div>
-      <CreateAccount onComplete={(data) => navigate("/create-bank-account")} />
+      <CreateAccount onComplete={(data) => navigate(`/create-bank-account/${data.kontigoCustomerId}/${data.phone_number}`)} />
     </div>
   );
 };
