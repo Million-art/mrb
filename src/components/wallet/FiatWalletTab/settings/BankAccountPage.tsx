@@ -127,6 +127,7 @@ const BankAccountPage: React.FC = () => {
       navigate(`/create-bank-account/${customerData.kontigoCustomerId}/${customerData.phone_number}`);
     }
   };
+  
 
   const handleNavigateToCustomerAccount = () => {
     navigate('/customer-account');

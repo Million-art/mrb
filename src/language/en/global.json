@@ -417,6 +417,7 @@
   "idDocumentLabel": "ID Document Number",
   "idDocumentPlaceholder": "Enter ID document number (e.g., V12345678)",
   "idDocumentTitle": "ID must start with 'V' followed by at least 7 digits",
+  "accountTypeLabel": "Account Type",
   "createBankAccountButton": "Create Bank Account",
   "creating": "Creating...",
   "deleting": "Deleting...",
@@ -439,7 +440,11 @@
   "bankAccountCreatedSuccess": "Bank account created successfully!",
   "bankAccountDeletedSuccess": "Bank account deleted successfully!",
   "failedToCreateBankAccount": "Failed to create bank account",
-  "failedToDeleteBankAccount": "Failed to delete bank account"
+  "failedToDeleteBankAccount": "Failed to delete bank account",
+  "accountTypes": {
+    "bankAccount": "Bank Account",
+    "pagomovil": "PagoMovil"
+  }
 },
 "createCustomerPage": {
   "title": "Create Customer Account",
@@ -500,7 +505,8 @@
     "deleteSuccess": "Bank account deleted successfully!",
     "deleteFailed": "Failed to delete bank account. Please try again.",
     "deleteCustomerSuccess": "Customer account deleted successfully!",
-    "deleteCustomerFailed": "Failed to delete customer account. Please try again."
+    "deleteCustomerFailed": "Failed to delete customer account. Please try again.",
+    "copiedSuccess": "Copied to clipboard!"
   }
 },
 "externalUsdcAddress": {

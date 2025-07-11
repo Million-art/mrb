@@ -14,7 +14,7 @@ interface BankAccountFormData {
   bank_code: string;
   id_doc_number: string;
   phone_number: string | null;
-  account_type: 'bankaccount' | 'pagomovil';
+  account_type: 'bank_account_ve' | 'pagomovil';
 }
 
 interface BankAccount extends BankAccountData {
@@ -166,7 +166,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     bank_code: "",
     id_doc_number: "",
     phone_number: customerPhone,
-    account_type: 'bankaccount',
+    account_type: 'bank_account_ve',
   });
 
   useEffect(() => {
@@ -342,7 +342,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   return (
     <div className="space-y-4 mb-12">
       <div className="space-y-2">
-        <Label htmlFor="account_type">Account Type</Label> <br />
+        <Label htmlFor="account_type">{t("createBankAccount.accountTypeLabel")}</Label> <br />
         <select
           name="account_type"
           id="account_type"
@@ -350,8 +350,8 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
           onChange={handleChange}
           className="bg-black border w-full border-gray-600 text-white rounded-md px-3 py-2"
         >
-          <option value="bankaccount">Bank Account</option>
-          <option value="pagomovil">Pago Movil</option>
+          <option value="bank_account_ve">{t("createBankAccount.accountTypes.bankAccount")}</option>
+          <option value="pagomovil">{t("createBankAccount.accountTypes.pagomovil")}</option>
         </select>
       </div>
       <FormField
