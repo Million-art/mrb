@@ -51,7 +51,7 @@ const ProfileIds: React.FC<ProfileIdsProps> = ({ userId, customerData }) => {
             </div>
           </div>
 
-          {/* Bank Account ID Section - Only render if customerData exists */}
+          {/* Bank Account ID Section - Only render if customerData exists
           {customerData?.bankAccountId && (
             <>
               <div className="pt-4 border-t border-gray-800" />
@@ -77,7 +77,7 @@ const ProfileIds: React.FC<ProfileIdsProps> = ({ userId, customerData }) => {
                 </div>
               </div>
             </>
-          )}
+          )} */}
         </div>
       </CardContent>
     </Card>

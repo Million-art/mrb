@@ -43,7 +43,7 @@ const SlippageToleranceSection = () => {
           type="number"
           value={transformValue(slippageTolerance)}
           onChange={handleSlippageChange}
-          className="w-full p-2 mt-2  text-gray-light border border-gray-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 mt-2  text-gray-light border border-gray-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-light"
         />
       </div>
       <div className="w-full flex space-x-2 justify-center">

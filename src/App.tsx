@@ -37,6 +37,8 @@ import CreateCustomerPage from "./components/wallet/FiatWalletTab/settings/Creat
 import CreateBankAccountPage from "./components/wallet/FiatWalletTab/settings/CreateBankAccountPage";
 import TrasferBalancePage from "./screens/TrasferBalancePage";
 import AccountSettings from "./components/wallet/FiatWalletTab/settings/AccountSettings";
+import CustomerAccountPage from "./components/wallet/FiatWalletTab/settings/CustomerAccountPage";
+import BankAccountPage from "./components/wallet/FiatWalletTab/settings/BankAccountPage";
 import SettingsPage from "./screens/Settings";
 import PrivacyPolicy from "./components/wallet/FiatWalletTab/settings/PrivacyPolicy";
 import ExternalUsdcAddress from "./screens/ExternalUsdcAddress";
@@ -264,6 +266,8 @@ useEffect(() => {
         <Route path="/create-bank-account/:customerId/:customerPhone" element={<CreateBankAccountPage />} />
         <Route path="/balance-transfer" element={<TrasferBalancePage />} />
         <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/customer-account" element={<CustomerAccountPage />} />
+        <Route path="/bank-account" element={<BankAccountPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/external-usdc-address" element={<ExternalUsdcAddress />} />

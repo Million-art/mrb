@@ -103,7 +103,7 @@ const Profile: React.FC = () => {
   if (isLoading) {
     return (
       <div className="bg-gray-dark rounded-lg shadow-lg w-full h-[100px] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-light" />
       </div>
     );
   }

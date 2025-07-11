@@ -328,7 +328,7 @@ const SendRemittance = () => {
                 {t('sendRemittance.customerAccountRequired')} {" "}
                 <button 
                   onClick={() => navigate("/create-customer")}
-                  className="text-blue-400 hover:text-blue-300 underline"
+                  className="text-blue-light hover:text-blue-300 underline"
                 >
                   {t('sendRemittance.createAccount')}
                 </button>

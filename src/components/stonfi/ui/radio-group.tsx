@@ -45,7 +45,7 @@ const RadioGroupItem = ({ id, value, checked, onChange, className }: RadioGroupI
       value={value}
       checked={checked}
       onChange={onChange}
-      className={`h-5 w-5 cursor-pointer border-2 border-gray-400 rounded-full focus:ring-2 focus:ring-blue-500 ${className}`}
+      className={`h-5 w-5 cursor-pointer border-2 border-gray-400 rounded-full focus:ring-2 focus:ring-blue-light ${className}`}
     />
   )
 }
