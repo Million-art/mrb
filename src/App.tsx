@@ -42,6 +42,7 @@ import BankAccountPage from "./components/wallet/FiatWalletTab/settings/BankAcco
 import SettingsPage from "./screens/Settings";
 import PrivacyPolicy from "./components/wallet/FiatWalletTab/settings/PrivacyPolicy";
 import ExternalUsdcAddress from "./screens/ExternalUsdcAddress";
+import Notifications from "./screens/Notifications";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -271,6 +272,7 @@ useEffect(() => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/external-usdc-address" element={<ExternalUsdcAddress />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="*" element={<Loading />} />
       </Routes>
     </>

@@ -89,7 +89,7 @@ const AccountSettings: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-blue-light/20 rounded-lg">
                     <User className="w-6 h-6 text-blue-light" />
-                  </div>
+                    </div>
                   <div>
                     <h3 className="text-lg font-medium">{t('accountSettings.customerAccountTitle', 'Customer Account')}</h3>
                     <p className="text-gray-400 text-sm">
@@ -99,11 +99,11 @@ const AccountSettings: React.FC = () => {
                       }
                     </p>
                   </div>
-                </div>
+                      </div>
                 <div className="text-blue-light">
                   <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
+                      </div>
+                      </div>
             </CardContent>
           </Card>
 
@@ -118,8 +118,8 @@ const AccountSettings: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-green-600/20 rounded-lg">
                       <Wallet className="w-6 h-6 text-green-light" />
-                    </div>
-                    <div>
+                      </div>
+                      <div>
                       <h3 className="text-lg font-medium">{t('accountSettings.bankAccountTitle', 'Bank Accounts')}</h3>
                       <p className="text-gray-400 text-sm">
                         {t('accountSettings.bankAccountDescription', 'Manage your Venezuelan bank accounts for remittance transfers')}
@@ -135,8 +135,8 @@ const AccountSettings: React.FC = () => {
           )}
 
 
+          </div>
         </div>
-      </div>
     </div>
   );
 };

@@ -525,25 +525,40 @@
     "fetchFailed": "Error al obtener la dirección de billetera"
   }
 },
-"settings": {
-  "title": "Configuración",
-  "backButton": "Volver",
-  "externalUsdcAddressTitle": "Dirección USDC Externa",
-  "externalUsdcAddressDescription": "Conecta USDC para recibir comisión de referidos",
-  "accountSettingsTitle": "Configuración de Cuenta",
-  "accountSettingsDescription": "Gestiona tus preferencias e información de cuenta",
-  "languageTitle": "Idioma",
-  "languagePlaceholder": "Seleccionar idioma",
-  "privacyPolicyTitle": "Política de Privacidad",
-  "privacyPolicyDescription": "Lee nuestra política de privacidad y términos de servicio",
-  "openButton": "Abrir",
-  "languages": {
-    "en": "English",
-    "zh": "中文",
-    "es": "Español"
+  "settings": {
+    "title": "Configuración",
+    "backButton": "Volver",
+    "externalUsdcAddressTitle": "Dirección USDC Externa",
+    "externalUsdcAddressDescription": "Conecta USDC para recibir comisión de referidos",
+    "accountSettingsTitle": "Configuración de Cuenta",
+    "accountSettingsDescription": "Gestiona tus preferencias e información de cuenta",
+    "languageTitle": "Idioma",
+    "languagePlaceholder": "Seleccionar idioma",
+    "privacyPolicyTitle": "Política de Privacidad",
+    "privacyPolicyDescription": "Lee nuestra política de privacidad y términos de servicio",
+    "openButton": "Abrir",
+    "languages": {
+      "en": "English",
+      "zh": "中文",
+      "es": "Español"
+    },
+    "languageUpdated": "Idioma actualizado exitosamente",
+    "languageUpdateError": "Error al actualizar el idioma. Por favor inténtalo de nuevo."
   },
-  "languageUpdated": "Idioma actualizado exitosamente",
-  "languageUpdateError": "Error al actualizar el idioma. Por favor inténtalo de nuevo."
-}
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllAsRead": "Marcar todas como leídas",
+    "markAsRead": "Marcar como leída",
+    "noNotifications": "Sin notificaciones",
+    "noNotificationsDesc": "¡Estás al día! No hay notificaciones nuevas en este momento.",
+    "failedToFetch": "Error al obtener notificaciones",
+    "failedToMarkAsRead": "Error al marcar notificación como leída",
+    "failedToMarkAllAsRead": "Error al marcar todas las notificaciones como leídas",
+    "allMarkedAsRead": "Todas las notificaciones marcadas como leídas",
+    "justNow": "Ahora mismo",
+    "minutesAgo": "hace {{minutes}} minutos",
+    "hoursAgo": "hace {{hours}} horas",
+    "daysAgo": "hace {{days}} días"
+  }
 }
   
