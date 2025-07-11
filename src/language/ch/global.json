@@ -419,6 +419,7 @@
   "idDocumentLabel": "身份证件号码",
   "idDocumentPlaceholder": "输入身份证件号码（例如：V12345678）",
   "idDocumentTitle": "身份证件必须以 'V' 开头，后跟至少 7 位数字",
+  "accountTypeLabel": "账户类型",
   "createBankAccountButton": "创建银行账户",
   "creating": "创建中...",
   "deleting": "删除中...",
@@ -441,7 +442,11 @@
   "bankAccountCreatedSuccess": "银行账户创建成功！",
   "bankAccountDeletedSuccess": "银行账户删除成功！",
   "failedToCreateBankAccount": "创建银行账户失败",
-  "failedToDeleteBankAccount": "删除银行账户失败"
+  "failedToDeleteBankAccount": "删除银行账户失败",
+  "accountTypes": {
+    "bankAccount": "银行账户",
+    "pagomovil": "移动支付"
+  }
 },
 "createCustomerPage": {
   "title": "创建客户账户",
@@ -502,7 +507,8 @@
     "deleteSuccess": "银行账户删除成功！",
     "deleteFailed": "删除银行账户失败。请重试。",
     "deleteCustomerSuccess": "客户账户删除成功！",
-    "deleteCustomerFailed": "删除客户账户失败。请重试。"
+    "deleteCustomerFailed": "删除客户账户失败。请重试。",
+    "copiedSuccess": "已复制到剪贴板！"
   }
 },
 "externalUsdcAddress": {

@@ -409,6 +409,7 @@
   "idDocumentLabel": "Número de documento de identidad",
   "idDocumentPlaceholder": "Ingresa número de documento (ej., V12345678)",
   "idDocumentTitle": "El documento debe comenzar con 'V' seguido de al menos 7 dígitos",
+  "accountTypeLabel": "Tipo de Cuenta",
   "createBankAccountButton": "Crear cuenta bancaria",
   "creating": "Creando...",
   "deleting": "Eliminando...",
@@ -431,7 +432,11 @@
   "bankAccountCreatedSuccess": "¡Cuenta bancaria creada exitosamente!",
   "bankAccountDeletedSuccess": "¡Cuenta bancaria eliminada exitosamente!",
   "failedToCreateBankAccount": "Error al crear cuenta bancaria",
-  "failedToDeleteBankAccount": "Error al eliminar cuenta bancaria"
+  "failedToDeleteBankAccount": "Error al eliminar cuenta bancaria",
+  "accountTypes": {
+    "bankAccount": "Cuenta Bancaria",
+    "pagomovil": "PagoMóvil"
+  }
 },
 "createCustomerPage": {
   "title": "Crear Cuenta de Cliente",
@@ -492,7 +497,8 @@
     "deleteSuccess": "¡Cuenta bancaria eliminada exitosamente!",
     "deleteFailed": "Error al eliminar la cuenta bancaria. Por favor inténtalo de nuevo.",
     "deleteCustomerSuccess": "¡Cuenta de cliente eliminada exitosamente!",
-    "deleteCustomerFailed": "Error al eliminar la cuenta de cliente. Por favor inténtalo de nuevo."
+    "deleteCustomerFailed": "Error al eliminar la cuenta de cliente. Por favor inténtalo de nuevo.",
+    "copiedSuccess": "¡Copiado al portapapeles!"
   }
 },
 "externalUsdcAddress": {
