@@ -34,7 +34,7 @@ const DepositTransactions = () => {
   if (isLoading && !depositTransactions.length) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-blue-500" size={32} />
+        <Loader2 className="animate-spin text-blue-light" size={32} />
       </div>
     );
   }
@@ -58,7 +58,7 @@ const DepositTransactions = () => {
               href={error.match(/https:\/\/[^\s]+/)?.[0] || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:underline flex items-center justify-center gap-1"
+              className="text-blue-light hover:underline flex items-center justify-center gap-1"
             >
               <span>{t('depositTransactions.clickToCreate')}</span>
               <ExternalLink className="w-3 h-3" />
@@ -68,7 +68,7 @@ const DepositTransactions = () => {
         
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-light text-white rounded-lg hover:bg-blue-light transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           {t('depositTransactions.retry')}
