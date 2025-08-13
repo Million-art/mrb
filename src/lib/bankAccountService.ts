@@ -121,7 +121,7 @@ export const fetchAllBankAccounts = async (customerId: string): Promise<BankAcco
     console.log('Fetching all bank accounts for customer:', customerId);
     const url = getBankAccountsUrl(customerId);
     console.log('API URL:', url);
-    console.log('Using API_MAIN_URL for bank accounts');
+    console.log('Using base url for bank accounts');
     const response = await axios.get(url);
     console.log('Bank accounts response:', response.data);
     return response.data;

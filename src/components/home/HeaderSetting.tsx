@@ -12,7 +12,7 @@ const HeaderSetting = () => {
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
-        const response = await axios.get(`${API_CONFIG.API_MAIN_URL}/notifications/${telegramId}/unread-count`);
+        const response = await axios.get(`${API_CONFIG.BASE_URL}/notifications/${telegramId}/unread-count`);
         if (response.data?.success) {
           setUnreadCount(response.data.data.unreadCount);
         }
