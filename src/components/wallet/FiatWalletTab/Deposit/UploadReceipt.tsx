@@ -180,7 +180,7 @@ const UploadReceipt: React.FC = () => {
         throw new Error(t('uploadReceipt.networkErrorUpload'));
       });
       
-      xhr.open('POST', `${API_CONFIG.BASE_URL2}/api/receipts/upload`);
+      xhr.open('POST', `${API_CONFIG.BASE_URL}/api/receipts/upload`);
       xhr.send(formData);
       
       // Set state to creating when upload is complete

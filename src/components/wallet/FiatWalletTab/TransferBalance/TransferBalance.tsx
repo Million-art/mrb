@@ -31,7 +31,7 @@ const TransferBalance = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post(`${API_CONFIG.BASE_URL2}/api/transactions/transfer`, {
+      const response = await axios.post(`${API_CONFIG.BASE_URL}/api/transactions/transfer`, {
         senderId: String(telegramId),
         recipientId: recipientId.trim(),
         amount: parseFloat(amount)
