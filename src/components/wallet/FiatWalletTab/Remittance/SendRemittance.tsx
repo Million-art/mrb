@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import PaymentProcessingModal from "./PaymentProcessingModal";
 
 const MIN_AMOUNT = 1;
-
+ 
 const SendRemittance = () => {
   const { t } = useTranslation();
   // Form state
@@ -502,5 +502,10 @@ const SendRemittance = () => {
     </div>
   );
 };
+
+ 
+ 
+   
+
 
 export default SendRemittance;

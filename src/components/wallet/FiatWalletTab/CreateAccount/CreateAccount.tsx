@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 import { telegramId } from "@/libs/telegram";
 import { Loader2, UserPlus, ChevronDown } from "lucide-react";
@@ -89,6 +89,23 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
 
     checkExistingCustomer();
   }, []);
+
+  // Convert country name to ISO 3166-1 alpha-2 code
+  const getCountryCode = (countryName: string): string => {
+    const countryMap: { [key: string]: string } = {
+      'Venezuela': 'VE',
+      'Colombia': 'CO',
+      'Argentina': 'AR',
+      'Mexico': 'MX',
+      'Brazil': 'BR',
+      'Chile': 'CL',
+      'Guatemala': 'GT',
+      'European Union': 'EU',
+      'Panama': 'PA',
+      'United Kingdom': 'GB'
+    };
+    return countryMap[countryName] || countryName;
+  };
 
   const getPhoneNumberError = (phone: string, country: string) => {
     if (!phone) {
@@ -195,25 +212,77 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(getCustomerUrl(), {
-        ...formData,
-        telegram_id: String(telegramId)
+      // Format data for MRB backend - external_id should be telegram_id
+      const customerData = {
+        legal_name: formData.legal_name,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        type: formData.type,
+        external_id: String(telegramId), 
+        country: getCountryCode(formData.country) 
+      };
+
+      console.log('Creating customer with data:', customerData);
+      console.log('Calling URL:', getCustomerUrl());
+
+      const response = await axios.post(getCustomerUrl(), customerData, {
+        headers: {
+          'Content-Type': 'application/json'
+         }
       });
 
-      const newCustomerData = response.data;
+      console.log('Customer creation response:', response.data);
 
-      dispatch(setShowMessage({
-        message: t("createAccount.accountCreatedSuccess"),
-        color: "green"
-      }));
+      // Handle both success formats: {success: true, data: {...}} and direct data
+      const newCustomerData = response.data?.data || response.data;
+      
+      if (newCustomerData && (newCustomerData.id || newCustomerData.customer_id)) {
+        
+        // Also save to Firebase for frontend consistency
+        try {
+          const firebaseData = {
+            legal_name: formData.legal_name,
+            email: formData.email,
+            phone_number: formData.phone_number,
+            type: formData.type,
+            country: formData.country,
+            telegram_id: String(telegramId),
+            kontigoCustomerId: newCustomerData.customer_id || newCustomerData.id,
+            created_at: new Date().toISOString()
+          };
+          
+          // Save to Firebase
+          const firebaseDoc = await addDoc(collection(db, "customers"), firebaseData);
+          
+          // Update local state with Firebase document ID
+          const updatedFirebaseData = {
+            id: firebaseDoc.id,
+            ...firebaseData
+          };
+          
+          setCustomerData(updatedFirebaseData);
+          setIsExistingCustomer(true);
+          
+          console.log('Customer saved to Firebase with ID:', firebaseDoc.id);
+        } catch (firebaseErr) {
+          console.warn('Firebase save failed, but customer was created in backend:', firebaseErr);
+        }
+        
+        dispatch(setShowMessage({
+          message: t("createAccount.accountCreatedSuccess"),
+          color: "green"
+        }));
 
-      if (onComplete) {
-        onComplete(newCustomerData);
+        if (onComplete) {
+          onComplete(newCustomerData);
+        }
+      } else {
+        throw new Error('Invalid response format from backend');
       }
 
     } catch (err: any) {
-      console.error('Error:', err);
-      const errorMessage = err.response?.data?.message || t("createAccount.failedToCreateAccount");
+      console.error('Error creating customer:', err);
+      const errorMessage = err.response?.data?.message || err.message || t("createAccount.failedToCreateAccount");
       dispatch(setShowMessage({
         message: errorMessage,
         color: "red"

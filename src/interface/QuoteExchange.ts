@@ -1,3 +1,5 @@
+export type QuoteStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'expired' | 'reversed' | 'pending_confirmation';
+
 export interface QuoteResponse {
   id: string;
   source_amount: number;
@@ -11,10 +13,11 @@ export interface QuoteResponse {
     currency: string;
     account_id: string;
   };
-  status: string;
+  status: QuoteStatus;
   created_at: string;
   expires_at: string;
   total_fees: number;
+  error_reason?: string;
 }
 
 export interface ExchangeRateResponse {
