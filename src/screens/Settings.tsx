@@ -46,9 +46,7 @@ const MyAccount: React.FC = () => {
     navigate("/privacy-policy");
   };
 
-  const navigateToExternalUsdcAddress = () => {
-    navigate("/external-usdc-address");
-  };
+
 
   const navigateBack = () => {
     navigate(-1);
@@ -86,20 +84,6 @@ const MyAccount: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="space-y-6">
-                {/* External USDC Address Section */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="external-usdc" className="text-lg font-medium">{t('settings.externalUsdcAddressTitle')}</Label>
-                    <p className="text-sm text-gray-400 mt-1">{t('settings.externalUsdcAddressDescription')}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={navigateToExternalUsdcAddress}
-                    className="px-6 bg-gray-800/50 border-gray-700 hover:bg-gray-700"
-                  >
-                    {t('settings.openButton')}
-                  </Button>
-                </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-800">
                   <div>
