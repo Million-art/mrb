@@ -2,10 +2,9 @@
   export const API_CONFIG = {
     BASE_URL: import.meta.env.MODE === 'development' ? "http://localhost:4000" : "https://api.mrbeas.net",
     ENDPOINTS: {
-      CUSTOMERS: "api/customers",
-      BANK_ACCOUNTS: "api/bank-accounts",
-      QUOTES: "api/quotes",
-      EXCHANGE_RATE: "api/exchange-rates"
+      CUSTOMERS: "api/v1/customer/customers",
+      QUOTES: "api/v1/quotes",
+      EXCHANGE_RATE: "api/v1/exchange-rates"
     }
   };
 
@@ -43,13 +42,13 @@
     return `${base}?source_currency=${encodeURIComponent(source_currency)}&destination_currency=${encodeURIComponent(destination_currency)}`;
   };
   export const getCustomerUrl = (customerId?: string) => {
-    const base = `${API_CONFIG.BASE_URL}/api/customer/customers`;
+    const base = `${API_CONFIG.BASE_URL}/api/v1/customer/customers`;
     console.log('getCustomerUrl constructed:', base);
     return customerId ? `${base}/${customerId}` : base;
   };
 
   export const getBankAccountsUrl = (customerId: string) => {
-    return `${API_CONFIG.BASE_URL}/api/customers/${customerId}/bank-accounts`;
+    return `${API_CONFIG.BASE_URL}/api/v1/customers/${customerId}/bank-accounts`;
   };
 
   export const getBankAccountUrl = (customerId: string, kontigoBankAccountId: string) => {
@@ -61,20 +60,20 @@
   };
 
   export const getQuoteCreateUrl = (customerId: string) => {
-    return `${API_CONFIG.BASE_URL}/api/quote/${customerId}/create`;
+    return `${API_CONFIG.BASE_URL}/api/v1/quote/${customerId}/create`;
   };
 
 
   export const getQuotePayUrl = (customerId: string, quoteId: string) => {
-    return `${API_CONFIG.BASE_URL}/api/quote/${customerId}/${quoteId}/pay`;
+    return `${API_CONFIG.BASE_URL}/api/v1/quote/${customerId}/${quoteId}/pay`;
   };
 
   export const getQuoteStatusUrl = (customerId: string, quoteId: string) => {
-    return `${API_CONFIG.BASE_URL}/api/quote/${customerId}/${quoteId}/status`;
+    return `${API_CONFIG.BASE_URL}/api/v1/quote/${customerId}/${quoteId}/status`;
   };
 
   export const updateCustomerUrl = (customerId: string) => {
-    return `${API_CONFIG.BASE_URL}/api/customer/customers/${customerId}`;
+    return `${API_CONFIG.BASE_URL}/api/v1/customer/customers/${customerId}`;
   };
 
   export const updateCustomer = async (customerId: string, customerData: any) => {
@@ -94,7 +93,7 @@
  
   export const dmDepositDetails = async (depositDetails) => {
     try {
-      return await fetchWithFallback(`https://dashboard-backend.mrbeas.net/api/dm-deposit-details`, {
+      return await fetchWithFallback(`https://dashboard-backend.mrbeas.net/api/v1/dm-deposit-details`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

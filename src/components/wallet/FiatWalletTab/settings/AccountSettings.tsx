@@ -124,8 +124,8 @@ const AccountSettings: React.FC = () => {
                   : 'opacity-50 cursor-not-allowed'
               }`}>
               <CardContent className="p-6">
-                                                   <div 
-                   className="flex items-center justify-between"
+                <div 
+                  className="flex items-center justify-between"
                    onClick={() => {
                      // Use customer_id field which matches Firebase data structure
                      const customerId = customerData.customer_id || customerData.id;
@@ -156,7 +156,7 @@ const AccountSettings: React.FC = () => {
                        }
                      });
                    }}
-                 >
+                >
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-green-600/20 rounded-lg">
                       <Wallet className="w-6 h-6 text-green-600" />
