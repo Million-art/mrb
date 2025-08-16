@@ -69,10 +69,10 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
           return;
         }
 
-                 const q = query(
-           collection(db, "customers"),
+        const q = query(
+          collection(db, "customers"),
            where("external_id", "==", String(telegramId))
-         );
+        );
 
         const querySnapshot = await getDocs(q);
         
@@ -325,14 +325,14 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         const successMessage = requiresBankAccountLinking(formData.country)
           ? `${t("createAccount.accountCreatedSuccess")} ${t("createAccount.linkBankAccountReminder") || "Please link a bank account next."}`
           : t("createAccount.accountCreatedSuccess");
-          
-        dispatch(setShowMessage({
-          message: successMessage,
-          color: "green"
-        }));
 
-        if (onComplete) {
-          onComplete(newCustomerData);
+      dispatch(setShowMessage({
+          message: successMessage,
+        color: "green"
+      }));
+
+      if (onComplete) {
+        onComplete(newCustomerData);
         }
         
         // For Venezuela customers, redirect to create bank account page
@@ -399,15 +399,15 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
           </div>
         )}
         
-        <Button
+          <Button
           onClick={() => handleCreateBankAccount(customerData)}
-          className="bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors"
-        >
+            className="bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors"
+          >
           {needsBankAccountLinking(customerData) 
             ? t("createAccount.linkBankAccount") || "Link Bank Account"
             : t("createAccount.continueToBankAccount") || "Continue"
           }
-        </Button>
+          </Button>
       </div>
     );
   }

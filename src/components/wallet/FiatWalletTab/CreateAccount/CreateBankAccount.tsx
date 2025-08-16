@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/stonfi/ui/button";
 import { Input } from "@/components/stonfi/ui/input";
 import { Label } from "@/components/stonfi/ui/label";
-import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/libs/firebase";
+import axios from "axios";
+import { getBankAccountsUrl } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { Copy, Check, X, Loader2 } from "lucide-react";
@@ -190,28 +190,30 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
 
 
 
-        // Query Firebase for existing bank accounts
-        const bankAccountsRef = collection(db, "bank_accounts");
-        const q = query(bankAccountsRef, where("customer_id", "==", customerId));
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-          const bankAccountData = querySnapshot.docs[0].data();
-          const bankAccount: BankAccount = {
-            id: querySnapshot.docs[0].id,
-            bank_code: bankAccountData.bank_code || '',
-            id_doc_number: bankAccountData.id_doc_number || '',
-            phone_number: bankAccountData.phone_number || null,
-            account_type: bankAccountData.account_type || '',
-            account_number: bankAccountData.account_number || '',
-            customer_id: bankAccountData.customer_id || '',
-            bankAccountId: querySnapshot.docs[0].id,
-            createdAt: bankAccountData.createdAt || bankAccountData.created_at || ''
-          };
-          console.log('Setting bank account from Firebase:', bankAccount);
-          setBankAccount(bankAccount);
-          setDisplayMode('details');
-        } else {
+        // Query backend API for existing bank accounts
+        try {
+          const response = await axios.get(getBankAccountsUrl(customerId));
+          if (response.data && response.data.length > 0) {
+            const bankAccountData = response.data[0];
+            const bankAccount: BankAccount = {
+              id: bankAccountData.id || bankAccountData.bankAccountId,
+              bank_code: bankAccountData.bank_code || '',
+              id_doc_number: bankAccountData.id_doc_number || '',
+              phone_number: bankAccountData.phone_number || null,
+              account_type: bankAccountData.account_type || '',
+              account_number: bankAccountData.account_number || '',
+              customer_id: bankAccountData.customer_id || '',
+              bankAccountId: bankAccountData.bankAccountId || bankAccountData.id,
+              createdAt: bankAccountData.createdAt || bankAccountData.created_at || ''
+            };
+            console.log('Setting bank account from backend:', bankAccount);
+            setBankAccount(bankAccount);
+            setDisplayMode('details');
+          } else {
+            setDisplayMode('form');
+          }
+        } catch (error) {
+          console.log('No existing bank accounts found, showing form');
           setDisplayMode('form');
         }
       } catch (err) {
@@ -238,9 +240,8 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     if (!bankAccount) return;
     
     try {
-      // Delete from Firebase
-      const bankAccountRef = doc(db, "bank_accounts", bankAccount.id);
-      await deleteDoc(bankAccountRef);
+      // Delete from backend API
+      await axios.delete(`${getBankAccountsUrl(customerId)}/${bankAccount.id}`);
       
       setBankAccount(null);
       setShowDeleteConfirm(false);
@@ -250,7 +251,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
         color: "green"
       }));
     } catch (error) {
-      console.error('Error deleting bank account from Firebase:', error);
+      console.error('Error deleting bank account from backend:', error);
       dispatch(setShowMessage({
         message: t("createBankAccount.failedToDeleteBankAccount"),
         color: "red"
@@ -287,29 +288,28 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     setLoading(true);
 
     try {
-      // Save to Firebase instead of backend API
+      // Send to backend API
       const bankAccountData = {
         bank_code: formData.bank_code,
         id_doc_number: formData.id_doc_number.toUpperCase(),
         account_type: formData.account_type,
-        account_number: formData.phone_number || '', // Map phone_number to account_number, ensure string
-        customer_id: customerId,
-        createdAt: new Date().toISOString()
+        account_number: formData.phone_number || '', // Map phone_number to account_number
+        customer_id: customerId
       };
       
-      const docRef = await addDoc(collection(db, "bank_accounts"), bankAccountData);
+      const response = await axios.post(getBankAccountsUrl(customerId), bankAccountData);
       
-      // Create bank account object with the generated ID
+      // Create bank account object from backend response
       const newBankAccount: BankAccount = {
-        id: docRef.id,
-        bank_code: bankAccountData.bank_code,
-        id_doc_number: bankAccountData.id_doc_number,
+        id: response.data.id || response.data.bankAccountId,
+        bank_code: response.data.bank_code,
+        id_doc_number: response.data.id_doc_number,
         phone_number: formData.phone_number,
-        account_type: bankAccountData.account_type,
-        account_number: bankAccountData.account_number,
-        customer_id: bankAccountData.customer_id,
-        bankAccountId: docRef.id,
-        createdAt: bankAccountData.createdAt
+        account_type: response.data.account_type,
+        account_number: response.data.account_number,
+        customer_id: response.data.customer_id,
+        bankAccountId: response.data.bankAccountId || response.data.id,
+        createdAt: response.data.createdAt || new Date().toISOString()
       };
       
       setBankAccount(newBankAccount);
