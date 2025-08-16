@@ -4,8 +4,10 @@ import { Button } from "@/components/stonfi/ui/button";
 import { ArrowLeft, Plus, Trash2, Copy, Check, Loader2, Wallet, X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
-import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/libs/firebase";
+import axios from "axios";
+import { getBankAccountsUrl } from "@/config/api";
 
 interface BankAccount {
   id: string;
@@ -101,23 +103,23 @@ const BankAccountManagement = () => {
 
   const confirmDelete = async () => {
     if (!accountToDelete) return;
-
+    
     setDeletingId(accountToDelete.id);
     try {
-      // Delete from Firebase
-      const bankAccountRef = doc(db, "bank_accounts", accountToDelete.id);
-      await deleteDoc(bankAccountRef);
+      // Delete from backend API
+      await axios.delete(`${getBankAccountsUrl(accountToDelete.customer_id)}/${accountToDelete.id}`);
       
-      // Update local state
+      // Remove from local state
       setBankAccounts(prev => prev.filter(acc => acc.id !== accountToDelete.id));
       
-      dispatch(setShowMessage({
+      // Show success message
+      dispatch(setShowMessage({ 
         message: "Bank account deleted successfully",
         color: "green"
       }));
     } catch (error) {
-      console.error('Error deleting bank account from Firebase:', error);
-      dispatch(setShowMessage({
+      console.error('Error deleting bank account:', error);
+      dispatch(setShowMessage({ 
         message: "Failed to delete bank account",
         color: "red"
       }));
@@ -127,6 +129,8 @@ const BankAccountManagement = () => {
       setAccountToDelete(null);
     }
   };
+
+
 
   const cancelDelete = () => {
     setShowDeleteConfirm(false);
