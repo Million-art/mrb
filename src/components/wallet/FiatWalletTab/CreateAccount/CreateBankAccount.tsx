@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/stonfi/ui/button";
 import { Input } from "@/components/stonfi/ui/input";
 import { Label } from "@/components/stonfi/ui/label";
-import axios from "axios";
+import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/libs/firebase";
 import { useDispatch } from "react-redux";
 import { setShowMessage } from "@/store/slice/messageSlice";
 import { Copy, Check, X, Loader2 } from "lucide-react";
-import { getBankAccountsUrl } from "@/config/api";
 import { useTranslation } from "react-i18next";
-import { deleteBankAccount, type BankAccountData } from "@/lib/bankAccountService";
 
 interface BankAccountFormData {
   bank_code: string;
@@ -17,10 +17,16 @@ interface BankAccountFormData {
   account_type: 'bank_account_ve' | 'pagomovil';
 }
 
-interface BankAccount extends BankAccountData {
+interface BankAccount {
+  id: string;
   bank_code: string;
   id_doc_number: string;
   phone_number: string | null;
+  account_type: string;
+  account_number: string;
+  customer_id: string;
+  bankAccountId: string;
+  createdAt?: string;
 }
 
 interface CreateBankAccountProps {
@@ -111,7 +117,7 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading, t 
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-400">{t("createBankAccount.bankAccountId")}</p>
-          <p className="text-lg font-medium">{bankAccount.kontigoBankAccountId}</p>
+          <p className="text-lg font-medium">{bankAccount.bankAccountId}</p>
         </div>
         <button
           onClick={onCopy}
@@ -154,6 +160,8 @@ const BankAccountDetails = ({ bankAccount, onCopy, copied, onDelete, loading, t 
 export default function CreateBankAccount({ customerId, showLoader = true, customerPhone, onComplete, forceFormDisplay = false }: CreateBankAccountProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
   const [copied, setCopied] = useState(false);
@@ -182,13 +190,26 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
 
 
 
-        const response = await axios.get(getBankAccountsUrl(customerId));
-        console.log('Bank accounts response:', response.data);
+        // Query Firebase for existing bank accounts
+        const bankAccountsRef = collection(db, "bank_accounts");
+        const q = query(bankAccountsRef, where("customer_id", "==", customerId));
+        const querySnapshot = await getDocs(q);
         
-        if (response.data && response.data.length > 0) {
-          const bankAccountData = response.data[0];
-          console.log('Setting bank account:', bankAccountData);
-          setBankAccount(bankAccountData);
+        if (!querySnapshot.empty) {
+          const bankAccountData = querySnapshot.docs[0].data();
+          const bankAccount: BankAccount = {
+            id: querySnapshot.docs[0].id,
+            bank_code: bankAccountData.bank_code || '',
+            id_doc_number: bankAccountData.id_doc_number || '',
+            phone_number: bankAccountData.phone_number || null,
+            account_type: bankAccountData.account_type || '',
+            account_number: bankAccountData.account_number || '',
+            customer_id: bankAccountData.customer_id || '',
+            bankAccountId: querySnapshot.docs[0].id,
+            createdAt: bankAccountData.createdAt || bankAccountData.created_at || ''
+          };
+          console.log('Setting bank account from Firebase:', bankAccount);
+          setBankAccount(bankAccount);
           setDisplayMode('details');
         } else {
           setDisplayMode('form');
@@ -207,7 +228,7 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
 
   const handleCopy = async () => {
     if (bankAccount) {
-      await navigator.clipboard.writeText(bankAccount.kontigoBankAccountId);
+      await navigator.clipboard.writeText(bankAccount.bankAccountId || bankAccount.id);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -216,25 +237,25 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
   const handleDelete = async () => {
     if (!bankAccount) return;
     
-    await deleteBankAccount({
-      customerId,
-      bankAccountData: bankAccount,
-      setLoading,
-      dispatch,
-      t,
-      onSuccess: () => {
-        setBankAccount(null);
-        setShowDeleteConfirm(false);
-        setDisplayMode('form');
-        dispatch(setShowMessage({
-          message: t("createBankAccount.bankAccountDeletedSuccess"),
-          color: "green"
-        }));
-      },
-      onError: (err) => {
-        handleApiError(err, dispatch, t("createBankAccount.failedToDeleteBankAccount"));
-      }
-    });
+    try {
+      // Delete from Firebase
+      const bankAccountRef = doc(db, "bank_accounts", bankAccount.id);
+      await deleteDoc(bankAccountRef);
+      
+      setBankAccount(null);
+      setShowDeleteConfirm(false);
+      setDisplayMode('form');
+      dispatch(setShowMessage({
+        message: t("createBankAccount.bankAccountDeletedSuccess"),
+        color: "green"
+      }));
+    } catch (error) {
+      console.error('Error deleting bank account from Firebase:', error);
+      dispatch(setShowMessage({
+        message: t("createBankAccount.failedToDeleteBankAccount"),
+        color: "red"
+      }));
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -266,16 +287,52 @@ export default function CreateBankAccount({ customerId, showLoader = true, custo
     setLoading(true);
 
     try {
-      const response = await axios.post(getBankAccountsUrl(customerId), {
-        ...formData,
-        id_doc_number: formData.id_doc_number.toUpperCase()
-      });
-      setBankAccount(response.data);
+      // Save to Firebase instead of backend API
+      const bankAccountData = {
+        bank_code: formData.bank_code,
+        id_doc_number: formData.id_doc_number.toUpperCase(),
+        account_type: formData.account_type,
+        account_number: formData.phone_number || '', // Map phone_number to account_number, ensure string
+        customer_id: customerId,
+        createdAt: new Date().toISOString()
+      };
+      
+      const docRef = await addDoc(collection(db, "bank_accounts"), bankAccountData);
+      
+      // Create bank account object with the generated ID
+      const newBankAccount: BankAccount = {
+        id: docRef.id,
+        bank_code: bankAccountData.bank_code,
+        id_doc_number: bankAccountData.id_doc_number,
+        phone_number: formData.phone_number,
+        account_type: bankAccountData.account_type,
+        account_number: bankAccountData.account_number,
+        customer_id: bankAccountData.customer_id,
+        bankAccountId: docRef.id,
+        createdAt: bankAccountData.createdAt
+      };
+      
+      setBankAccount(newBankAccount);
       setDisplayMode('details');
       dispatch(setShowMessage({
         message: t("createBankAccount.bankAccountCreatedSuccess"),
         color: "green"
       }));
+      
+      // Check if user came from bank account management page
+      const fromBankAccountManagement = location.state?.fromBankAccountManagement;
+      if (fromBankAccountManagement) {
+        // Redirect back to bank account management page after a short delay
+        setTimeout(() => {
+          navigate(`/bank-accounts/${customerId}`, {
+            state: {
+              customerId: customerId,
+              customerData: location.state?.customerData,
+              fromSettings: location.state?.fromSettings
+            }
+          });
+        }, 1500);
+      }
       
       // Call onComplete if provided
       if (onComplete) {

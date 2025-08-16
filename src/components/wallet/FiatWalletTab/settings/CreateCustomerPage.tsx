@@ -68,7 +68,7 @@ const CreateCustomerPage = () => {
         <h1 className="text-xl font-bold">{t("createCustomerPage.title")}</h1>
         <div className="w-6" />
       </div>
-      <CreateAccount onComplete={(data) => navigate(`/create-bank-account/${data.kontigoCustomerId}/${data.phone_number}`)} />
+      <CreateAccount onComplete={(data) => navigate(`/create-bank-account/${data.customer_id}/${data.phone_number}`)} />
     </div>
   );
 };
