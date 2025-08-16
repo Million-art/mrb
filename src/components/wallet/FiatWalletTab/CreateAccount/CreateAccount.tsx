@@ -15,6 +15,7 @@ import { setShowMessage } from "@/store/slice/messageSlice";
 import { getCustomerUrl } from "@/config/api";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 interface CustomerData {
   id: string;
@@ -22,8 +23,9 @@ interface CustomerData {
   email: string;
   phone_number: string;
   type: string;
-  kontigoCustomerId: string;
+  customer_id: string; // Changed from kontigoCustomerId to customer_id
   country: string;
+  hasBankAccount?: boolean;
 }
 
 interface FormData {
@@ -41,10 +43,12 @@ interface CreateAccountProps {
 const CreateAccount = ({ onComplete }: CreateAccountProps) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isExistingCustomer, setIsExistingCustomer] = useState(false);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [hasInteractedWithPhone, setHasInteractedWithPhone] = useState(false);
@@ -65,10 +69,10 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
           return;
         }
 
-        const q = query(
-          collection(db, "customers"),
-          where("telegram_id", "==", String(telegramId))
-        );
+                 const q = query(
+           collection(db, "customers"),
+           where("external_id", "==", String(telegramId))
+         );
 
         const querySnapshot = await getDocs(q);
         
@@ -105,6 +109,32 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
       'United Kingdom': 'GB'
     };
     return countryMap[countryName] || countryName;
+  };
+
+  // Check if a country requires bank account linking
+  const requiresBankAccountLinking = (countryName: string): boolean => {
+    return countryName === 'Venezuela';
+  };
+
+  // Check if a customer needs to complete bank account linking
+  const needsBankAccountLinking = (customerData: CustomerData | null): boolean => {
+    if (!customerData) return false;
+    return requiresBankAccountLinking(customerData.country) && !customerData.hasBankAccount;
+  };
+
+  // Handle redirect to create bank account
+  const handleCreateBankAccount = (customerData: CustomerData) => {
+    if (needsBankAccountLinking(customerData)) {
+      navigate(`/create-bank-account/${customerData.customer_id}/${customerData.phone_number}`, { 
+        state: { 
+          customerId: customerData.customer_id,
+          customerData: customerData,
+          fromCustomerCreation: false
+        }
+      });
+    } else if (onComplete) {
+      onComplete(customerData);
+    }
   };
 
   const getPhoneNumberError = (phone: string, country: string) => {
@@ -200,6 +230,16 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
       return;
     }
 
+    // Venezuela customers must link a bank account
+    if (formData.country === 'Venezuela') {
+      dispatch(setShowMessage({
+        message: t("createAccount.venezuelaBankAccountRequired") || "Venezuela customers must link a bank account after creation",
+        color: "yellow"
+      }));
+      
+      // Continue with customer creation, but show warning about bank account requirement
+    }
+
     const phoneError = getPhoneNumberError(formData.phone_number, formData.country);
     if (phoneError) {
       dispatch(setShowMessage({
@@ -232,24 +272,37 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
       });
 
       console.log('Customer creation response:', response.data);
+      console.log('=== BACKEND RESPONSE DEBUG ===');
+      console.log('Full response data:', response.data);
+      console.log('Response data.data:', response.data?.data);
+      console.log('Response data.id:', response.data?.id);
+      console.log('Response data.customer_id:', response.data?.customer_id);
+      console.log('Response data.data?.id:', response.data?.data?.id);
+      console.log('Response data.data?.customer_id:', response.data?.data?.customer_id);
+      console.log('=== END BACKEND DEBUG ===');
 
       // Handle both success formats: {success: true, data: {...}} and direct data
       const newCustomerData = response.data?.data || response.data;
-      
+     
       if (newCustomerData && (newCustomerData.id || newCustomerData.customer_id)) {
         
         // Also save to Firebase for frontend consistency
         try {
-          const firebaseData = {
-            legal_name: formData.legal_name,
-            email: formData.email,
-            phone_number: formData.phone_number,
-            type: formData.type,
-            country: formData.country,
-            telegram_id: String(telegramId),
-            kontigoCustomerId: newCustomerData.customer_id || newCustomerData.id,
-            created_at: new Date().toISOString()
-          };
+                     const firebaseData = {
+             legal_name: formData.legal_name,
+             email: formData.email,
+             phone_number: formData.phone_number,
+             type: formData.type,
+             country: formData.country,
+             external_id: String(telegramId),
+             customer_id: newCustomerData.customer_id || newCustomerData.id, // Changed from kontigoCustomerId to customer_id
+             created_at: new Date().toISOString()
+           };
+          
+          console.log('=== FIREBASE SAVE DEBUG ===');
+          console.log('Saving to Firebase:', firebaseData);
+          console.log('customer_id being saved:', firebaseData.customer_id);
+          console.log('=== END FIREBASE DEBUG ===');
           
           // Save to Firebase
           const firebaseDoc = await addDoc(collection(db, "customers"), firebaseData);
@@ -268,13 +321,38 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
           console.warn('Firebase save failed, but customer was created in backend:', firebaseErr);
         }
         
+        // Show success message with bank account reminder for countries that require it
+        const successMessage = requiresBankAccountLinking(formData.country)
+          ? `${t("createAccount.accountCreatedSuccess")} ${t("createAccount.linkBankAccountReminder") || "Please link a bank account next."}`
+          : t("createAccount.accountCreatedSuccess");
+          
         dispatch(setShowMessage({
-          message: t("createAccount.accountCreatedSuccess"),
+          message: successMessage,
           color: "green"
         }));
 
         if (onComplete) {
           onComplete(newCustomerData);
+        }
+        
+        // For Venezuela customers, redirect to create bank account page
+        if (formData.country === 'Venezuela') {
+          setIsRedirecting(true);
+          dispatch(setShowMessage({
+            message: "Account created! Redirecting to bank account creation...",
+            color: "blue"
+          }));
+          
+          // Redirect to create bank account page after a short delay
+          setTimeout(() => {
+            navigate(`/create-bank-account/${newCustomerData.customer_id || newCustomerData.id}/${formData.phone_number}`, { 
+              state: { 
+                customerId: newCustomerData.customer_id || newCustomerData.id,
+                customerData: newCustomerData,
+                fromCustomerCreation: true
+              }
+            });
+          }, 2000); // 2 second delay to show the message
         }
       } else {
         throw new Error('Invalid response format from backend');
@@ -311,21 +389,31 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
         <p className="text-gray-400 mb-6">
           {t("createAccount.existingAccountMessage")}
         </p>
-        {onComplete && (
-          <Button
-            onClick={() => onComplete(customerData)}
-            className="bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors"
-          >
-            {t("createAccount.continueToBankAccount")}
-          </Button>
+         
+        {/* Show bank account requirement for Venezuela customers */}
+        {needsBankAccountLinking(customerData) && (
+          <div className="p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg mb-4">
+            <p className="text-sm text-yellow-400">
+              ⚠️ You need to link a bank account to continue using the service.
+            </p>
+          </div>
         )}
+        
+        <Button
+          onClick={() => handleCreateBankAccount(customerData)}
+          className="bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors"
+        >
+          {needsBankAccountLinking(customerData) 
+            ? t("createAccount.linkBankAccount") || "Link Bank Account"
+            : t("createAccount.continueToBankAccount") || "Continue"
+          }
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="space-y-2 mb-24">
-
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="legal_name">{t("createAccount.legalNameLabel")}</Label>
@@ -432,16 +520,30 @@ const CreateAccount = ({ onComplete }: CreateAccountProps) => {
             </div>
           )}
         </div>
+         
+        {/* Bank account requirement warning */}
+        {requiresBankAccountLinking(formData.country) && (
+          <div className="p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+            <p className="text-sm text-yellow-400">
+              ⚠️ {t("createAccount.venezuelaBankAccountWarning") || "Venezuela customers must link a bank account after account creation"}
+            </p>
+          </div>
+        )}
 
         <Button
           onClick={handleSubmit}
           className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-light transition-colors flex items-center justify-center"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isRedirecting}
         >
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {t("createAccount.creating")}
+            </>
+          ) : isRedirecting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Redirecting...
             </>
           ) : (
             t("createAccount.createAccountButton")
