@@ -1,6 +1,6 @@
   // API Configuration
   export const API_CONFIG = {
-    BASE_URL: import.meta.env.MODE === 'development' ? "http://localhost:4000" : "https://api.mrbeas.net",
+    BASE_URL: import.meta.env.MODE === 'development' ? "http://localhost:4000" : process.env.API_BASE_URL || "https://dashboard-backend.mrbeas.net",
     ENDPOINTS: {
       CUSTOMERS: "api/v1/customer/customers",
       QUOTES: "api/v1/quotes",
