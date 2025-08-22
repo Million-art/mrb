@@ -8,13 +8,7 @@
     }
   };
 
-  // Debug logging
-  console.log('API_CONFIG loaded:', {
-    MODE: import.meta.env.MODE,
-    BASE_URL: API_CONFIG.BASE_URL,
-    ENDPOINTS: API_CONFIG.ENDPOINTS
-  });
-
+ 
   // Helper function to handle API calls with fallback
   export const fetchWithFallback = async (url: string, options?: RequestInit) => {
     try {

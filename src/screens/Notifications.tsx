@@ -37,7 +37,7 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_CONFIG.BASE_URL}/notifications/${telegramId}`);
+      const response = await axios.get(`${API_CONFIG.BASE_URL}/api/v1/notifications/${telegramId}`);
       if (response.data?.success) {
         setNotifications(response.data.data);
       }
@@ -55,7 +55,7 @@ const Notifications = () => {
   const markAsRead = async (notificationId: string) => {
     try {
       setMarkingAsRead(notificationId);
-      await axios.post(`${API_CONFIG.BASE_URL}/notifications/${notificationId}/read`);
+      await axios.post(`${API_CONFIG.BASE_URL}/api/v1/notifications/${notificationId}/read`);
       
       // Update local state
       setNotifications(prev => 
@@ -78,7 +78,7 @@ const Notifications = () => {
 
   const markAllAsRead = async () => {
     try {
-      await axios.post(`${API_CONFIG.BASE_URL}/notifications/${telegramId}/read-all`);
+      await axios.post(`${API_CONFIG.BASE_URL}/api/v1/notifications/${telegramId}/read-all`);
       
       // Update local state
       setNotifications(prev => 
